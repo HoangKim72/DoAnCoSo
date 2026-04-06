@@ -1,0 +1,19 @@
+{
+  "evaluated_at": "2026-04-06T07:48:23+07:00",
+  "input_path": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\vn_real_world_phishing_seed.csv",
+  "details_path": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\phishing_official\\vn_real_world_phishing_seed_detailed_20260406_074823.csv",
+  "evaluation_mode": "phishing_only",
+  "total_cases": 30,
+  "matched_cases": 25,
+  "match_rate": 0.8333333333333334,
+  "false_positives": 0,
+  "false_positive_rate": 0.0,
+  "false_negatives": 5,
+  "false_negative_rate": 0.16666666666666666,
+  "errors": 0,
+  "artifacts": {
+    "by_dataset_kind": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\phishing_official\\vn_real_world_phishing_seed_by_dataset_kind_20260406_074823.csv",
+    "by_priority": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\phishing_official\\vn_real_world_phishing_seed_by_priority_20260406_074823.csv",
+    "by_category": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\phishing_official\\vn_real_world_phishing_seed_by_category_20260406_074823.csv"
+  }
+}

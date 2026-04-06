@@ -1,0 +1,31 @@
+sample_id,category,dataset_kind,input_value,expected_label,priority,note
+B001,university,domain,hutech.edu.vn,benign,high,Official university apex domain in Vietnam and a known false-positive discussion case.
+B002,university_portal,domain,hocvudientu.hutech.edu.vn,benign,critical,Official academic portal subdomain; high-value false-positive check.
+B003,university_portal,domain,sinhvien1.hutech.edu.vn,benign,critical,Official student portal subdomain; high-value false-positive check.
+B004,university_portal,domain,daotao.hutech.edu.vn,benign,high,Official training portal style subdomain for HUTECH.
+B005,university_portal,domain,mail.hutech.edu.vn,benign,high,Official mail-style university subdomain; useful for testing subdomain bias.
+B006,university,domain,hcmut.edu.vn,benign,medium,Official Ho Chi Minh City University of Technology domain.
+B007,university,domain,hcmus.edu.vn,benign,medium,Official University of Science VNU-HCM domain.
+B008,university_portal,domain,portal.hcmus.edu.vn,benign,high,Official student/support portal subdomain listed on HCMUS site.
+B009,university,domain,vnuhcm.edu.vn,benign,medium,Official Vietnam National University Ho Chi Minh City domain.
+B010,government,domain,chinhphu.vn,benign,high,Official Government of Vietnam portal domain.
+B011,government,domain,moet.gov.vn,benign,high,Official Ministry of Education and Training domain.
+B012,banking,domain,vietcombank.com.vn,benign,high,Official Vietcombank domain.
+B013,banking,domain,acb.com.vn,benign,high,Official ACB bank domain.
+B014,banking,domain,techcombank.com,benign,high,Official Techcombank domain.
+B015,ecommerce,domain,cellphones.com.vn,benign,medium,Large Vietnamese ecommerce/retail domain already used in manual testing.
+U001,university_portal,url,https://hocvudientu.hutech.edu.vn/dang-nhap?ReturnUrl=%2F,benign,critical,Official academic login URL and a key false-positive case.
+U002,university_portal,url,https://sinhvien1.hutech.edu.vn/elearning/hoc-vu/lich-thi,benign,critical,Official student portal URL and a key false-positive case.
+U003,university_portal,url,https://daotao.hutech.edu.vn/,benign,high,Official training portal URL.
+U004,university_portal,url,https://portal.hcmus.edu.vn/,benign,high,Official HCMUS student portal URL.
+U005,university_portal,url,https://hocphi.hcmus.edu.vn/,benign,high,Official tuition/payment portal URL from HCMUS.
+U006,government,url,https://chinhphu.vn/,benign,high,Official Government portal homepage.
+U007,government,url,https://moet.gov.vn/,benign,high,Official Ministry portal homepage.
+U008,banking,url,https://www.vietcombank.com.vn/,benign,high,Official Vietcombank homepage.
+U009,banking,url,https://www.acb.com.vn/,benign,high,Official ACB homepage.
+U010,banking,url,https://www.techcombank.com/,benign,high,Official Techcombank homepage.
+U011,ecommerce,url,https://www.tiki.vn/,benign,medium,Major Vietnamese ecommerce homepage.
+U012,ecommerce,url,https://www.cellphones.com.vn/,benign,medium,Large Vietnamese retail/ecommerce homepage.
+U013,ecommerce,url,https://www.thegioididong.com/,benign,medium,Major Vietnamese retail/ecommerce homepage.
+U014,ecommerce,url,https://shopee.vn/,benign,medium,Well-known ecommerce homepage used widely in Vietnam.
+U015,media,url,https://vnexpress.net/,benign,medium,Mainstream Vietnamese news site homepage.

@@ -1,0 +1,7 @@
+category,total_cases,predicted_benign,predicted_phishing,false_positives,errors,average_score,false_positive_rate
+banking,6,6,0,0,0,0.021495,0.0
+ecommerce,5,5,0,0,0,0.017171600000000002,0.0
+government,4,4,0,0,0,0.09683775,0.0
+media,1,1,0,0,0,0.381365,0.0
+university,4,4,0,0,0,0.02262275,0.0
+university_portal,10,3,7,7,0,0.6104938,0.7

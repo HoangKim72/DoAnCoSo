@@ -1,15 +1,10 @@
-# Official Hybrid Configurations
+# Official Model Configurations
 
 ## 1. Muc tieu
 
 File nay chot `2` cau hinh chinh thuc cua du an sau qua trinh thu nghiem.
 
 Tu thoi diem nay:
-
-- `Hybrid = Logistic Regression + XGBoost + ANN`
-- se duoc coi la model mac dinh cho ca `Domain Model` va `URL Model`
-
-Dong thoi:
 
 - van giu lai ket qua benchmark cua tat ca cac model da chay
 - de phuc vu bao cao, so sanh va doi chieu sau nay
@@ -22,10 +17,10 @@ Dong thoi:
 
 Cau hinh official:
 
-- Variant: `from_2025_04_07_global_under`
+- Variant: `from_2025_04_07_global_under_plus_vn_benign_domain_addon`
 - Frozen dataset: `data/processed/official/domain_model_official.parquet`
-- Tong so dong: `54,042`
-- Benign: `27,021`
+- Tong so dong: `54,191`
+- Benign: `27,170`
 - Phishing: `27,021`
 - So feature: `15`
 - Default model: `hybrid_lr_xgboost_ann`
@@ -40,9 +35,9 @@ Artifact mac dinh:
 
 Metric chinh cua official `Hybrid`:
 
-- Validation `PR-AUC`: `0.9821`
-- Test `PR-AUC`: `0.9846`
-- Test `F1`: `0.9318`
+- Validation `PR-AUC`: `0.9827`
+- Test `PR-AUC`: `0.9850`
+- Test `F1`: `0.9038`
 
 ### URL Model
 

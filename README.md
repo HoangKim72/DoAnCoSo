@@ -18,6 +18,7 @@ data/
     phishtank/
     openphish/
     openphish_snapshots/
+    vn_benign_domain_addon/
     news_sitemaps/
     tranco/
   processed/
@@ -32,6 +33,7 @@ src/
   build_domain_dataset.py
   build_url_dataset.py
   train_baselines.py
+  run_ids_dashboard.py
 ```
 
 ## Quy trinh khuyen nghi
@@ -75,6 +77,51 @@ python src/download_data.py --sources news_sitemaps --news-lookback-days 7 --new
 - `models/url/test_metrics.csv`
 - `models/url/model_comparison.csv`
 - `models/url/run_summary.json`
+- `data/runtime/ids_events.jsonl`
+
+## IDS va Dashboard
+
+Repo hien da co app nhe de:
+
+- nhan `domain` hoac `URL` tu IDS
+- suy luan bang `official models`
+- luu lich su su kien
+- hien thi dashboard de theo doi canh bao
+
+Chay local:
+
+```bash
+python src/run_ids_dashboard.py --host 127.0.0.1 --port 8080
+```
+
+Mo dashboard:
+
+```text
+http://127.0.0.1:8080/dashboard
+```
+
+API cho IDS:
+
+- `POST /api/predict`: du doan nhung khong ghi log
+- `POST /api/ingest`: du doan va ghi vao `data/runtime/ids_events.jsonl`
+- `GET /api/events`: doc cac su kien gan day
+- `GET /health`: kiem tra trang thai app va model
+
+Vi du gui domain tu PowerShell:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/api/ingest" `
+  -ContentType "application/json" `
+  -Body '{"dataset_kind":"domain","value":"paypal-account-security-check.com","source":"ids_browser_sensor"}'
+```
+
+Vi du gui URL:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/api/ingest" `
+  -ContentType "application/json" `
+  -Body '{"dataset_kind":"url","value":"http://example-login-verify.com/account/reset?token=12345","source":"ids_proxy_sensor"}'
+```
 
 ## Gia dinh va canh bao quan trong
 
@@ -87,3 +134,6 @@ python src/download_data.py --sources news_sitemaps --news-lookback-days 7 --new
 - `url_model_dataset.parquet` da co du 2 nhan tong the, nhung neu moc thoi gian moi nhat khong co `benign URL` thi `train_baselines.py --dataset-kind url` se dung o buoc temporal split/test.
 - `train_baselines.py` chi chia train/validation/test theo thoi gian. Script hien tai se tu dong bo qua cac ngay chi co 1 nhan truoc khi split, nhung van can toi thieu `3` ngay con lai co du ca `label 0` va `label 1`.
 - `train_baselines.py` hien so sanh `Logistic Regression`, `Linear SVM`, `Random Forest`, `XGBoost`, `ANN (MLP)` va them `hybrid_lr_xgboost_ann` theo kieu `soft voting`.
+- `Domain Model` official hien dang dung `hybrid_lr_xgboost_ann`.
+- `URL Model` official hien dang dung `hybrid_lr_xgboost_ann`.
+- `build_domain_dataset.py` hien tu dong nap them benign domain addon tu `data/raw/vn_benign_domain_addon/*.csv`.

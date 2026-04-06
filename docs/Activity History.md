@@ -293,12 +293,279 @@ Phân bố nhãn hiện tại:
 - xác định threshold phù hợp cho cảnh báo
 - xem mô hình hiện tại đã đủ dùng cho `dashboard/alert` hay chưa
 
+#### Phase 13. Tích hợp `IDS` và `Dashboard`
+
+- đã tạo lớp suy luận dùng `official hybrid models` cho cả `domain` và `url`
+- đã tạo app local để:
+  - nhận event từ IDS qua API
+  - suy luận bằng model official
+  - lưu log sự kiện
+  - hiển thị kết quả trên dashboard
+- các file mới chính:
+  - `src/phishing_url_ml/inference.py`
+  - `src/phishing_url_ml/ids_dashboard_app.py`
+  - `src/run_ids_dashboard.py`
+  - `docs/IDS Dashboard Integration.md`
+
+Kết quả sau phase này:
+
+- repo không còn chỉ dừng ở mức train model
+- đã có luồng `IDS -> predict -> dashboard`
+- có thể demo bằng API và giao diện web local
+
+---
+
+### `2026-04-06`
+
+#### Phase 14. Đánh giá thực chiến bằng `VN real-world benign seed`
+
+Đã tạo và chạy bộ kiểm tra thực chiến:
+
+- `data/validation/vn_real_world_benign_seed.csv`
+- `src/evaluate_real_world_validation.py`
+- `docs/VN Real-World Benign Validation Results.md`
+
+Kết quả chính của lần chạy đầu tiên:
+
+- tổng `30` case benign
+- đúng kỳ vọng `23`
+- false positive `7`
+- tỷ lệ false positive `23.33%`
+- không có lỗi runtime khi predict
+
+Kết quả theo loại model:
+
+- `Domain Model`: false positive `5/15` = `33.33%`
+- `URL Model`: false positive `2/15` = `13.33%`
+
+Điểm đáng chú ý:
+
+- nhóm `critical`: false positive `4/4`
+- nhóm `university_portal`: false positive `7/10`
+- các case sai nổi bật tập trung ở:
+  - `hocvudientu.hutech.edu.vn`
+  - `sinhvien1.hutech.edu.vn`
+  - `daotao.hutech.edu.vn`
+  - `mail.hutech.edu.vn`
+  - `portal.hcmus.edu.vn`
+
+Nhận định sau phase này:
+
+- vấn đề lớn nhất hiện tại không nằm ở `dashboard`
+- vấn đề nằm ở `Domain Model` và một phần `URL Model` khi gặp `subdomain / portal` hợp lệ ngoài đời thực
+- bộ `vn_real_world_benign_seed` được giữ lại làm bộ test thực chiến, không dùng để train
+
+#### Phase 15. Tạo `VN benign train addon` để bổ sung dữ liệu train
+
+Đã tạo:
+
+- `data/curated/vn_official_site_seeds.csv`
+- `data/curated/vn_official_site_seeds_focus.csv`
+- `src/collect_vn_benign_train_addon.py`
+- `data/curated/vn_real_world_benign_train_addon_domains.csv`
+- `data/curated/vn_real_world_benign_train_addon_urls.csv`
+- `docs/VN Benign Train Addon.md`
+
+Luồng thu thập:
+
+- lấy URL nội bộ từ `homepage`
+- đọc `robots.txt`
+- đọc `sitemap`
+- lọc giữ các URL thuộc cùng `registered_domain`
+- canonicalize URL rồi tách thêm danh sách hostname / domain
+
+Kết quả đợt thu thập focus đầu tiên:
+
+- `278` URL rows
+- `150` domain rows
+- tổng `428` benign samples bổ sung
+
+Nhóm nguồn thu được tốt:
+
+- `university`
+- `government`
+- `banking`
+
+Một số sample hữu ích đã có trong addon:
+
+- `hocvudientu.hutech.edu.vn`
+- `sinhvien1.hutech.edu.vn`
+- `portal.hcmus.edu.vn`
+- `online.acb.com.vn`
+- `vcbdigibank.vietcombank.com.vn`
+
+Một số nguồn chưa lấy tốt ở lượt này:
+
+- `tphcm.gov.vn`
+- `bidv.com.vn`
+- `cellphones.com.vn`
+- `hcmut.edu.vn`
+
+Nhận định sau phase này:
+
+- đã có một bộ benign bổ sung riêng cho train
+- bộ này tách biệt với bộ `seed` dùng để test
+- đủ dữ liệu để thử một vòng `augment -> retrain -> evaluate lại`
+
+#### Phase 16. Thử nghiệm `augment -> retrain -> evaluate lại`
+
+Đã tạo dataset thí nghiệm mới bằng cách:
+
+- giữ nguyên `official datasets`
+- cộng thêm `vn_real_world_benign_train_addon`
+- chỉ gán dữ liệu addon vào các ngày đang thuộc `train`
+- không đụng `validation` và `test`
+
+Artifact chính:
+
+- `data/processed/experiments/domain_model_official_plus_vn_benign_addon.parquet`
+- `data/processed/experiments/url_model_official_plus_vn_benign_addon.parquet`
+- `models/domain_experiments/official_plus_vn_benign_addon/`
+- `models/url_experiments/official_plus_vn_benign_addon/`
+
+Kết quả retrain:
+
+- `Domain experiment` chọn `ann_mlp`
+- `URL experiment` vẫn chọn `hybrid_lr_xgboost_ann`
+
+Đánh giá lại trên `vn_real_world_benign_seed`:
+
+- trước augment:
+  - false positive `7/30` = `23.33%`
+  - `Domain Model`: `5/15`
+  - `URL Model`: `2/15`
+- sau augment:
+  - false positive `2/30` = `6.67%`
+  - `Domain Model`: `0/15`
+  - `URL Model`: `2/15`
+
+Những case còn sai sau augment:
+
+- `https://hocvudientu.hutech.edu.vn/dang-nhap?ReturnUrl=%2F`
+- `https://sinhvien1.hutech.edu.vn/elearning/hoc-vu/lich-thi`
+
+Nhận định sau phase này:
+
+- việc bổ sung vài trăm benign samples mới có tác dụng rõ rệt
+- cải thiện mạnh nhất nằm ở `Domain Model`
+- nhóm còn khó nhất bây giờ là `URL university_portal` có path/query giống mẫu phishing
+- hướng tiếp theo hợp lý là tạo thêm `VN real-world phishing seed` và xem có cần augment riêng cho `URL Model` hay không
+
+#### Phase 17. Dựng `VN real-world phishing seed` và so sánh `official` với bản đang test
+
+Đã tạo:
+
+- `src/build_openphish_phishing_seed.py`
+- `data/validation/vn_real_world_phishing_seed.csv`
+- `docs/VN Real-World Phishing Validation Set.md`
+- `docs/VN Real-World Phishing Validation Results - official.md`
+- `docs/VN Real-World Phishing Validation Results - official_plus_vn_benign_addon.md`
+
+Nguồn seed:
+
+- lấy từ `OpenPhish snapshot` mới nhất
+- không đưa vào `official datasets`
+- chỉ dùng để đánh giá riêng khả năng bắt phishing
+
+Kết quả trên `phishing seed`:
+
+- `official`:
+  - đúng `25/30`
+  - false negative `5/30` = `16.67%`
+- `official_plus_vn_benign_addon`:
+  - đúng `24/30`
+  - false negative `6/30` = `20.00%`
+
+So sánh theo từng model:
+
+- `Domain Model`:
+  - `official`: đúng `13/15`
+  - `experiment`: đúng `12/15`
+- `URL Model`:
+  - `official`: đúng `12/15`
+  - `experiment`: đúng `12/15`
+
+Case phishing bị hụt thêm ở bản test:
+
+- `accounts.binanceuz.co`
+
+Ghép `benign seed` + `phishing seed` để nhìn trade-off thực chiến:
+
+- `official`:
+  - đúng `48/60` = `80.00%`
+  - `Domain`: `23/30`
+  - `URL`: `25/30`
+- `official_plus_vn_benign_addon`:
+  - đúng `52/60` = `86.67%`
+  - `Domain`: `27/30`
+  - `URL`: `25/30`
+
+Nhận định sau phase này:
+
+- bản test chưa nên thay toàn bộ `official` ngay
+- nhưng nó rất hứa hẹn cho `Domain Model`, vì:
+  - giảm false positive ngoài đời thực rất mạnh
+  - chỉ đổi lấy `1` case phishing bị hụt thêm trong seed hiện tại
+- `URL Model` gần như chưa thay đổi, nên chưa cần thay
+- hướng an toàn nhất tiếp theo là:
+  - giữ `official` hiện tại
+  - tiếp tục tinh chỉnh riêng nhánh `domain experiment`
+  - chỉ cân nhắc thay `Domain Model` trước nếu các vòng test tiếp theo vẫn giữ lợi thế này
+
+#### Phase 18. Promote `Domain Model` bản test thành official, giữ nguyên `URL Model`
+
+Da chot va ap dung:
+
+- `Domain Model` official moi:
+  - variant: `from_2025_04_07_global_under_plus_vn_benign_domain_addon`
+  - dataset: `data/processed/official/domain_model_official.parquet`
+  - model mac dinh: `hybrid_lr_xgboost_ann`
+- `URL Model` official:
+  - giu nguyen variant `from_2025_04_07_none`
+  - giu nguyen model mac dinh `hybrid_lr_xgboost_ann`
+
+Thay doi ky thuat da ap dung:
+
+- tao file nguon rieng cho benign domain addon:
+  - `data/raw/vn_benign_domain_addon/vn_benign_domain_addon_2026-04-06.csv`
+- sua `src/build_domain_dataset.py` de tu dong doc `data/raw/vn_benign_domain_addon/*.csv`
+- train lai official `Domain Model` vao:
+  - `models/domain/hybrid_lr_xgboost_ann.joblib`
+  - `models/domain/run_summary.json`
+  - `models/domain/validation_metrics.csv`
+  - `models/domain/test_metrics.csv`
+  - `models/domain/model_comparison.csv`
+- cap nhat `models/official_model_registry.json`
+
+Smoke test sau khi promote:
+
+- `Domain Model` official moi da predict `hocvudientu.hutech.edu.vn` thanh `benign`
+- `URL Model` van giu hanh vi cu, nghia la nhom `university portal URL` van can tiep tuc xu ly rieng o cac phase sau
+
+Cap nhat sau do:
+
+- theo quyet dinh cuoi cung, `Domain Model` official tiep tuc giu `hybrid_lr_xgboost_ann`
+- voi dataset official moi co benign addon, `hybrid` van predict `hocvudientu.hutech.edu.vn` thanh `benign`
+
+Da don de bot roi:
+
+- xoa dataset experiment va model experiment cua `official_plus_vn_benign_addon`
+- xoa report test tam cua bien the do
+- xoa cac file curated trung gian chi dung cho dot test
+- xoa script build dataset experiment mot lan va cache `__pycache__`
+
+Nhan dinh sau phase nay:
+
+- nhanh `domain` da duoc thay chinh thuc theo huong giam false positive ngoai doi thuc
+- nhanh `url` chua du ly do de thay, nen van giu official cu
+- tu nay neu can bo sung benign domain hop le, uu tien bo vao `data/raw/vn_benign_domain_addon/` de pipeline doc thang
+
 ---
 
 ## 5. Ghi chú ngắn để mai nối việc
 
 Khi mở dự án lại, nên bắt đầu từ 3 việc này:
 
-1. rà lại raw `openphish` để tránh trùng snapshot giữa `openphish/` và `openphish_snapshots/`
-2. chạy lại full training với bộ feature domain mới rồi đánh giá lại `Domain Model`
-3. chốt ngưỡng và cách suy luận cho hướng `IDS`
+1. mở rộng thêm `phishing seed` và `benign seed` để bộ đánh giá thực chiến đỡ nhỏ
+2. tinh chỉnh tiếp cho `URL Model`, nhất là nhóm `university portal URL`
+3. theo dõi thêm các case phishing domain như `accounts.binanceuz.co` để xem `Domain Model` official moi co can bo sung them mau phishing hay khong
