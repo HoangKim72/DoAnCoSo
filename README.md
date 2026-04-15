@@ -19,6 +19,9 @@ data/
     openphish/
     openphish_snapshots/
     vn_benign_domain_addon/
+    vn_benign_url_addon/
+    vn_benign_url_runtime_patch/
+    vn_phishing_url_addon/
     news_sitemaps/
     tranco/
   processed/
@@ -32,6 +35,7 @@ src/
   clean_data.py
   build_domain_dataset.py
   build_url_dataset.py
+  bridge_ids_logs.py
   train_baselines.py
   run_ids_dashboard.py
 ```
@@ -87,11 +91,21 @@ Repo hien da co app nhe de:
 - suy luan bang `official models`
 - luu lich su su kien
 - hien thi dashboard de theo doi canh bao
+- nap log IDS that tu `Suricata eve.json` hoac `Zeek JSON` thong qua bridge script
 
 Chay local:
 
 ```bash
 python src/run_ids_dashboard.py --host 127.0.0.1 --port 8080
+```
+
+Bridge log IDS that vao dashboard:
+
+```bash
+python src/bridge_ids_logs.py --input C:\suricata\log\eve.json --format suricata-eve --sensor-name lab-suricata --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\dns.log --format zeek-dns-json --sensor-name lab-zeek --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\http.log --format zeek-http-json --sensor-name lab-zeek --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\ssl.log --format zeek-ssl-json --sensor-name lab-zeek --follow
 ```
 
 Mo dashboard:
@@ -137,3 +151,8 @@ Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/api/ingest" `
 - `Domain Model` official hien dang dung `hybrid_xgboost_ann_weighted`.
 - `URL Model` official hien dang dung `ann_mlp`.
 - `build_domain_dataset.py` hien tu dong nap them benign domain addon tu `data/raw/vn_benign_domain_addon/*.csv`.
+- `build_url_dataset.py` hien tu dong nap them benign URL addon tu `data/raw/vn_benign_url_addon/*.csv`.
+- `build_url_dataset.py` hien tu dong nap them phishing URL addon tu `data/raw/vn_phishing_url_addon/*.csv`.
+- Runtime IDS hien co them curated benign URL patch tu `data/raw/vn_benign_url_runtime_patch/*.csv` de giam false positive o mot so hostname/URL official phuc vu demo.
+- `risk_level` trong runtime IDS duoc doc tu `models/runtime_risk_policy.json`.
+- Neu `metadata` duoc gui kem theo event IDS, dashboard se hien them `sensor`, `event type`, va `src -> dest flow`.

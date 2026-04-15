@@ -19,32 +19,36 @@ Repo dang van hanh theo `3` luong:
 
 ### 2.1. Domain Model
 
-- Variant official: `official_current_26f_hybrid_xgboost_ann_weighted_120k`
+- Variant official: `official_current_26f_hybrid_xgboost_ann_weighted_120k_curated_benign_override`
 - Dataset official: `data/processed/official/domain_model_official.parquet`
 - Model official: `models/domain/hybrid_xgboost_ann_weighted.joblib`
-- Rows: `120,000`
+- Rows: `120,006`
 - Phishing: `72,004`
-- Benign: `47,996`
+- Benign: `48,002`
 - Feature count: `26`
 
 ### 2.2. URL Model
 
-- Variant official: `official_current_55f_ann_mlp_temporal_100k`
+- Variant official: `official_current_66f_ann_mlp_full_540k_plus_url_hard_negative_hostaware_phishing_targeted`
 - Dataset official: `data/processed/official/url_model_official.parquet`
 - Model official: `models/url/ann_mlp.joblib`
-- Rows: `100,107`
-- Phishing: `30,700`
-- Benign: `69,407`
-- Feature count: `55`
+- Rows: `540,023`
+- Phishing: `166,866`
+- Benign: `373,157`
+- Feature count: `66`
 
 Ghi chu cho `URL Model`:
 
-- bo official hien tai la `latest valid temporal sample` da duoc promote sang `data/processed/official/`
-- ly do khong dung thang full `url_model_dataset.parquet` moi nhat la vi bo raw hien tai khong con du `3` moc thoi gian co du ca `benign` va `phishing` de split `train / validation / test`
+- bo official hien tai dung full `url_model_dataset.parquet` moi nhat
+- da cong them `81` benign URL hard-negative rows tu `data/raw/vn_benign_url_addon/`
+- da cong them `14` phishing URL hard-case rows tu `data/raw/vn_phishing_url_addon/`
+- da mo rong URL feature de nhin them vao `hostname/subdomain` va `cloud-edge hosting`
+- vi bo raw hien tai khong con du `3` moc thoi gian co du ca `benign` va `phishing` de split `train / validation / test`, URL training van dung `latest mixed-date holdout`
 
 Thong tin chot official duoc load tu:
 
 - `models/official_model_registry.json`
+- `models/runtime_risk_policy.json`
 
 ---
 
@@ -65,12 +69,17 @@ Luong chinh:
 - `mendeley_phishing_url`
 - `mendeley_legitphish`
 - `vn_benign_domain_addon` cho rieng `Domain Model`
+- `vn_benign_url_addon` cho rieng `URL Model`
+- `vn_phishing_url_addon` cho rieng `URL Model`
 
 ### 3.3. Thu muc lien quan
 
 - `data/raw/openphish/`: OpenPhish raw theo ngay
 - `data/raw/openphish_snapshots/`: OpenPhish raw theo `gio-phut`
 - `data/raw/vn_benign_domain_addon/`: benign domain addon duoc bo sung rieng
+- `data/raw/vn_benign_url_addon/`: benign URL hard-negative addon duoc bo sung rieng
+- `data/raw/vn_benign_url_runtime_patch/`: curated benign URL runtime patch cho huong demo IDS
+- `data/raw/vn_phishing_url_addon/`: phishing URL hard-case addon duoc bo sung rieng
 - `data/processed/`: dataset sau normalize, clean, build
 - `data/processed/official/`: dataset official da dong bang
 - `models/domain/`: artifact official cua `Domain Model`
@@ -162,6 +171,8 @@ Logic:
 Input:
 
 - `data/processed/clean_master_dataset.parquet`
+- them cac file `*.csv` trong `data/raw/vn_benign_url_addon/`
+- them cac file `*.csv` trong `data/raw/vn_phishing_url_addon/`
 
 Output:
 
@@ -172,6 +183,8 @@ Logic:
 
 - chi giu `record_type = url`
 - dat `sample_text = canonical_url`
+- merge them `vn_benign_url_addon`
+- merge them `vn_phishing_url_addon`
 - sort theo `collected_at`, `label`
 - dedup theo `sample_text`
 - bo benign neu URL do da co nhan phishing
@@ -203,7 +216,7 @@ Feature hien tai:
 
 Feature hien tai:
 
-- tong cong `55` feature
+- tong cong `66` feature
 - giu cac nhom lexical/path/query co san
 - bo sung them cac feature moi nhu:
   - `avg_path_segment_length`
@@ -224,6 +237,17 @@ Feature hien tai:
   - `base64_like_value_present`
   - `contains_double_slash_in_path`
   - `port_specified_flag`
+  - `hostname_mixed_alnum_token_count`
+  - `hostname_token_entropy_max`
+  - `hostname_consecutive_digit_run_max`
+  - `subdomain_mixed_alnum_token_count`
+  - `subdomain_token_entropy_max`
+  - `subdomain_consecutive_digit_run_max`
+  - `hostname_contains_sensitive_keyword`
+  - `hostname_order_delivery_keyword_count`
+  - `subdomain_order_delivery_keyword_count`
+  - `registered_domain_is_cloud_edge_hosting`
+  - `registered_domain_is_user_content_hosting`
 
 Ham build feature:
 
@@ -324,6 +348,7 @@ Day la luong runtime dang duoc su dung khi chay web app.
 Script:
 
 - `src/run_ids_dashboard.py`
+- `src/bridge_ids_logs.py`
 
 Lenh chay:
 
@@ -337,12 +362,15 @@ Script nay tao Flask app bang:
 
 ### 8.2. Dau vao tu IDS hoac giao dien
 
-He thong co `2` cach dua du lieu vao:
+He thong co `3` cach dua du lieu vao:
 
-1. IDS/gui script ngoai goi API:
+1. bridge log IDS that:
+   - `python src/bridge_ids_logs.py --input ...`
+   - ho tro `Suricata eve.json`, `Zeek dns/http/ssl JSON`
+2. IDS/gui script ngoai goi API truc tiep:
    - `POST /api/predict`
    - `POST /api/ingest`
-2. nguoi dung nhap tay tren giao dien:
+3. nguoi dung nhap tay tren giao dien:
    - `http://127.0.0.1:8080/dashboard`
    - form `Manual Check`
 
@@ -358,7 +386,13 @@ Payload co dang:
 {
   "dataset_kind": "domain",
   "value": "hocvudientu.hutech.edu.vn",
-  "source": "ids_browser_sensor"
+  "source": "ids_browser_sensor",
+  "metadata": {
+    "sensor_name": "lab-suricata",
+    "ids_event_type": "dns",
+    "src_ip": "10.10.10.5",
+    "dest_ip": "8.8.8.8"
+  }
 }
 ```
 
@@ -369,6 +403,7 @@ Trong `ids_dashboard_app.py`:
 - `parse_request_payload()` doc JSON hoac form
 - `api_predict()` xu ly du doan nhung khong ghi log
 - `api_ingest()` xu ly du doan va ghi log vao runtime
+- dashboard API giu nguyen `metadata` de UI co the hien `sensor`, `event type`, `src -> dest`
 
 Neu payload loi:
 
@@ -400,6 +435,10 @@ Trong `src/phishing_url_ml/inference.py`, ham `predict_value()` thuc hien:
    - trich mot so tin hieu noi bat de hien thi len giao dien
 9. `recommendation_for_prediction()`
    - tao thong diep khuyen nghi
+10. curated runtime override
+   - `Domain Model`: doc `data/raw/vn_benign_domain_addon/*.csv`
+   - `URL Model`: doc `data/raw/vn_benign_url_runtime_patch/*.csv`
+   - neu trung exact hostname/exact URL da curate, event van duoc ghi log nhung ha ve `benign/minimal`
 
 ### 8.5. Ghi log event
 
@@ -423,10 +462,15 @@ Moi event gom:
 - `predicted_class`
 - `score`
 - `risk_level`
+- `decision_mode`
 - `model_name`
 - `variant_name`
 - `signals`
 - `recommendation`
+- `metadata`
+- `sensor_name`
+- `ids_event_type`
+- `flow_summary`
 
 ### 8.6. Dashboard render giao dien
 
@@ -453,6 +497,13 @@ Giao dien hien tai gom:
 - Form `Manual Check`
 - Card `Official Models`
 - Bang `Recent IDS Events`
+
+Neu event den tu bridge IDS that, UI hien them:
+
+- `sensor`
+- `event type`
+- `src -> dest flow`
+- `decision mode`
 
 Mot so thong tin phu hien bang:
 
@@ -497,6 +548,15 @@ python src/train_baselines.py --dataset-kind url --write-splits
 python src/collect_openphish_snapshots.py --include-openphish
 ```
 
+### 9.4. Bridge log IDS that
+
+```bash
+python src/bridge_ids_logs.py --input C:\suricata\log\eve.json --format suricata-eve --sensor-name lab-suricata --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\dns.log --format zeek-dns-json --sensor-name lab-zeek --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\http.log --format zeek-http-json --sensor-name lab-zeek --follow
+python src/bridge_ids_logs.py --input C:\zeek\logs\current\ssl.log --format zeek-ssl-json --sensor-name lab-zeek --follow
+```
+
 ### 9.4. Chay dashboard
 
 ```bash
@@ -526,7 +586,10 @@ Nhung gi da san sang:
 - pipeline data de train
 - collector `OpenPhish` snapshot
 - benign domain addon cho `Domain Model`
+- benign URL hard-negative addon cho `URL Model`
+- phishing URL hard-case addon cho `URL Model`
 - official `Domain Model` va `URL Model`
+- runtime risk policy cho IDS
 - API runtime cho IDS
 - dashboard web de monitor
 

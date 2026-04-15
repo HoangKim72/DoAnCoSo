@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from phishing_url_ml.inference import (
     expected_feature_columns,
     load_official_model_bundle,
     normalized_score_for_model,
+    predict_value,
     recommendation_for_prediction,
     risk_level_for_score,
     summarize_signals,
@@ -30,6 +32,26 @@ REQUIRED_COLUMNS = [
     "expected_label",
     "priority",
 ]
+
+TOKEN_PATTERN_SPECS = (
+    ("dang_nhap", ("dang-nhap", "dang nhap")),
+    ("returnurl", ("returnurl", "return url")),
+    ("login", ("login", "logon", "sign in", "signin", "signon", "sso")),
+    ("portal", ("portal",)),
+    ("mail", ("mail",)),
+    ("account", ("account",)),
+    ("auth", ("auth",)),
+    ("verify", ("verify", "verification")),
+    ("request", ("request",)),
+    ("pdf", (".pdf",)),
+    ("otp", ("otp",)),
+    ("digibank", ("digibank",)),
+    ("wallet", ("wallet",)),
+    ("crypto", ("crypto",)),
+    ("bank", ("bank",)),
+    ("pay", ("pay", "payment", "checkout")),
+    ("secure", ("secure",)),
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -93,6 +115,7 @@ def load_bundle_from_run_summary(run_summary_path: Path) -> dict[str, object]:
         "model_name": payload["best_model"],
         "feature_columns": payload.get("feature_columns", []),
         "model": model,
+        "prediction_mode": "direct_model",
     }
 
 
@@ -108,6 +131,7 @@ def load_bundles(args: argparse.Namespace) -> dict[str, dict[str, object]]:
             "model_name": official.model_name,
             "feature_columns": official.run_summary.get("feature_columns", []),
             "model": official.model,
+            "prediction_mode": "official_runtime",
         }
 
     if args.url_run_summary:
@@ -120,11 +144,20 @@ def load_bundles(args: argparse.Namespace) -> dict[str, dict[str, object]]:
             "model_name": official.model_name,
             "feature_columns": official.run_summary.get("feature_columns", []),
             "model": official.model,
+            "prediction_mode": "official_runtime",
         }
     return bundles
 
 
 def predict_with_bundle(value: str, dataset_kind: str, bundle: dict[str, object]) -> dict[str, object]:
+    if str(bundle.get("prediction_mode", "")) == "official_runtime":
+        return predict_value(
+            value=value,
+            dataset_kind=dataset_kind,
+            source="real_world_validation",
+            persist=False,
+        )
+
     inference_df, parsed_row = build_inference_row(value, dataset_kind)
     feature_frame = build_feature_frame(inference_df, dataset_kind)
     feature_frame = align_feature_frame(
@@ -134,19 +167,41 @@ def predict_with_bundle(value: str, dataset_kind: str, bundle: dict[str, object]
     model = bundle["model"]
     predicted_label = int(model.predict(feature_frame)[0])
     score, _ = normalized_score_for_model(model, feature_frame)
-    risk_level = risk_level_for_score(score)
+    risk_level = risk_level_for_score(score, dataset_kind)
     feature_values = feature_frame.iloc[0].to_dict()
     return {
         "predicted_label": predicted_label,
         "predicted_class": "phishing" if predicted_label == 1 else "benign",
         "score": round(float(score), 6),
+        "score_source": "direct_model",
         "risk_level": risk_level,
         "model_name": bundle["model_name"],
         "variant_name": bundle["variant_name"],
         "normalized_value": parsed_row["sample_text"],
         "signals": summarize_signals(dataset_kind, parsed_row, feature_values),
         "recommendation": recommendation_for_prediction(predicted_label, risk_level),
+        "decision_mode": "model",
+        "override_reason": "",
+        "override_match_value": "",
+        "model_predicted_class_before_override": "",
+        "model_score_before_override": None,
+        "model_risk_level_before_override": "",
     }
+
+
+def normalize_text_for_pattern_matching(value: object) -> str:
+    lowered = str(value or "").strip().lower()
+    return re.sub(r"[^a-z0-9.]+", " ", lowered)
+
+
+def detect_token_patterns(value: object) -> list[str]:
+    lowered = str(value or "").strip().lower()
+    normalized = normalize_text_for_pattern_matching(value)
+    matched: list[str] = []
+    for pattern_name, keywords in TOKEN_PATTERN_SPECS:
+        if any(keyword in lowered or keyword in normalized for keyword in keywords):
+            matched.append(pattern_name)
+    return matched
 
 
 def evaluate_rows(seed_df: pd.DataFrame, bundles: dict[str, dict[str, object]]) -> pd.DataFrame:
@@ -168,6 +223,23 @@ def evaluate_rows(seed_df: pd.DataFrame, bundles: dict[str, dict[str, object]]) 
             predicted_label = -1
             predicted_class = "error"
             error_text = str(exc)
+        normalized_value = str(result.get("normalized_value", "") or "")
+        matched_token_patterns = detect_token_patterns(
+            " ".join(
+                part for part in [str(row.get("input_value", "")).strip(), normalized_value] if part
+            )
+        )
+        primary_token_pattern = matched_token_patterns[0] if matched_token_patterns else "_none"
+        is_false_positive = expected_label_int == 0 and predicted_label == 1
+        is_false_negative = expected_label_int == 1 and predicted_label == 0
+        if error_text:
+            error_kind = "runtime_error"
+        elif is_false_positive:
+            error_kind = "false_positive"
+        elif is_false_negative:
+            error_kind = "false_negative"
+        else:
+            error_kind = "matched"
 
         rows.append(
             {
@@ -176,16 +248,28 @@ def evaluate_rows(seed_df: pd.DataFrame, bundles: dict[str, dict[str, object]]) 
                 "predicted_label": predicted_label,
                 "predicted_class": predicted_class,
                 "score": result.get("score"),
+                "score_source": result.get("score_source"),
                 "risk_level": result.get("risk_level"),
                 "model_name": result.get("model_name"),
                 "variant_name": result.get("variant_name"),
-                "normalized_value": result.get("normalized_value"),
+                "normalized_value": normalized_value,
                 "signals": " | ".join(result.get("signals", [])),
                 "recommendation": result.get("recommendation"),
                 "match_expected": predicted_label == expected_label_int,
-                "is_false_positive": expected_label_int == 0 and predicted_label == 1,
-                "is_false_negative": expected_label_int == 1 and predicted_label == 0,
+                "is_false_positive": is_false_positive,
+                "is_false_negative": is_false_negative,
+                "error_kind": error_kind,
                 "error": error_text,
+                "matched_token_patterns": " | ".join(matched_token_patterns),
+                "primary_token_pattern": primary_token_pattern,
+                "decision_mode": result.get("decision_mode", "model"),
+                "override_reason": result.get("override_reason", ""),
+                "override_match_value": result.get("override_match_value", ""),
+                "model_predicted_class_before_override": result.get(
+                    "model_predicted_class_before_override", ""
+                ),
+                "model_score_before_override": result.get("model_score_before_override"),
+                "model_risk_level_before_override": result.get("model_risk_level_before_override", ""),
             }
         )
     return pd.DataFrame(rows)
@@ -212,6 +296,43 @@ def group_summary(df: pd.DataFrame, group_columns: list[str]) -> pd.DataFrame:
     return summary
 
 
+def group_error_summary(df: pd.DataFrame, group_columns: list[str]) -> pd.DataFrame:
+    error_df = df.loc[~df["match_expected"]].copy()
+    if error_df.empty:
+        return pd.DataFrame(
+            columns=group_columns
+            + [
+                "total_errors",
+                "false_positives",
+                "false_negatives",
+                "runtime_errors",
+                "override_after_model",
+                "average_score",
+                "error_share",
+            ]
+        )
+
+    summary = (
+        error_df.groupby(group_columns, dropna=False)
+        .agg(
+            total_errors=("sample_id", "count"),
+            false_positives=("is_false_positive", "sum"),
+            false_negatives=("is_false_negative", "sum"),
+            runtime_errors=("error", lambda values: int(pd.Series(values).astype(str).ne("").sum())),
+            override_after_model=(
+                "decision_mode",
+                lambda values: int(
+                    pd.Series(values).astype(str).eq("model_plus_curated_benign_override").sum()
+                ),
+            ),
+            average_score=("score", "mean"),
+        )
+        .reset_index()
+    )
+    summary["error_share"] = summary["total_errors"] / len(error_df)
+    return summary.sort_values("total_errors", ascending=False).reset_index(drop=True)
+
+
 def detect_evaluation_mode(df: pd.DataFrame) -> str:
     expected_values = set(df["expected_label"].astype(str).str.strip().str.lower().unique())
     if expected_values == {"benign"}:
@@ -229,7 +350,11 @@ def write_markdown_report(
     by_dataset_path: Path,
     by_priority_path: Path,
     by_category_path: Path,
+    error_by_category_path: Path,
+    error_by_token_pattern_path: Path,
+    error_by_category_pattern_path: Path,
     top_issues: pd.DataFrame,
+    top_error_patterns: pd.DataFrame,
 ) -> None:
     def formatted_score(value: object) -> str:
         if value is None or pd.isna(value):
@@ -297,6 +422,8 @@ def write_markdown_report(
         f"- Input seed: `{seed_path.relative_to(BASE_DIR)}`",
         f"- Detailed results: `{details_path.relative_to(BASE_DIR)}`",
         f"- Evaluated at: `{overall_summary['evaluated_at']}`",
+        f"- Prediction modes: `{', '.join(overall_summary.get('prediction_modes', ['unknown']))}`",
+        f"- Curated runtime overrides applied: `{int(overall_summary.get('override_after_model', 0))}`",
         "",
         "## 1. Tong quan",
         "",
@@ -310,6 +437,9 @@ def write_markdown_report(
         f"- Theo `dataset_kind`: `{by_dataset_path.relative_to(BASE_DIR)}`",
         f"- Theo `priority`: `{by_priority_path.relative_to(BASE_DIR)}`",
         f"- Theo `category`: `{by_category_path.relative_to(BASE_DIR)}`",
+        f"- Loi theo `category`: `{error_by_category_path.relative_to(BASE_DIR)}`",
+        f"- Loi theo `token pattern`: `{error_by_token_pattern_path.relative_to(BASE_DIR)}`",
+        f"- Loi theo `category + token pattern`: `{error_by_category_pattern_path.relative_to(BASE_DIR)}`",
         "",
         issue_section_title,
         "",
@@ -324,7 +454,27 @@ def write_markdown_report(
     lines.extend(
         [
             "",
-            "## 4. Nhan xet nhanh",
+            "## 4. Token pattern noi bat",
+            "",
+        ]
+    )
+
+    if top_error_patterns.empty:
+        lines.append("- Khong co token pattern loi nao trong lan chay nay.")
+    else:
+        for row in top_error_patterns.to_dict(orient="records"):
+            token_pattern = str(row.get("primary_token_pattern", "_none"))
+            token_pattern = "none" if token_pattern == "_none" else token_pattern
+            lines.append(
+                f"- `{token_pattern}` | total_errors=`{int(row['total_errors'])}` | "
+                f"fp=`{int(row['false_positives'])}` | fn=`{int(row['false_negatives'])}` | "
+                f"share=`{float(row['error_share']):.2%}`"
+            )
+
+    lines.extend(
+        [
+            "",
+            "## 5. Nhan xet nhanh",
             "",
             *quick_notes,
             "",
@@ -352,15 +502,24 @@ def main() -> None:
     by_dataset_path = output_dir / f"{stem}_by_dataset_kind_{timestamp}.csv"
     by_priority_path = output_dir / f"{stem}_by_priority_{timestamp}.csv"
     by_category_path = output_dir / f"{stem}_by_category_{timestamp}.csv"
+    error_by_category_path = output_dir / f"{stem}_errors_by_category_{timestamp}.csv"
+    error_by_token_pattern_path = output_dir / f"{stem}_errors_by_token_pattern_{timestamp}.csv"
+    error_by_category_pattern_path = output_dir / f"{stem}_errors_by_category_token_pattern_{timestamp}.csv"
     summary_json_path = output_dir / f"{stem}_summary_{timestamp}.json"
 
     details_df.to_csv(details_path, index=False, encoding="utf-8")
     by_dataset_df = group_summary(details_df, ["dataset_kind"])
     by_priority_df = group_summary(details_df, ["priority"])
     by_category_df = group_summary(details_df, ["category"])
+    error_by_category_df = group_error_summary(details_df, ["category"])
+    error_by_token_pattern_df = group_error_summary(details_df, ["primary_token_pattern"])
+    error_by_category_pattern_df = group_error_summary(details_df, ["category", "primary_token_pattern"])
     by_dataset_df.to_csv(by_dataset_path, index=False, encoding="utf-8")
     by_priority_df.to_csv(by_priority_path, index=False, encoding="utf-8")
     by_category_df.to_csv(by_category_path, index=False, encoding="utf-8")
+    error_by_category_df.to_csv(error_by_category_path, index=False, encoding="utf-8")
+    error_by_token_pattern_df.to_csv(error_by_token_pattern_path, index=False, encoding="utf-8")
+    error_by_category_pattern_df.to_csv(error_by_category_pattern_path, index=False, encoding="utf-8")
 
     false_positive_count = int(details_df["is_false_positive"].sum())
     false_negative_count = int(details_df["is_false_negative"].sum())
@@ -372,6 +531,7 @@ def main() -> None:
         "input_path": str(input_path),
         "details_path": str(details_path),
         "evaluation_mode": evaluation_mode,
+        "prediction_modes": sorted({str(bundle.get("prediction_mode", "direct_model")) for bundle in bundles.values()}),
         "total_cases": int(len(details_df)),
         "matched_cases": matched_cases,
         "match_rate": float(matched_cases / len(details_df)) if len(details_df) else 0.0,
@@ -380,10 +540,16 @@ def main() -> None:
         "false_negatives": false_negative_count,
         "false_negative_rate": float(false_negative_count / len(details_df)) if len(details_df) else 0.0,
         "errors": error_count,
+        "override_after_model": int(
+            details_df["decision_mode"].astype(str).eq("model_plus_curated_benign_override").sum()
+        ),
         "artifacts": {
             "by_dataset_kind": str(by_dataset_path),
             "by_priority": str(by_priority_path),
             "by_category": str(by_category_path),
+            "errors_by_category": str(error_by_category_path),
+            "errors_by_token_pattern": str(error_by_token_pattern_path),
+            "errors_by_category_token_pattern": str(error_by_category_pattern_path),
         },
     }
     summary_json_path.write_text(json.dumps(overall_summary, indent=2), encoding="utf-8")
@@ -406,6 +572,7 @@ def main() -> None:
             .sort_values(["priority", "score"], ascending=[True, False], na_position="last")
             .head(10)
         )
+    top_error_patterns = error_by_token_pattern_df.head(10)
     write_markdown_report(
         report_path=report_path,
         seed_path=input_path,
@@ -414,13 +581,20 @@ def main() -> None:
         by_dataset_path=by_dataset_path,
         by_priority_path=by_priority_path,
         by_category_path=by_category_path,
+        error_by_category_path=error_by_category_path,
+        error_by_token_pattern_path=error_by_token_pattern_path,
+        error_by_category_pattern_path=error_by_category_pattern_path,
         top_issues=top_issues,
+        top_error_patterns=top_error_patterns,
     )
 
     print(f"Wrote detailed results to {details_path}")
     print(f"Wrote dataset summary to {by_dataset_path}")
     print(f"Wrote priority summary to {by_priority_path}")
     print(f"Wrote category summary to {by_category_path}")
+    print(f"Wrote error-by-category summary to {error_by_category_path}")
+    print(f"Wrote error-by-token-pattern summary to {error_by_token_pattern_path}")
+    print(f"Wrote error-by-category-token summary to {error_by_category_pattern_path}")
     print(f"Wrote JSON summary to {summary_json_path}")
     print(f"Wrote markdown report to {report_path}")
     if evaluation_mode == "benign_only":

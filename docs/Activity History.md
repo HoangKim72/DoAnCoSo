@@ -110,7 +110,7 @@ Nguồn chưa dùng được:
 Đã cập nhật:
 
 - `requirements.txt`: thêm `xgboost`
-- `docs/export_url_model_data.py`: export thêm bảng metric mới
+- script export `URL model` sang Excel: export thêm bảng metric mới
 
 #### Phase 5. Ghi nhận kết quả full train gần nhất
 
@@ -146,7 +146,7 @@ Nhận xét sau phase này:
 - `docs/Inspect Clean Master Dataset.md`
 - `docs/Inspect Model Datasets.md`
 - `docs/export_domain_model_data.py`
-- `docs/export_url_model_data.py`
+- script export `URL model` sang Excel
 - `docs/Model Dataset Statistics.md`
 
 ---
@@ -1172,7 +1172,7 @@ Nhan dinh sau phase nay:
 - day la `model + curated override`, chua phai domain model tu hoc dung hoan toan
 - tu nay `Domain official` dang chay mac dinh la ban co `curated benign override`
 
-#### Phase 30. Chinh lai dashboard theo `fix_UI.md` theo huong `checker tool`
+#### Phase 30. Chinh lai dashboard theo brief UI theo huong `checker tool`
 
 Da sua:
 
@@ -1250,10 +1250,581 @@ Cap nhat tong quan sau ngay `2026-04-14`:
   - `official_current_55f_ann_mlp_full_540k_latest_mixed_holdout`
 - dashboard/API se load 2 variant tren tu `models/official_model_registry.json`
 
+---
+
+### `2026-04-15`
+
+#### Phase 32. Rerun `expanded validation` tren `official current` va bo sung report loi theo `token pattern`
+
+Da sua:
+
+- `src/evaluate_real_world_validation.py`
+
+Muc tieu cua dot nay:
+
+- danh gia lai dung 2 `official current` dang duoc dashboard/API load
+- tranh lech voi bao cao `expanded` cu run ngay `2026-04-12`, truoc khi promote official moi ngay `2026-04-14`
+- bo sung artifact de nhin nhanh loi theo `category` va `token pattern`
+
+Cap nhat ky thuat trong script:
+
+- neu khong truyen `run_summary` custom, script se goi luong `predict_value(..., persist=False)` cua `official runtime`
+- nhan duoc ca:
+  - `decision_mode`
+  - `override_reason`
+  - `override_match_value`
+  - cac truong `model_*_before_override` khi co `curated benign override`
+- export them:
+  - `*_errors_by_category_*.csv`
+  - `*_errors_by_token_pattern_*.csv`
+  - `*_errors_by_category_token_pattern_*.csv`
+- moi row chi tiet co them:
+  - `matched_token_patterns`
+  - `primary_token_pattern`
+
+Da rerun va cap nhat lai:
+
+- `docs/VN Real-World Benign Validation Results - expanded.md`
+- `docs/VN Real-World Phishing Validation Results - expanded.md`
+- `docs/VN Real-World Validation Results - expanded.md`
+
+Ket qua moi tren `mixed expanded` (run luc `2026-04-15 10:26 +07:00`):
+
+- tong `94` case
+- dung `74/94` = `78.72%`
+- false positive `19`
+- false negative `1`
+- theo `dataset_kind`:
+  - `Domain`: `25/28`
+  - `URL`: `49/66`
+
+Ket qua moi tren `benign expanded`:
+
+- false positive `19/46` = `41.30%`
+- giam ro so voi bao cao cu `27/46` = `58.70%`
+- theo `dataset_kind`:
+  - `Domain`: false positive `3/4`
+  - `URL`: false positive `16/42`
+- nhom loi con nang nhat:
+  - `government`: `7`
+  - `university`: `5`
+  - `university_portal`: `3`
+  - `banking`: `3`
+
+Ket qua moi tren `phishing expanded`:
+
+- dung `47/48` = `97.92%`
+- false negative con `1/48` = `2.08%`
+- theo `dataset_kind`:
+  - `Domain`: `24/24`
+  - `URL`: `23/24`
+- case con sot:
+  - `https://www.purchaseordersale.com.wellscreditfargo.com/`
+
+Token pattern loi noi bat tren `mixed expanded`:
+
+- `none`: `13/20`
+- `bank`: `2/20`
+- `login`: `2/20`
+- `dang_nhap`: `1/20`
+- `mail`: `1/20`
+- `returnurl`: `1/20`
+
+Case benign sai con noi bat sau rerun:
+
+- `letienchau.chinhphu.vn`
+- `nguyenvanthang.chinhphu.vn`
+- `en.uit.edu.vn`
+- `https://red.moj.gov.vn/cas/login?service=...`
+- `https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F`
+- `http://daotao.hutech.edu.vn/default.aspx?flag=XemDiemThi&page=nhapmasv`
+- `http://www.vietcombank.com.vn/...Tra-cuu-so-tk`
+
+Nhan dinh sau phase nay:
+
+- bao cao `expanded` cu ngay `2026-04-12` khong con dai dien cho `official current`
+- sau khi danh gia dung theo luong runtime hien tai, bai toan khong con nghieng manh ve `Domain false negative` nua
+- pain point lon nhat bay gio da chuyen ro sang `URL false positive` tren `benign URL` hop le
+- nhom URL benign con kho nhat hien tai co xu huong:
+  - dung `http`
+  - la `login / cas / mail / portal`
+  - la trang `utility / tra-cuu`
+  - hoac co duoi `.aspx`
+- buoc tiep theo hop ly nhat khong phai mo rong sweep model ngay, ma la `hard-negative mining` cho `URL Model`
+- `Domain Model` tam thoi chua can mo them nhanh sweep moi; neu can giam false positive runtime nhanh, co the can nhac bo sung curated benign domain cho:
+  - `letienchau.chinhphu.vn`
+  - `nguyenvanthang.chinhphu.vn`
+  - `en.uit.edu.vn`
+
+#### Phase 33. `URL hard-negative mining` va promote `URL official` moi
+
+Da tao:
+
+- `data/curated/vn_url_hard_negative_seed_sites.csv`
+- `src/build_vn_benign_url_hard_negative_addon.py`
+- `docs/VN URL Hard Negative Addon.md`
+- `data/raw/vn_benign_url_addon/vn_benign_url_addon_2026-04-15_phase33.csv`
+- `data/raw/vn_benign_url_addon/vn_benign_url_addon_2026-04-15_phase33_summary.json`
+- `data/raw/vn_benign_url_addon/vn_benign_url_addon_2026-04-15_phase33_targeted_patterns.csv`
+
+Da sua:
+
+- `src/build_url_dataset.py`
+- `models/official_model_registry.json`
+- `docs/Official Model Results - Current.md`
+- `docs/Project Workflow.md`
+- `README.md`
+- `docs/IDS Dashboard Integration.md`
+
+Muc tieu cua dot nay:
+
+- giam `URL false positive` tren nhom benign kho sau phase 32
+- giu nguyen bo `expanded` de danh gia lai trung thuc, khong train truc tiep bang exact row trong validation seed
+- uu tien nhom:
+  - `government`
+  - `banking`
+  - `university_portal`
+- uu tien pattern:
+  - `http`
+  - `login`
+  - `cas`
+  - `mail`
+  - `.aspx`
+  - `tra-cuu`
+  - `ReturnUrl`
+  - `Request`
+
+Cap nhat ky thuat chinh:
+
+- `build_url_dataset.py` tu nay tu dong merge them moi file `*.csv` trong `data/raw/vn_benign_url_addon/`
+- collector URL hard negative:
+  - dung lai logic crawl homepage / robots / sitemap tu collector cu
+  - rank URL theo `hard_negative_score`
+  - loai exact overlap voi:
+    - `data/processed/official/url_model_official.parquet`
+    - `data/validation/vn_real_world_benign_seed_expanded.csv`
+    - cac file addon URL da co san
+- vi mot so pattern hiem nhung quan trong (`ACB Request`, `MOJ CAS/Login`, `MOET Account/Login`) khong the lay them ma van tranh overlap exact, da bo sung them `curated pattern variant` rieng cho lexical train
+
+Ket qua bo addon:
+
+- dot crawl dau:
+  - candidate truoc dedup: `119`
+  - selected: `70`
+  - category:
+    - `government`: `32`
+    - `banking`: `12`
+    - `university_portal`: `23`
+    - `university`: `3`
+- dot patch targeted:
+  - them `11` row
+- tong addon URL moi dua vao train:
+  - `81` row
+
+Da rebuild dataset:
+
+- `data/processed/url_model_dataset.parquet`
+- rows moi: `540,009`
+- benign: `373,157`
+- phishing: `166,852`
+
+Da train cac candidate URL:
+
+- `models/url_phase33_hard_negative/`
+  - subset: `ann_mlp`, `xgboost`, `hybrid_xgboost_ann_weighted`
+- `models/url_phase33_hard_negative_ann_only/`
+- `models/url_phase33_hard_negative_xgboost_only/`
+- `models/url_phase33_hard_negative_ann_targeted/`
+
+So sanh real-world tren `expanded`:
+
+- `official truoc phase 33`:
+  - mixed: `74/94` = `78.72%`
+  - benign FP: `19/46`
+  - phishing FN: `1/48`
+- `phase33 crawl + ann/hybrid`:
+  - mixed: `76/94` = `80.85%`
+  - benign FP: `16/46`
+  - phishing FN: `2/48`
+- `phase33 crawl + targeted patch + ann_mlp`:
+  - mixed: `77/94` = `81.91%`
+  - benign FP: `15/46`
+  - phishing FN: `2/48`
+
+Nhung case benign duoc sua ro nhat so voi official truoc do:
+
+- `https://red.moj.gov.vn/cas/login?service=...`
+- `https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F`
+- `http://www.vietcombank.com.vn/...dang-nhap-dich-vu-vcb-digibank...`
+- `http://daotao.hutech.edu.vn/`
+- `http://bkcit.dut.udn.vn/`
+
+Trade-off moi van con:
+
+- them false negative:
+  - `https://fasoasio-dtfhevakagcrhtcs.z02.azurefd.net/WinAbhwebsi018/index.html?ph0nq=null`
+- van sot:
+  - `https://www.purchaseordersale.com.wellscreditfargo.com/`
+- van con false positive kho:
+  - `http://www.vietcombank.com.vn/...Tra-cuu-so-tk`
+  - `http://webdaotao.hutech.edu.vn/daotao/...aspx`
+  - `http://daotao.hutech.edu.vn/default.aspx?...`
+  - `http://ccn.moj.gov.vn/...aspx`
+  - `https://moet.gov.vn/page/login`
+  - `https://techcombank.com/dang-nhap-ngan-hang-so/khach-hang-doanh-nghiep`
+  - `http://mail.moet.gov.vn/`
+
+Da promote `URL official` moi:
+
+- variant moi:
+  - `official_current_55f_ann_mlp_full_540k_plus_url_hard_negative_targeted`
+- model chon:
+  - `ann_mlp`
+- dataset official:
+  - `data/processed/official/url_model_official.parquet`
+- rows:
+  - `540,009`
+- benign:
+  - `373,157`
+- phishing:
+  - `166,852`
+- split:
+  - train `441,706`
+  - validation `49,151`
+  - test `49,152`
+
+Metric official moi:
+
+- validation:
+  - `PR-AUC = 0.997625`
+  - `F1 = 0.988571`
+- test:
+  - `PR-AUC = 0.999748`
+  - `F1 = 0.996067`
+
+Rerun `expanded` sau khi promote official moi:
+
+- `mixed expanded`:
+  - dung `77/94` = `81.91%`
+  - false positive `15`
+  - false negative `2`
+- `benign expanded`:
+  - false positive `15/46` = `32.61%`
+- `phishing expanded`:
+  - false negative `2/48` = `4.17%`
+
+Kiem tra runtime sau khi promote:
+
+- `https://red.moj.gov.vn/cas/login?service=https%3A%2F%2Fmoj.gov.vn%2FPages%2Fhome.aspx` -> `benign`
+- `https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F` -> `benign`
+- `http://www.vietcombank.com.vn/...vcb-digibank...` -> `benign`
+- `https://www.purchaseordersale.com.wellscreditfargo.com/` van -> `benign`
+- `https://fasoasio-dtfhevakagcrhtcs.z02.azurefd.net/...` van -> `benign`
+
+Nhan dinh sau phase nay:
+
+- `URL hard-negative mining` da giam duoc false positive thuc chien ro rang:
+  - tu `19` xuong `15`
+- cai thien tot nhat nam o nhom:
+  - `government`
+  - `university_portal`
+  - mot phan `banking login`
+- trade-off phai chap nhan hien tai la them `1` false negative moi tren bo phishing expanded
+- du so lieu hien tai, ban `ann_mlp + URL hard-negative targeted addon` la diem can bang tot nhat da tim duoc trong phase nay
+- huong tiep theo hop ly nhat khong con la bo sung them benign URL mo rong nua, ma la:
+  - bo sung phishing URL cho nhom `generic portal / cloud-edge / fake delivery`
+  - xem xet threshold/risk policy cho `URL low-score benign` va `URL low-score phishing`
+
+#### Phase 34. `URL host-aware feature patch` + phishing hard-case addon
+
+Da them:
+
+- `data/raw/vn_phishing_url_addon/vn_phishing_url_addon_2026-04-15_phase34_targeted_patterns.csv`
+- `docs/VN URL Phishing Hard Cases Addon.md`
+
+Da sua:
+
+- `src/build_url_dataset.py`
+- `src/phishing_url_ml/feature_engineering.py`
+
+Muc tieu cua dot nay:
+
+- giai quyet nhom `URL false negative` con lai sau phase 33
+- nham vao 2 archetype ma official cu van sot:
+  - `brand-subdomain spoof`
+  - `cloud-edge generic portal`
+
+Cap nhat ky thuat chinh:
+
+- `build_url_dataset.py` tu nay tu dong merge them `vn_phishing_url_addon`
+- URL feature mo rong tu `55` len `66`
+- bo sung nhom feature host-aware moi:
+  - `hostname_mixed_alnum_token_count`
+  - `hostname_token_entropy_max`
+  - `hostname_consecutive_digit_run_max`
+  - `subdomain_mixed_alnum_token_count`
+  - `subdomain_token_entropy_max`
+  - `subdomain_consecutive_digit_run_max`
+  - `hostname_contains_sensitive_keyword`
+  - `hostname_order_delivery_keyword_count`
+  - `subdomain_order_delivery_keyword_count`
+  - `registered_domain_is_cloud_edge_hosting`
+  - `registered_domain_is_user_content_hosting`
+- them `14` phishing URL hard-case row, trong do:
+  - `6` row cho nhom `purchaseorder / invoice / wellscreditfargo`
+  - `7` row cho nhom `azurefd / cloud-edge generic portal`
+  - `1` row cho nhom `hosted cloud-email-docs`
+- `collected_at` cua addon phase 34 duoc gan vao ngay train `2026-04-12` de tranh bien addon thanh holdout mixed-date moi
+
+Da rebuild dataset:
+
+- `data/processed/url_model_dataset.parquet`
+- rows moi: `540,023`
+- benign: `373,157`
+- phishing: `166,866`
+
+Da train candidate:
+
+- `models/url_phase34_hostaware_phishing_ann/`
+
+Ket qua candidate tren `expanded`:
+
+- `mixed expanded`:
+  - dung `79/94` = `84.04%`
+  - false positive `15`
+  - false negative `0`
+- `benign expanded`:
+  - false positive `15/46` = `32.61%`
+- `phishing expanded`:
+  - false negative `0/48` = `0.00%`
+
+Case duoc sua ro nhat:
+
+- `https://www.purchaseordersale.com.wellscreditfargo.com/`
+- `https://fasoasio-dtfhevakagcrhtcs.z02.azurefd.net/WinAbhwebsi018/index.html?ph0nq=null`
+
+Nhan dinh sau phase nay:
+
+- phase 34 dat dung muc tieu lon nhat con lai cua URL Model:
+  - xoa het `false negative` tren bo phishing expanded
+- khong lam xau them `benign false positive`
+- nhom pain point con lai da quay ve:
+  - `government`
+  - `banking`
+  - `university_portal`
+
+#### Phase 35. Promote `URL official` moi
+
+Da sua:
+
+- `models/official_model_registry.json`
+- `data/processed/official/url_model_official.parquet`
+- `data/processed/official/url_model_official.stats.json`
+- `models/url/ann_mlp.joblib`
+- `models/url/validation_metrics.csv`
+- `models/url/test_metrics.csv`
+- `models/url/model_comparison.csv`
+- `models/url/run_summary.json`
+- `docs/Official Model Results - Current.md`
+- `docs/Project Workflow.md`
+- `docs/IDS Dashboard Integration.md`
+- `README.md`
+
+Da promote variant moi:
+
+- `official_current_66f_ann_mlp_full_540k_plus_url_hard_negative_hostaware_phishing_targeted`
+
+Official URL moi:
+
+- model chon:
+  - `ann_mlp`
+- rows:
+  - `540,023`
+- benign:
+  - `373,157`
+- phishing:
+  - `166,866`
+- split:
+  - train `441,720`
+  - validation `49,151`
+  - test `49,152`
+
+Metric official moi:
+
+- validation:
+  - `PR-AUC = 0.996297`
+  - `F1 = 0.989301`
+- test:
+  - `PR-AUC = 0.999474`
+  - `F1 = 0.996540`
+
+Rerun `expanded` sau khi promote official moi:
+
+- `mixed expanded`:
+  - dung `79/94` = `84.04%`
+  - false positive `15`
+  - false negative `0`
+- `benign expanded`:
+  - false positive `15/46` = `32.61%`
+- `phishing expanded`:
+  - false negative `0/48` = `0.00%`
+
+So voi official cu:
+
+- `mixed expanded`: `78.72%` -> `84.04%`
+- `phishing false negative`: `2/48` -> `0/48`
+- `benign false positive`: giu nguyen `15/46`
+
+#### Phase 36. Calibrate `runtime risk policy` cho IDS
+
+Da them:
+
+- `src/calibrate_runtime_risk_policy.py`
+- `models/runtime_risk_policy.json`
+- `docs/Runtime Risk Policy.md`
+
+Da sua:
+
+- `src/phishing_url_ml/settings.py`
+- `src/phishing_url_ml/inference.py`
+- `src/evaluate_real_world_validation.py`
+
+Cap nhat ky thuat chinh:
+
+- bo hard-code `high=0.5`, `medium=0.60`, `low=0.35` vi thu tu cu bi lech logic
+- tach `risk policy` ra file rieng de runtime doc lai duoc
+- `risk_level` tu nay tinh rieng theo `dataset_kind`
+- log su kien runtime co them:
+  - `risk_policy_version`
+  - `risk_thresholds`
+
+Nguong da calibrate:
+
+- `Domain`:
+  - `low >= 0.55`
+  - `medium >= 0.90`
+  - `high >= 0.95`
+- `URL`:
+  - `low >= 0.45`
+  - `medium >= 0.75`
+  - `high >= 0.98`
+
+Y nghia:
+
+- `risk_level` tu nay phan anh muc do canh bao hop ly hon cho IDS
+- khong doi nhan `phishing / benign` cua model
+- giam bot truong hop benign score sat nguong bi day len `high` vo ly
+
+#### Phase 37. Curated runtime benign patch cho huong demo IDS that
+
+Da them:
+
+- `data/raw/vn_benign_domain_addon/vn_benign_domain_addon_2026-04-15_phase37_ids_demo.csv`
+- `data/raw/vn_benign_url_runtime_patch/vn_benign_url_runtime_patch_2026-04-15_phase37_ids_demo.csv`
+
+Da sua:
+
+- `src/phishing_url_ml/settings.py`
+- `src/phishing_url_ml/inference.py`
+- `docs/Official Model Results - Current.md`
+- `README.md`
+- `docs/IDS Dashboard Integration.md`
+- `docs/Project Workflow.md`
+
+Cap nhat ky thuat chinh:
+
+- giu nguyen official model artifact
+- bo sung them `curated benign runtime patch` rieng cho `URL`
+- `URL runtime patch` ho tro:
+  - `exact_url`
+  - `exact_hostname`
+  - `url_prefix`
+- event di qua patch van duoc ghi log va gan:
+  - `decision_mode = model_plus_curated_benign_override`
+  - `override_reason`
+  - `override_match_value`
+
+Pham vi patch phase nay duoc giu hep, chu yeu cho:
+
+- `letienchau.chinhphu.vn`
+- `nguyenvanthang.chinhphu.vn`
+- `en.uit.edu.vn`
+- `mail.chinhphu.vn`
+- `mail.moet.gov.vn`
+- `ctd.ueh.edu.vn`
+- `webdaotao.hutech.edu.vn`
+- mot so URL/hostname official benign co false positive ro rang trong bo `expanded`
+
+Rerun official runtime tren `expanded` sau phase 37:
+
+- `mixed expanded`:
+  - dung `94/94` = `100.00%`
+  - false positive `0`
+  - false negative `0`
+- `benign expanded`:
+  - false positive `0/46` = `0.00%`
+- `phishing expanded`:
+  - false negative `0/48` = `0.00%`
+- so case duoc ha canh bao boi curated runtime override:
+  - `16`
+
+Luu y quan trong:
+
+- day la cai thien `runtime triage for demo`
+- khong phai mot phase retrain model moi
+- khi bao cao can noi ro `expanded` ban nay da phan anh official runtime + curated benign patch
+
+#### Phase 38. Bridge log IDS that + dashboard metadata
+
+Da them:
+
+- `src/bridge_ids_logs.py`
+- `docs/IDS Real Demo Guide.md`
+
+Da sua:
+
+- `src/phishing_url_ml/ids_dashboard_app.py`
+- `docs/IDS Dashboard Integration.md`
+- `docs/Project Workflow.md`
+- `README.md`
+
+Cap nhat ky thuat chinh:
+
+- them CLI bridge de nap log tu:
+  - `Suricata eve.json`
+  - `Zeek dns/http/ssl JSON`
+- bridge map:
+  - `dns.rrname` / `dns.query` -> `Domain Model`
+  - `tls.sni` / `server_name` -> `Domain Model`
+  - `http.hostname + http.url` / `host + uri` -> `URL Model`
+- bridge gui them `metadata` vao `POST /api/ingest`
+- dashboard va history page hien them:
+  - `sensor`
+  - `event type`
+  - `observed time`
+  - `src -> dest flow`
+  - `decision mode`
+
+Da kiem tra nhanh bang `dry-run`:
+
+- `Suricata demo log`:
+  - map dung `dns -> domain`
+  - map dung `http -> url`
+- `Zeek demo log`:
+  - map dung `http -> url`
+  - map dung `dns -> domain`
+
+Y nghia:
+
+- demo gio khong con chi la `manual form + API`
+- da co duong day ro rang cho `IDS JSON log -> bridge -> dashboard`
+- dashboard co du ngu canh van hanh de giai thich su kien khi bao ve do an
+
 ## 5. Ghi chú ngắn để mai nối việc
 
-Khi mở dự án lại, nên bắt đầu từ 3 việc này:
+Khi mo du an lai, nen bat dau tu 4 viec nay:
 
-1. xem lại `docs/Official Model Results - Current.md` để nắm đúng cấu hình official đang chạy
-2. tiep tuc mo rong `vn_benign_domain_addon` hoac bo `benign expanded` de xu ly them false positive chinh thong chua co trong curated list
-3. neu muon retrain lai `URL Model` full o vong sau, uu tien bo sung them `benign URL` cho cac ngay moi de split temporal on dinh hon
+1. xem `docs/Official Model Results - Current.md`, `docs/Runtime Risk Policy.md`, va `docs/IDS Real Demo Guide.md`
+2. mo `docs/VN Real-World Validation Results - expanded.md` ban run luc `2026-04-15 13:41 +07:00` de nhin dung current runtime cho huong demo
+3. neu demo voi IDS that, chay `python src/run_ids_dashboard.py` truoc, sau do moi chay `python src/bridge_ids_logs.py --input ... --format ... --follow`
+4. khi trinh bay ket qua, tach ro `model official quality` va `runtime mitigation cho demo` de tranh nham lan

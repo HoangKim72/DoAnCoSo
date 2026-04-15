@@ -1,0 +1,4 @@
+priority,total_cases,matched_cases,predicted_benign,predicted_phishing,false_positives,false_negatives,errors,average_score,false_positive_rate,false_negative_rate,match_rate
+critical,16,16,0,16,0,0,0,0.9774478125,0.0,0.0,1.0
+high,24,24,0,24,0,0,0,0.945550125,0.0,0.0,1.0
+medium,8,8,0,8,0,0,0,0.994437,0.0,0.0,1.0

@@ -11,7 +11,10 @@ PROCESSED_DIR = DATA_DIR / "processed"
 RUNTIME_DIR = DATA_DIR / "runtime"
 MODELS_DIR = BASE_DIR / "models"
 IDS_EVENTS_PATH = RUNTIME_DIR / "ids_events.jsonl"
+IDS_BRIDGE_STATE_PATH = RUNTIME_DIR / "ids_bridge_state.json"
 OFFICIAL_MODEL_REGISTRY_PATH = MODELS_DIR / "official_model_registry.json"
+RUNTIME_RISK_POLICY_PATH = MODELS_DIR / "runtime_risk_policy.json"
+CURATED_BENIGN_URL_RUNTIME_PATCH_DIR = RAW_DIR / "vn_benign_url_runtime_patch"
 
 DEFAULT_USER_AGENT = "DoAnCoSo/0.1 (academic phishing URL ML project)"
 VALID_URL_SCHEMES = {"http", "https"}

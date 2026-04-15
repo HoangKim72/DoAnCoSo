@@ -1,0 +1,13 @@
+category,total_cases,matched_cases,predicted_benign,predicted_phishing,false_positives,false_negatives,errors,average_score,false_positive_rate,false_negative_rate,match_rate
+banking,9,9,9,0,0,0,0,0.054329111111111106,0.0,0.0,1.0
+banking_payment,10,10,0,10,0,0,0,0.9718581000000001,0.0,0.0,1.0
+cloud_email_docs,8,8,0,8,0,0,0,0.999804375,0.0,0.0,1.0
+crypto_wallet,6,6,0,6,0,0,0,0.986764,0.0,0.0,1.0
+ecommerce,3,3,3,0,0,0,0,0.04892533333333333,0.0,0.0,1.0
+ecommerce_delivery,8,8,0,8,0,0,0,0.9426187500000001,0.0,0.0,1.0
+generic_portal,8,8,0,8,0,0,0,0.994437,0.0,0.0,1.0
+government,15,15,15,0,0,0,0,0.05497633333333333,0.0,0.0,1.0
+media,3,3,3,0,0,0,0,0.025135333333333332,0.0,0.0,1.0
+social_gaming,8,8,0,8,0,0,0,0.89422725,0.0,0.0,1.0
+university,9,9,9,0,0,0,0,0.11168677777777776,0.0,0.0,1.0
+university_portal,7,7,7,0,0,0,0,0.0058012857142857146,0.0,0.0,1.0

@@ -13,14 +13,36 @@ import joblib
 import pandas as pd
 
 from .feature_engineering import align_feature_frame, build_feature_frame
-from .settings import BASE_DIR, IDS_EVENTS_PATH, OFFICIAL_MODEL_REGISTRY_PATH, RAW_DIR
+from .settings import (
+    BASE_DIR,
+    CURATED_BENIGN_URL_RUNTIME_PATCH_DIR,
+    IDS_EVENTS_PATH,
+    OFFICIAL_MODEL_REGISTRY_PATH,
+    RAW_DIR,
+    RUNTIME_RISK_POLICY_PATH,
+)
 from .utils import build_parsed_record, ensure_parent_dir
 
 
-RISK_THRESHOLDS = {
-    "high": 0.5,
-    "medium": 0.60,
-    "low": 0.35,
+DEFAULT_RUNTIME_RISK_POLICY = {
+    "version": "builtin_fallback_v1",
+    "default": {
+        "high": 0.90,
+        "medium": 0.65,
+        "low": 0.35,
+    },
+    "dataset_kind_overrides": {
+        "domain": {
+            "high": 0.95,
+            "medium": 0.90,
+            "low": 0.55,
+        },
+        "url": {
+            "high": 0.98,
+            "medium": 0.75,
+            "low": 0.45,
+        },
+    },
 }
 CURATED_BENIGN_DOMAIN_DIR = RAW_DIR / "vn_benign_domain_addon"
 CURATED_BENIGN_OVERRIDE_SCORE = 0.01
@@ -110,6 +132,90 @@ def load_curated_benign_domain_allowlist() -> dict[str, frozenset[str]]:
     }
 
 
+@lru_cache(maxsize=1)
+def load_curated_benign_url_runtime_patch() -> dict[str, frozenset[str]]:
+    exact_urls: set[str] = set()
+    exact_hostnames: set[str] = set()
+    url_prefixes: set[str] = set()
+
+    if not CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.exists():
+        return {
+            "exact_urls": frozenset(),
+            "exact_hostnames": frozenset(),
+            "url_prefixes": frozenset(),
+        }
+
+    for csv_path in sorted(CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.glob("*.csv")):
+        try:
+            frame = pd.read_csv(csv_path)
+        except Exception:
+            continue
+        if "match_value" not in frame.columns:
+            continue
+
+        for row in frame.to_dict(orient="records"):
+            rule_type = str(row.get("rule_type", "")).strip().lower() or "exact_url"
+            raw_value = str(row.get("match_value", "")).strip()
+            if not raw_value:
+                continue
+
+            if rule_type == "exact_url":
+                parsed = build_parsed_record(raw_value, "url")
+                canonical_url = str(parsed.get("canonical_url") or "").strip().lower()
+                if canonical_url:
+                    exact_urls.add(canonical_url)
+            elif rule_type == "exact_hostname":
+                parsed = build_parsed_record(raw_value, "domain")
+                if not parsed.get("parse_ok"):
+                    parsed = build_parsed_record(raw_value, "url")
+                hostname = str(parsed.get("canonical_hostname") or parsed.get("hostname") or "").strip().lower()
+                if hostname:
+                    exact_hostnames.add(hostname)
+            elif rule_type == "url_prefix":
+                parsed = build_parsed_record(raw_value, "url")
+                canonical_url = str(parsed.get("canonical_url") or "").strip().lower()
+                if canonical_url:
+                    url_prefixes.add(canonical_url)
+
+    return {
+        "exact_urls": frozenset(exact_urls),
+        "exact_hostnames": frozenset(exact_hostnames),
+        "url_prefixes": frozenset(url_prefixes),
+    }
+
+
+@lru_cache(maxsize=1)
+def load_runtime_risk_policy() -> dict[str, Any]:
+    if not RUNTIME_RISK_POLICY_PATH.exists():
+        return DEFAULT_RUNTIME_RISK_POLICY
+
+    try:
+        payload = json.loads(RUNTIME_RISK_POLICY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return DEFAULT_RUNTIME_RISK_POLICY
+
+    default_thresholds = payload.get("default", {})
+    dataset_kind_overrides = payload.get("dataset_kind_overrides", {})
+    merged = {
+        "version": str(payload.get("version", DEFAULT_RUNTIME_RISK_POLICY["version"])),
+        "default": {
+            "high": float(default_thresholds.get("high", DEFAULT_RUNTIME_RISK_POLICY["default"]["high"])),
+            "medium": float(default_thresholds.get("medium", DEFAULT_RUNTIME_RISK_POLICY["default"]["medium"])),
+            "low": float(default_thresholds.get("low", DEFAULT_RUNTIME_RISK_POLICY["default"]["low"])),
+        },
+        "dataset_kind_overrides": {},
+    }
+
+    for dataset_kind, builtin_thresholds in DEFAULT_RUNTIME_RISK_POLICY["dataset_kind_overrides"].items():
+        override = dataset_kind_overrides.get(dataset_kind, {})
+        merged["dataset_kind_overrides"][dataset_kind] = {
+            "high": float(override.get("high", builtin_thresholds["high"])),
+            "medium": float(override.get("medium", builtin_thresholds["medium"])),
+            "low": float(override.get("low", builtin_thresholds["low"])),
+        }
+    return merged
+
+
 def detect_dataset_kind(value: str, requested_kind: str = "auto") -> str:
     if requested_kind in {"domain", "url"}:
         return requested_kind
@@ -178,12 +284,20 @@ def expected_feature_columns(model: Any, run_summary: dict[str, Any] | None = No
     return None
 
 
-def risk_level_for_score(score: float) -> str:
-    if score >= RISK_THRESHOLDS["high"]:
+def risk_thresholds_for_dataset(dataset_kind: str) -> dict[str, float]:
+    policy = load_runtime_risk_policy()
+    thresholds = dict(policy["default"])
+    thresholds.update(policy["dataset_kind_overrides"].get(dataset_kind, {}))
+    return thresholds
+
+
+def risk_level_for_score(score: float, dataset_kind: str) -> str:
+    thresholds = risk_thresholds_for_dataset(dataset_kind)
+    if score >= thresholds["high"]:
         return "high"
-    if score >= RISK_THRESHOLDS["medium"]:
+    if score >= thresholds["medium"]:
         return "medium"
-    if score >= RISK_THRESHOLDS["low"]:
+    if score >= thresholds["low"]:
         return "low"
     return "minimal"
 
@@ -221,6 +335,32 @@ def curated_benign_domain_override(parsed_row: dict[str, Any]) -> dict[str, str]
             "reason": "curated_benign_domain_trusted_registered_domain",
             "match_value": registered_domain,
         }
+    return None
+
+
+def curated_benign_url_override(parsed_row: dict[str, Any]) -> dict[str, str] | None:
+    canonical_url = str(parsed_row.get("canonical_url") or "").strip().lower()
+    hostname = str(parsed_row.get("canonical_hostname") or parsed_row.get("hostname") or "").strip().lower()
+    if not canonical_url:
+        return None
+
+    allowlist = load_curated_benign_url_runtime_patch()
+    if canonical_url in allowlist["exact_urls"]:
+        return {
+            "reason": "curated_benign_url_exact_url",
+            "match_value": canonical_url,
+        }
+    if hostname and hostname in allowlist["exact_hostnames"]:
+        return {
+            "reason": "curated_benign_url_exact_hostname",
+            "match_value": hostname,
+        }
+    for prefix in allowlist["url_prefixes"]:
+        if canonical_url.startswith(prefix):
+            return {
+                "reason": "curated_benign_url_prefix",
+                "match_value": prefix,
+            }
     return None
 
 
@@ -295,6 +435,8 @@ def predict_value(
 ) -> dict[str, Any]:
     resolved_kind = detect_dataset_kind(value, dataset_kind)
     bundle = load_official_model_bundle(resolved_kind)
+    risk_policy = load_runtime_risk_policy()
+    thresholds = risk_thresholds_for_dataset(resolved_kind)
     inference_df, parsed_row = build_inference_row(value, resolved_kind)
     feature_frame = build_feature_frame(inference_df, resolved_kind)
     feature_frame = align_feature_frame(
@@ -303,15 +445,18 @@ def predict_value(
     )
     predicted_label = int(bundle.model.predict(feature_frame)[0])
     score, score_source = normalized_score_for_model(bundle.model, feature_frame)
-    risk_level = risk_level_for_score(score)
+    risk_level = risk_level_for_score(score, resolved_kind)
     feature_values = feature_frame.iloc[0].to_dict()
     override = None
     model_predicted_label = predicted_label
     model_score = round(float(score), 6)
     model_risk_level = risk_level
     model_score_source = score_source
-    if resolved_kind == "domain" and predicted_label == 1:
-        override = curated_benign_domain_override(parsed_row)
+    if predicted_label == 1:
+        if resolved_kind == "domain":
+            override = curated_benign_domain_override(parsed_row)
+        elif resolved_kind == "url":
+            override = curated_benign_url_override(parsed_row)
         if override:
             predicted_label = 0
             score = min(float(score), CURATED_BENIGN_OVERRIDE_SCORE)
@@ -320,7 +465,7 @@ def predict_value(
     signals = summarize_signals(resolved_kind, parsed_row, feature_values)
     if override:
         override_signal = (
-            "Khớp danh sách domain benign đã curate; ghi log nhưng không nâng cảnh báo phishing."
+            "Khớp danh sách benign runtime da curate; ghi log nhung khong nang canh bao phishing."
         )
         signals = [override_signal, *[signal for signal in signals if signal != override_signal]][:4]
     event = {
@@ -338,6 +483,8 @@ def predict_value(
         "model_name": bundle.model_name,
         "variant_name": bundle.variant_name,
         "feature_count": bundle.feature_count,
+        "risk_policy_version": risk_policy["version"],
+        "risk_thresholds": thresholds,
         "recommendation": (
             "Khớp danh sách benign đã curate; tiếp tục ghi log nhưng không phát cảnh báo mạnh."
             if override

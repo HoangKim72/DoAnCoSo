@@ -40,6 +40,18 @@ SENSITIVE_KEYWORDS = (
     "webscr",
 )
 
+ORDER_DELIVERY_KEYWORDS = (
+    "invoice",
+    "order",
+    "package",
+    "parcel",
+    "purchase",
+    "remittance",
+    "shipment",
+    "track",
+    "tracking",
+)
+
 TOP_BRANDS = (
     "adobe",
     "amazon",
@@ -142,6 +154,23 @@ REDIRECT_QUERY_KEYS = {
     "target",
     "url",
 }
+
+CLOUD_EDGE_HOSTING_DOMAINS = frozenset(
+    {
+        "azurefd.net",
+        "framer.ai",
+        "pages.dev",
+        "vercel.app",
+        "workers.dev",
+    }
+)
+
+USER_CONTENT_HOSTING_DOMAINS = frozenset(
+    {
+        "blogspot.com",
+        "github.io",
+    }
+)
 
 
 def _get_text_series(df: pd.DataFrame, column: str) -> pd.Series:
@@ -481,6 +510,16 @@ def _has_explicit_port(url: str) -> int:
         return 0
 
 
+@lru_cache(maxsize=200_000)
+def _registered_domain_is_cloud_edge_hosting(text: str) -> int:
+    return int(text.lower() in CLOUD_EDGE_HOSTING_DOMAINS)
+
+
+@lru_cache(maxsize=200_000)
+def _registered_domain_is_user_content_hosting(text: str) -> int:
+    return int(text.lower() in USER_CONTENT_HOSTING_DOMAINS)
+
+
 def build_domain_feature_frame(df: pd.DataFrame) -> pd.DataFrame:
     hostname = _get_text_series(df, "hostname")
     registered_domain = _get_text_series(df, "registered_domain")
@@ -561,6 +600,12 @@ def build_url_feature_frame(df: pd.DataFrame) -> pd.DataFrame:
     features["unique_char_ratio"] = sample.apply(lambda text: len(set(text)) / len(text) if text else 0.0)
     features["sample_entropy"] = sample.apply(_shannon_entropy)
     features["hostname_entropy"] = hostname.apply(_shannon_entropy)
+    features["hostname_mixed_alnum_token_count"] = hostname.apply(_mixed_alnum_token_count)
+    features["hostname_token_entropy_max"] = hostname.apply(_token_entropy_max)
+    features["hostname_consecutive_digit_run_max"] = hostname.apply(_consecutive_digit_run_max)
+    features["subdomain_mixed_alnum_token_count"] = subdomain.apply(_mixed_alnum_token_count)
+    features["subdomain_token_entropy_max"] = subdomain.apply(_token_entropy_max)
+    features["subdomain_consecutive_digit_run_max"] = subdomain.apply(_consecutive_digit_run_max)
 
     features["subdomain_depth"] = subdomain.apply(_subdomain_count)
     features["path_depth"] = path.apply(lambda text: len([part for part in text.split("/") if part]) if text else 0)
@@ -575,6 +620,13 @@ def build_url_feature_frame(df: pd.DataFrame) -> pd.DataFrame:
     features["percent_encoded_ratio"] = sample.apply(_percent_encoded_ratio)
 
     features["suspicious_token_count"] = sample.apply(_count_sensitive_keywords)
+    features["hostname_contains_sensitive_keyword"] = hostname.apply(_contains_sensitive_keyword)
+    features["hostname_order_delivery_keyword_count"] = hostname.apply(
+        lambda text: _count_tokens_matching_keywords(text, ORDER_DELIVERY_KEYWORDS)
+    )
+    features["subdomain_order_delivery_keyword_count"] = subdomain.apply(
+        lambda text: _count_tokens_matching_keywords(text, ORDER_DELIVERY_KEYWORDS)
+    )
     features["path_has_login_segment"] = path.apply(lambda text: _path_has_keyword(text, LOGIN_PATH_KEYWORDS))
     features["path_has_verify_segment"] = path.apply(lambda text: _path_has_keyword(text, VERIFY_PATH_KEYWORDS))
     features["path_has_brand_segment"] = path.apply(_path_has_brand_segment)
@@ -591,6 +643,12 @@ def build_url_feature_frame(df: pd.DataFrame) -> pd.DataFrame:
     features["has_query"] = query.ne("").astype(int)
     features["has_ip_host"] = is_ip_host
     features["port_specified_flag"] = sample.apply(_has_explicit_port)
+    features["registered_domain_is_cloud_edge_hosting"] = registered_domain.apply(
+        _registered_domain_is_cloud_edge_hosting
+    )
+    features["registered_domain_is_user_content_hosting"] = registered_domain.apply(
+        _registered_domain_is_user_content_hosting
+    )
 
     return features.astype(float)
 

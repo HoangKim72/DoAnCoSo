@@ -1152,7 +1152,15 @@ DASHBOARD_TEMPLATE = """
                   <summary class="detail-toggle">Mở chi tiết</summary>
                   <div class="detail-card">
                     <div><span class="metric-label">Score</span>{% if event.score is not none %}{{ "%.4f"|format(event.score) }}{% else %}N/A{% endif %}</div>
+                    <div><span class="metric-label">Observed</span>{{ event.observed_at or event.received_at }}</div>
                     <div><span class="metric-label">Source</span>{{ event.source }}</div>
+                    <div><span class="metric-label">Sensor</span>{{ event.sensor_name or "N/A" }}</div>
+                    <div><span class="metric-label">Event</span>{{ event.ids_event_type }}</div>
+                    <div><span class="metric-label">Flow</span>{{ event.flow_summary or "N/A" }}</div>
+                    <div><span class="metric-label">Decision</span>{{ event.decision_summary }}</div>
+                    {% if event.override_reason %}
+                    <div><span class="metric-label">Override</span>{{ event.override_match_value or event.override_reason }}</div>
+                    {% endif %}
                     <div><span class="metric-label">Model</span>{{ event.model_name }}</div>
                     <div>
                       <span class="metric-label">Signals</span>
@@ -1409,8 +1417,24 @@ DASHBOARD_TEMPLATE = """
               <strong>${escapeHtml(data.received_at || "N/A")}</strong>
             </div>
             <div class="result-item">
+              <span>Observed</span>
+              <strong>${escapeHtml(data.observed_at || data.received_at || "N/A")}</strong>
+            </div>
+            <div class="result-item">
               <span>Source</span>
               <strong>${escapeHtml(data.source || "ids_browser_sensor")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Sensor</span>
+              <strong>${escapeHtml(data.sensor_name || "N/A")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Event</span>
+              <strong>${escapeHtml(data.ids_event_type || "manual_check")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Flow</span>
+              <strong>${escapeHtml(data.flow_summary || "N/A")}</strong>
             </div>
             <div class="result-item">
               <span>Model</span>
@@ -1420,6 +1444,15 @@ DASHBOARD_TEMPLATE = """
               <span>Variant</span>
               <strong>${escapeHtml(data.variant_name || "N/A")}</strong>
             </div>
+            <div class="result-item">
+              <span>Decision</span>
+              <strong>${escapeHtml(data.decision_summary || data.decision_mode || "model")}</strong>
+            </div>
+            ${data.override_reason ? `
+            <div class="result-item">
+              <span>Override</span>
+              <strong>${escapeHtml(data.override_match_value || data.override_reason)}</strong>
+            </div>` : ``}
             <div class="result-item">
               <span>Khuyến nghị</span>
               <strong>${escapeHtml(data.recommendation || "Không có")}</strong>
@@ -1467,7 +1500,13 @@ DASHBOARD_TEMPLATE = """
               <summary class="detail-toggle">Mở chi tiết</summary>
               <div class="detail-card">
                 <div><span class="metric-label">Score</span>${score}</div>
+                <div><span class="metric-label">Observed</span>${escapeHtml(event.observed_at || event.received_at || "N/A")}</div>
                 <div><span class="metric-label">Source</span>${escapeHtml(event.source)}</div>
+                <div><span class="metric-label">Sensor</span>${escapeHtml(event.sensor_name || "N/A")}</div>
+                <div><span class="metric-label">Event</span>${escapeHtml(event.ids_event_type || "manual_check")}</div>
+                <div><span class="metric-label">Flow</span>${escapeHtml(event.flow_summary || "N/A")}</div>
+                <div><span class="metric-label">Decision</span>${escapeHtml(event.decision_summary || event.decision_mode || "model")}</div>
+                ${event.override_reason ? `<div><span class="metric-label">Override</span>${escapeHtml(event.override_match_value || event.override_reason)}</div>` : ``}
                 <div><span class="metric-label">Model</span>${escapeHtml(event.model_name)}</div>
                 <div>
                   <span class="metric-label">Signals</span>
@@ -1646,17 +1685,27 @@ EVENT_HISTORY_TEMPLATE = """
     {% if events %}
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Thời gian</th><th>Loại</th><th>Input</th><th>Score</th><th>Risk</th><th>Kết quả</th><th>Source</th><th>Model</th></tr></thead>
+        <thead><tr><th>Thời gian</th><th>Observed</th><th>Loại</th><th>Input</th><th>Score</th><th>Risk</th><th>Kết quả</th><th>Context</th><th>Decision</th><th>Model</th></tr></thead>
         <tbody>
           {% for event in events %}
           <tr>
             <td>{{ event.received_at }}</td>
+            <td>{{ event.observed_at or event.received_at }}</td>
             <td><span class="chip {% if event.dataset_kind == 'url' %}url{% endif %}">{{ event.dataset_kind }}</span></td>
             <td><code class="truncate">{{ event.normalized_value }}</code></td>
             <td>{% if event.score is not none %}{{ "%.4f"|format(event.score) }}{% else %}N/A{% endif %}</td>
             <td><span class="risk {{ event.risk_level }}">{{ event.risk_level }}</span></td>
             <td>{{ event.predicted_class }}</td>
-            <td>{{ event.source }}</td>
+            <td>
+              <div>{{ event.source }}</div>
+              {% if event.sensor_name %}<div class="muted">{{ event.sensor_name }}</div>{% endif %}
+              <div class="muted">{{ event.ids_event_type }}</div>
+              {% if event.flow_summary %}<div class="muted">{{ event.flow_summary }}</div>{% endif %}
+            </td>
+            <td>
+              <div>{{ event.decision_summary }}</div>
+              {% if event.override_reason %}<div class="muted">{{ event.override_match_value or event.override_reason }}</div>{% endif %}
+            </td>
             <td>{{ event.model_name }}</td>
           </tr>
           {% endfor %}
@@ -1683,6 +1732,70 @@ def parse_request_payload() -> dict[str, Any]:
     return request.form.to_dict(flat=True)
 
 
+def _clean_metadata_value(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def _compact_endpoint(ip_value: Any, port_value: Any) -> str:
+    ip_text = _clean_metadata_value(ip_value)
+    port_text = _clean_metadata_value(port_value)
+    if not ip_text:
+        return ""
+    if port_text:
+        return f"{ip_text}:{port_text}"
+    return ip_text
+
+
+def decorate_event(event: dict[str, Any]) -> dict[str, Any]:
+    metadata = event.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    sensor_name = (
+        _clean_metadata_value(metadata.get("sensor_name"))
+        or _clean_metadata_value(metadata.get("parser_format"))
+    )
+    ids_event_type = (
+        _clean_metadata_value(metadata.get("ids_event_type"))
+        or _clean_metadata_value(metadata.get("parser_format"))
+        or "manual_check"
+    )
+    observed_at = (
+        _clean_metadata_value(metadata.get("observed_at"))
+        or _clean_metadata_value(metadata.get("timestamp"))
+    )
+    flow_summary = " -> ".join(
+        part
+        for part in [
+            _compact_endpoint(metadata.get("src_ip"), metadata.get("src_port")),
+            _compact_endpoint(metadata.get("dest_ip"), metadata.get("dest_port")),
+        ]
+        if part
+    )
+
+    decorated = dict(event)
+    decorated["metadata"] = metadata
+    decorated["sensor_name"] = sensor_name
+    decorated["ids_event_type"] = ids_event_type
+    decorated["observed_at"] = observed_at
+    decorated["flow_summary"] = flow_summary
+    decorated["context_summary"] = " | ".join(
+        part for part in [sensor_name or decorated.get("source", ""), ids_event_type, flow_summary] if part
+    )
+    decorated["decision_summary"] = (
+        "model + curated benign override"
+        if decorated.get("decision_mode") == "model_plus_curated_benign_override"
+        else "model"
+    )
+    return decorated
+
+
+def decorate_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [decorate_event(event) for event in events]
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
 
@@ -1696,7 +1809,7 @@ def create_app() -> Flask:
 
     @app.get("/dashboard")
     def dashboard():
-        events = load_events(limit=100)
+        events = decorate_events(load_events(limit=100))
         summary = summarize_events(events)
         return render_template_string(
             DASHBOARD_TEMPLATE,
@@ -1709,7 +1822,7 @@ def create_app() -> Flask:
     def dashboard_events():
         return render_template_string(
             EVENT_HISTORY_TEMPLATE,
-            events=load_events(limit=500),
+            events=decorate_events(load_events(limit=500)),
         )
 
     @app.get("/api/events")
@@ -1718,7 +1831,7 @@ def create_app() -> Flask:
             limit = int(request.args.get("limit", 100))
         except ValueError:
             return error_response("`limit` must be an integer.")
-        events = load_events(limit=max(1, min(limit, 500)))
+        events = decorate_events(load_events(limit=max(1, min(limit, 500))))
         return jsonify({"events": events, "summary": summarize_events(events)})
 
     @app.post("/api/predict")
@@ -1740,7 +1853,7 @@ def create_app() -> Flask:
             )
         except Exception as exc:  # pragma: no cover - exercised in manual flow
             return error_response(str(exc), 400)
-        return jsonify(result)
+        return jsonify(decorate_event(result))
 
     @app.post("/api/ingest")
     def api_ingest():
@@ -1765,6 +1878,6 @@ def create_app() -> Flask:
             )
         except Exception as exc:  # pragma: no cover - exercised in manual flow
             return error_response(str(exc), 400)
-        return jsonify(result), 201
+        return jsonify(decorate_event(result)), 201
 
     return app
