@@ -248,26 +248,41 @@ Phân bố nhãn hiện tại:
 
 ### Phase hiện tại của dự án
 
-Đồ án đang ở giai đoạn:
+Đồ án hiện đang ở giai đoạn:
 
-- pipeline dữ liệu đã chạy được
-- đã có dataset riêng cho `domain` và `url`
-- đã benchmark được nhiều mô hình hơn baseline ban đầu
-- đã tách feature riêng cho `domain` và `url`
-- đã có collector để tích lũy `OpenPhish` theo thời gian
+- pipeline dữ liệu chính đã ổn định
+- đã có `2` model official current rõ ràng cho `domain` và `url`
+- dashboard/API đã load theo đúng `official_model_registry.json`
+- đã có bộ `real-world validation expanded` để soi hành vi thực chiến
+- repo đã được dọn bớt artifact thử nghiệm để tập trung vào nhánh official
 
 ### Những gì đang ổn
 
 - luồng `download -> normalize -> clean -> build dataset -> train` đã rõ
-- `URL Model` đang cho kết quả khá tốt
-- tài liệu nội bộ đã đầy đủ hơn để kiểm tra dữ liệu và metric
+- `Domain Model` official đã được chốt lại theo bộ `26` feature:
+  - variant `official_current_26f_hybrid_xgboost_ann_weighted_120k`
+  - model mặc định `hybrid_xgboost_ann_weighted`
+- `URL Model` official đã được chốt lại theo bộ `55` feature:
+  - variant `official_current_55f_ann_mlp_temporal_100k`
+  - model mặc định `ann_mlp`
+- tài liệu chính đã đồng bộ lại quanh:
+  - `README.md`
+  - `docs/Project Workflow.md`
+  - `docs/IDS Dashboard Integration.md`
+  - `docs/Official Model Results - Current.md`
+- repo hiện chỉ còn giữ:
+  - pipeline `src/` chính
+  - `models/domain/`, `models/url/`
+  - `data/processed/official/`
+  - các file validation thực chiến hiện đang dùng
 
 ### Những gì chưa ổn
 
-- `Domain Model` vẫn chưa ổn định bằng `URL Model`
+- `Domain Model` vẫn còn pain point ở nhánh phishing khó kiểu `banking_payment / crypto_wallet`
+- `URL Model` vẫn false positive mạnh trên `URL benign` nhóm `government / banking / university_portal`
 - `distribution shift` giữa các ngày vẫn còn mạnh
-- `openphish_snapshots` đã đi vào pipeline train chính thông qua bước normalize
-- chưa full retrain sau khi tách bộ feature mới cho `Domain Model`
+- `url_model_dataset.parquet` full mới nhất hiện chưa đủ `3` mốc thời gian có cả `benign` và `phishing` để chia `train / validation / test` ổn định
+- vì lý do trên, `URL Model` official hiện phải dùng `latest valid temporal sample 100k` thay vì train thẳng trên toàn bộ input mới nhất
 
 ---
 
@@ -275,43 +290,36 @@ Phân bố nhãn hiện tại:
 
 ### Phase kế tiếp nên làm
 
-#### Phase 10. Ổn định hóa luồng snapshot trong pipeline
+#### 1. Giảm false positive của `URL Model` trên bộ `expanded`
 
-- giữ quy ước rõ ràng giữa `data/raw/openphish/` và `data/raw/openphish_snapshots/`
-- tránh duplicate raw cùng một snapshot ở cả hai thư mục
-- quyết định khi nào cần rebuild dataset và retrain sau mỗi đợt snapshot mới
+- ưu tiên nhóm:
+  - `government`
+  - `banking`
+  - `university_portal`
+- soi kỹ các case có path/query hợp lệ nhưng trông giống phishing:
+  - `portal`
+  - `login`
+  - `dang-nhap`
+  - `ReturnUrl`
 
-#### Phase 11. Full retrain với feature mới
+#### 2. Tăng recall cho `Domain Model` trên phishing khó
 
-- retrain lại `Domain Model`
-- retrain lại `URL Model`
-- cập nhật lại `run_summary.json`, `validation_metrics.csv`, `test_metrics.csv`, `model_comparison.csv`
+- ưu tiên nhóm:
+  - `banking_payment`
+  - `crypto_wallet`
+- tiếp tục xem có cần bổ sung thêm feature/domain data cho các mẫu tên miền ít giống brand rõ ràng hay không
 
-#### Phase 12. Đánh giá cho hướng `IDS`
+#### 3. Ổn định lại dữ liệu cho lần retrain `URL Model` full tiếp theo
 
-- đánh giá lại riêng `Domain Model`
-- xác định threshold phù hợp cho cảnh báo
-- xem mô hình hiện tại đã đủ dùng cho `dashboard/alert` hay chưa
+- bổ sung thêm `benign URL` cho các ngày mới
+- mục tiêu là đưa full `url_model_dataset.parquet` trở lại trạng thái có đủ mốc thời gian mixed-label để split ổn định
+- khi đủ điều kiện, retrain lại `URL Model` official trên full input mới thay vì giữ `temporal 100k`
 
-#### Phase 13. Tích hợp `IDS` và `Dashboard`
+#### 4. Đánh giá tiếp cho hướng `IDS`
 
-- đã tạo lớp suy luận dùng `official hybrid models` cho cả `domain` và `url`
-- đã tạo app local để:
-  - nhận event từ IDS qua API
-  - suy luận bằng model official
-  - lưu log sự kiện
-  - hiển thị kết quả trên dashboard
-- các file mới chính:
-  - `src/phishing_url_ml/inference.py`
-  - `src/phishing_url_ml/ids_dashboard_app.py`
-  - `src/run_ids_dashboard.py`
-  - `docs/IDS Dashboard Integration.md`
-
-Kết quả sau phase này:
-
-- repo không còn chỉ dừng ở mức train model
-- đã có luồng `IDS -> predict -> dashboard`
-- có thể demo bằng API và giao diện web local
+- xem lại threshold/risk-level nếu muốn dùng cảnh báo thực tế
+- tiếp tục theo dõi các sự kiện sai nổi bật trên dashboard/API
+- chỉ cân nhắc mở lại các sweep thử nghiệm khi đã có thay đổi dữ liệu hoặc feature đủ đáng kể
 
 ---
 
@@ -562,10 +570,690 @@ Nhan dinh sau phase nay:
 
 ---
 
+### `2026-04-11`
+
+#### Phase 19. Mở rộng feature cho `Domain Model` và `URL Model`
+
+Da cap nhat `src/phishing_url_ml/feature_engineering.py` de bo sung them feature moi theo tieu chi:
+
+- it trung lap
+- it bias theo `trusted domain`
+- bam sat loi thuc te, nhat la nhom `portal / subdomain / encoded URL / redirect`
+
+Feature moi da them cho `Domain Model`:
+
+- `avg_token_length_domain`
+- `max_token_length_domain`
+- `suspicious_token_count`
+- `brand_like_token_count`
+- `mixed_alnum_token_count`
+- `brand_in_subdomain_only`
+- `brand_in_registered_domain`
+- `num_brand_mentions`
+- `closest_brand_similarity_ratio`
+- `token_entropy_max`
+- `consecutive_digit_run_max`
+
+Feature moi da them cho `URL Model`:
+
+- `avg_path_segment_length`
+- `max_path_segment_length`
+- `num_numeric_segments`
+- `num_mixed_segments`
+- `path_entropy`
+- `query_key_count`
+- `query_value_length_max`
+- `percent_encoded_ratio`
+- `path_has_login_segment`
+- `path_has_verify_segment`
+- `path_has_brand_segment`
+- `path_has_user_action_keyword`
+- `has_redirect_param`
+- `redirect_param_count`
+- `sensitive_param_count`
+- `base64_like_value_present`
+- `contains_double_slash_in_path`
+- `port_specified_flag`
+
+So feature sau khi mo rong:
+
+- `Domain Model`: tu `15` len `26`
+- `URL Model`: tu `37` len `55`
+
+Da chu dong khong them cac feature de gay bias cao nhu:
+
+- `is_edu_like_domain`
+- `is_gov_like_domain`
+- `is_bank_like_domain`
+- `is_university_like_url`
+- `is_internal_service_like_url`
+- `login_keyword_but_trusted_domain_flag`
+
+#### Phase 20. Vá tương thích suy luận và xác nhận không cần rebuild pipeline input
+
+Da cap nhat:
+
+- `src/phishing_url_ml/inference.py`
+- `src/evaluate_real_world_validation.py`
+
+Muc tieu:
+
+- cho phep model cu van predict duoc du feature moi da duoc them
+- tu dong can cot feature theo `run_summary.json`
+
+Da xac nhan:
+
+- khong can sua `src/clean_data.py`
+- khong can sua `src/build_domain_dataset.py`
+- khong can sua `src/build_url_dataset.py`
+
+Ly do:
+
+- cac parquet hien tai da co san cac cot dau vao can thiet de suy ra feature moi
+- co the retrain truc tiep tu dataset da build san ma khong can chay lai `clean -> build`
+
+#### Phase 21. Thử nghiệm input `51% phishing / 49% benign` để kéo `hybrid` quay lại
+
+Da tao script:
+
+- `src/rebalance_model_dataset.py`
+- `src/sample_temporal_dataset.py`
+
+Da tao cac dataset test rieng:
+
+- `data/processed/experiments/domain_model_hybrid_51p_phishing.parquet`
+- `data/processed/experiments/url_model_hybrid_51p_phishing.parquet`
+- cac ban sample nho hon cho sanity check quy mo `~30k`, `60k`, `90k`, `100k`
+
+Ket qua tong hop duoc luu tai:
+
+- `docs/Hybrid Input 51-49 Experiment Results.md`
+
+Ket qua chinh:
+
+- `Domain Model`: input `51/49` khong dua `hybrid_lr_xgboost_ann` quay lai top-1; `ann_mlp` van dan dau ro rang
+- `Domain Model`: giam kich thuoc input qua nhieu moc van khong lam `hybrid` tro thanh model tot nhat
+- `URL Model`: co mot moc full `51/49` ma `hybrid` dung top-1 theo validation, nhung tren test lai thua `ann_mlp` va `xgboost`
+- `URL Model`: khi dua ve bo `~100k`, `hybrid` lai mat uu the
+
+Nhan dinh sau phase nay:
+
+- input engineering mot minh chua du de chung minh `hybrid` la model tot nhat
+- van de nam nhieu hon o cau truc ensemble va cach tron score
+
+---
+
+### `2026-04-12`
+
+#### Phase 22. Tinh chỉnh kien truc `hybrid` - Round 1
+
+Da mo rong `src/train_baselines.py` de benchmark them cac bien the moi:
+
+- `hybrid_lr_xgboost_ann_weighted`
+- `hybrid_xgboost_ann_weighted`
+- `hybrid_lr_xgboost_ann_calibrated`
+- `hybrid_stack_meta_lr`
+
+Muc tieu thu nghiem:
+
+- `weighted soft voting`
+- bo `LR` khoi ensemble neu can
+- `calibration`
+- `stacking`
+
+Ket qua tong hop duoc luu tai:
+
+- `docs/Hybrid Architecture Tuning - Round 1.md`
+
+Ket qua chinh:
+
+- `Domain Model`: hybrid tot nhat moi la `hybrid_xgboost_ann_weighted`
+- `Domain Model`: hybrid moi cai thien ro so voi hybrid cu, nhung van chua vuot `ann_mlp` o validation va chua vuot `xgboost` o test
+- `URL Model`: tren bo temporal sample `~100k`, `hybrid_xgboost_ann_weighted` la hybrid dep nhat va co test nhinh hon `ann_mlp`, nhung validation bi bao hoa nen chua du manh de chot
+- `calibration` va `stacking` khong phai huong thang trong vong nay
+
+Nhan dinh sau phase nay:
+
+- huong dung nhat la bo `LR`
+- neu con tiep tuc ensemble thi nen tap trung vao `xgboost + ann`
+
+#### Phase 23. Sweep weight cho `xgboost + ann` - Round 2
+
+Da tao script:
+
+- `src/sweep_xgb_ann_weights.py`
+
+Cach lam:
+
+- train `xgboost` va `ann_mlp` mot lan
+- sweep weight tu `0.00` den `1.00` theo buoc `0.05`
+- so sanh theo `validation PR-AUC`, sau do doi chieu voi `test PR-AUC`
+
+Ket qua tong hop duoc luu tai:
+
+- `docs/Hybrid Weight Sweep - Round 2.md`
+
+Ket qua chinh:
+
+- `Domain Model`: blend tot nhat theo validation la `xgb_0.05_ann_0.95`, validation `PR-AUC = 0.877093`
+- `Domain Model`: tuy nhich hon `ann` o validation, nhung test `PR-AUC = 0.746865`, van thua `ann` thuần `0.750694` va `xgboost` thuần `0.751575`
+- `URL current ~100k`: validation chon `ann` thuần, test cung dep nhat o `ann` thuần
+- `URL 51/49 ~100k`: test dep nhat quanh `xgb_0.10_ann_0.90`, nhung validation van chon `ann` thuần
+
+Nhan dinh sau phase nay:
+
+- `weighted xgboost + ann` la hybrid sach va hop ly nhat trong cac thu nghiem moi
+- nhung den hien tai van chua co bang chung du manh de thay `ann` lam model mac dinh
+- ket luan tam thoi an toan nhat la:
+  - `Domain`: chua doi sang hybrid
+  - `URL`: chua doi sang hybrid
+
+#### Phase 24. Mo rong `real-world validation` va va bug align feature
+
+Da tao them:
+
+- `src/build_vn_real_world_benign_seed.py`
+- `data/validation/vn_real_world_benign_seed_expanded.csv`
+- `data/validation/vn_real_world_benign_seed_expanded_summary.json`
+- `data/validation/vn_real_world_phishing_seed_expanded.csv`
+- `data/validation/vn_real_world_validation_seed_expanded.csv`
+- `docs/VN Real-World Benign Validation Results - expanded.md`
+- `docs/VN Real-World Phishing Validation Results - expanded.md`
+- `docs/VN Real-World Validation Results - expanded.md`
+
+Da sua:
+
+- `src/phishing_url_ml/inference.py`
+- `src/evaluate_real_world_validation.py`
+
+Muc tieu cua dot nay:
+
+- mo rong bo danh gia thuc chien ra khoi bo `30 + 30` cu
+- uu tien them nhieu `URL benign` kho kieu `portal / login / government / banking`
+- loai cac benign sample da nam san trong `official train` de bo `expanded` kho hon va sach hon
+- dung file `OpenPhish` moi nhat dang co trong repo la `data/raw/openphish/openphish_2026-04-11.txt` de tao `phishing seed` mo rong
+
+Chi tiet benign seed mo rong:
+
+- build tu `data/curated/vn_official_site_seeds_focus.csv`
+- collector uu tien `portal/login/tra-cuu/mail` thay vi homepage de thuong
+- tu dong loai overlap voi:
+  - `data/processed/official/domain_model_official.parquet`
+  - `data/processed/official/url_model_official.parquet`
+- ket qua sau loc:
+  - tong `46` case
+  - `4` domain
+  - `42` url
+- phan bo category:
+  - `15` government
+  - `9` banking
+  - `9` university
+  - `7` university_portal
+  - `3` ecommerce
+  - `3` media
+
+Chi tiet phishing seed mo rong:
+
+- build tu `OpenPhish` raw ngay `2026-04-11`
+- chon `24` pair `domain + url`
+- ket qua:
+  - tong `48` case
+  - `24` domain
+  - `24` url
+
+Da phat hien va sua bug quan trong:
+
+- truoc khi sua, `evaluate_real_world_validation.py` va `predict_value()` dang can feature theo `run_summary["feature_columns"]`
+- nhung `official registry` van tro toi `hybrid` cu `15/37` feature, trong khi `run_summary.json` moi da mo rong len `26/55`
+- ket qua la model predict loi hang loat vi lech cot feature
+- da sua de uu tien can theo `model.feature_names_in_`, va chi fallback sang `run_summary` neu can
+- da sua them markdown formatter de mixed report khong vo khi mot row co `score = None`
+
+Ket qua that sau khi da sua bug va rerun:
+
+`Benign expanded`
+
+- dung `19/46`
+- false positive `27/46` = `58.70%`
+- theo `dataset_kind`:
+  - `Domain`: `3/4`, false positive `1/4`
+  - `URL`: `16/42`, false positive `26/42`
+- nhom false positive nang nhat:
+  - `government`: `11/15`
+  - `banking`: `6/9`
+  - `university`: `5/9`
+  - `university_portal`: `4/7`
+
+`Phishing expanded`
+
+- dung `38/48` = `79.17%`
+- false negative `10/48` = `20.83%`
+- theo `dataset_kind`:
+  - `Domain`: `16/24`, false negative `8/24`
+  - `URL`: `22/24`, false negative `2/24`
+- nhom bi hut nhieu nhat:
+  - `banking_payment`: `4/10`
+  - `crypto_wallet`: `3/6`
+
+`Mixed expanded`
+
+- tong `94` case
+- dung `57/94` = `60.64%`
+- false positive `27`
+- false negative `10`
+- theo `dataset_kind`:
+  - `Domain`: `19/28`
+  - `URL`: `38/66`
+
+Case benign sai noi bat moi:
+
+- `https://hocphi.hcmus.edu.vn/dang-nhap`
+- `http://daotao.hutech.edu.vn/default.aspx?flag=XemDiemThi&page=nhapmasv`
+- `https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F`
+- `https://online.acb.com.vn/acbib/Request?...`
+- `https://datafiles.chinhphu.vn/...signed.pdf`
+- `https://datafiles.hanoi.gov.vn/...pdf`
+
+Case phishing bi hut noi bat moi:
+
+- `elster-anfrage.com`
+- `myweb3metwallet.com`
+- `www.connectwallet.xyz`
+- `securepaypaldigitalwallet.com`
+- `recaudos-postpago.com`
+- `https://www.purchaseordersale.com.wellscreditfargo.com/`
+
+Nhan dinh sau phase nay:
+
+- bo `expanded` kho hon bo seed cu rat nhieu va phan anh ro hon pain point van hanh that
+- diem yeu lon nhat hien tai nam o `URL benign` thuoc nhom `government / banking / university portal`
+- nhanh `Domain` van bo sot nhieu phishing kieu `banking_payment / crypto_wallet` khi ten mien khong qua giong mau cu
+- bug align feature da duoc sua, nen tu phase nay tro di cac bao cao `real-world validation` moi co the tin duoc
+- huong tiep theo hop ly nhat khong con la tiep tuc sweep `hybrid` ngay, ma la giam false positive cua `URL Model` va tang recall `Domain Model` tren bo `expanded`
+
+#### Phase 25. Sweep lai `Domain Hybrid` tren input moi, khong ep `51/49`
+
+Tinh huong moi:
+
+- raw input da duoc cap nhat them vao `2026-04-11` va `2026-04-12`
+- `data/processed/domain_model_dataset.parquet` tang len:
+  - tong `334,771`
+  - benign `251,491`
+  - phishing `83,280`
+- feature set domain dang dung la bo moi `26` feature
+
+Da tao:
+
+- `src/sweep_domain_hybrid_balance.py`
+- `docs/Domain Hybrid Balance Sweep - Updated Input.md`
+
+Da sweep theo huong:
+
+- khong khoa cung `51/49`
+- cho phep dataset lech nhe ve `phishing`
+- tap trung vao cac variant:
+  - `hybrid_lr_xgboost_ann`
+  - `hybrid_lr_xgboost_ann_weighted`
+  - `hybrid_xgboost_ann_weighted`
+
+Grid da thu:
+
+- coarse:
+  - ratio `0.50`, `0.54`, `0.58`
+  - target rows `full`
+- refine:
+  - ratio `0.58`, `0.60`
+  - target rows `full`, `120000`, `100000`
+
+Ket qua hybrid tot nhat theo `validation PR-AUC`:
+
+- model: `hybrid_xgboost_ann_weighted`
+- ratio: `0.60`
+- target rows: `120000`
+- validation:
+  - `PR-AUC = 0.827479`
+  - `F1 = 0.725838`
+  - `precision = 0.587859`
+  - `recall = 0.948454`
+- test:
+  - `PR-AUC = 0.859640`
+  - `F1 = 0.717241`
+
+Top hybrid khac cung gan:
+
+- `hybrid_xgboost_ann_weighted` | ratio `0.58` | rows `100000` | val `PR-AUC = 0.823466`
+- `hybrid_xgboost_ann_weighted` | ratio `0.60` | rows `100000` | val `PR-AUC = 0.817654`
+- `hybrid_xgboost_ann_weighted` | ratio `0.58` | rows `full` | val `PR-AUC = 0.816974`
+
+Neu hieu muc tieu "tren 95%" theo `validation recall`:
+
+- da co hybrid vuot `95%` recall:
+  - `hybrid_xgboost_ann_weighted` | ratio `0.58` | rows `120000` | recall `0.957219`
+  - `hybrid_lr_xgboost_ann_weighted` | ratio `0.58` | rows `120000` | recall `0.951872`
+  - `hybrid_lr_xgboost_ann` | ratio `0.60` | rows `120000` | recall `0.953608`
+
+Neu hieu theo `validation PR-AUC`:
+
+- chua co hybrid nao gan `0.95`
+- best hien tai chi o muc `0.827479`
+
+Da doi chieu them voi model thuần tai cau hinh tot nhat cho hybrid:
+
+- tai `ratio = 0.60`, `rows = 120000`
+- validation:
+  - `hybrid_xgboost_ann_weighted`: `0.827479`
+  - `xgboost`: `0.826680`
+  - `ann_mlp`: `0.824501`
+- test:
+  - `hybrid_xgboost_ann_weighted`: `0.859640`
+  - `xgboost`: `0.877654`
+  - `ann_mlp`: `0.845885`
+
+Nhan dinh sau phase nay:
+
+- viec can bang lai input co giup hybrid dep hon ro rang khi ratio nghieng nhe ve `phishing`
+- bien the dang dung nhat luc nay la `hybrid_xgboost_ann_weighted`
+- vung dep nhat hien tai nam quanh:
+  - ratio `0.58 -> 0.60`
+  - target rows `100000 -> 120000`
+- tuy nhien neu muc tieu la `PR-AUC ~ 0.95` thi can bang input mot minh la chua du
+- neu muc tieu thuc su la `recall > 95%` cho phishing tren validation, da co cau hinh dat yeu cau
+- tren test, `xgboost` thuần van nhinh hon hybrid o cau hinh tot nhat, nen chua co ly do du manh de chot hybrid lam mac dinh chi vi diem validation nhich hon rat it
+
+---
+
+#### Phase 26. Chot `official current` moi cho ca `Domain Model` va `URL Model`
+
+Da promote va don de theo huong chi giu `1` cau hinh official moi cho moi model:
+
+- `Domain Model` official moi:
+  - variant: `official_current_26f_hybrid_xgboost_ann_weighted_120k`
+  - dataset: `data/processed/official/domain_model_official.parquet`
+  - model mac dinh: `hybrid_xgboost_ann_weighted`
+- `URL Model` official moi:
+  - variant: `official_current_55f_ann_mlp_temporal_100k`
+  - dataset: `data/processed/official/url_model_official.parquet`
+  - model mac dinh: `ann_mlp`
+
+Ly do chot `URL Model` theo bo `temporal 100k`:
+
+- `url_model_dataset.parquet` moi nhat hien khong con du `3` moc thoi gian co du ca `benign` va `phishing`
+- vi vay khong the split `train / validation / test` on dinh neu train thang tren full input moi nhat
+- da promote bo `latest valid temporal sample` sang `official` de dashboard va bao cao dung mot cau hinh nhat quan
+
+Da dong bo:
+
+- `models/official_model_registry.json`
+- `docs/Project Workflow.md`
+- `docs/IDS Dashboard Integration.md`
+- `README.md`
+
+Da tao them file tong hop chinh thuc:
+
+- `docs/Official Model Results - Current.md`
+
+Da xoa bot file md thu nghiem cu va cac artifact official cu khong con duoc dung den.
+
+#### Phase 27. Don repo theo huong chi giu pipeline chinh va output official
+
+Da xoa cac script thu nghiem khong con dung den:
+
+- `src/rebalance_model_dataset.py`
+- `src/sample_temporal_dataset.py`
+- `src/sweep_domain_hybrid_balance.py`
+- `src/sweep_xgb_ann_weights.py`
+
+Da xoa cac output thu nghiem lon:
+
+- `data/processed/experiments/`
+- `models/domain_experiments/`
+- `models/url_experiments/`
+
+Da giu lai cac phan chinh:
+
+- `src/` pipeline chinh
+- `models/domain/`
+- `models/url/`
+- `data/processed/official/`
+- `docs/Official Model Results - Current.md`
+- cac file `real-world validation expanded`
+
+Da cap nhat metadata official cho sach hon:
+
+- `data/processed/official/domain_model_official.stats.json`
+- `data/processed/official/url_model_official.stats.json`
+
+Nhan dinh sau phase nay:
+
+- repo gon hon ro ret
+- duong di chinh tu nay la `rebuild dataset -> retrain official -> validate real-world -> dashboard`
+- neu can mo lai cac nhanh sweep cu, co the lan theo `Activity History.md` de dung lai script/logic tu lich su
+
+---
+
+### `2026-04-14`
+
+#### Phase 28. Dua `URL Model` official len full `540k` voi fallback `latest mixed-date holdout`
+
+Da sua:
+
+- `src/train_baselines.py`
+
+Da mo rong them:
+
+- co `--split-strategy`
+- co fallback split `url_latest_mixed_holdout`
+- vong loop train/test chi chay dung cac model duoc request
+
+Ly do dot nay:
+
+- `data/processed/url_model_dataset.parquet` moi nhat da len `539,928` row
+- nhung full input hien khong con du `3` moc `mixed-label` de chia `train / validation / test` temporal 3-way sach nhu truoc
+- can mot fallback de van dung duoc full input moi nhat lam `official`
+
+Da retrain va promote:
+
+- variant moi: `official_current_55f_ann_mlp_full_540k_latest_mixed_holdout`
+- model chon: `ann_mlp`
+- dataset official: `data/processed/official/url_model_official.parquet`
+- rows: `539,928`
+- benign: `373,076`
+- phishing: `166,852`
+- split rows:
+  - train: `441,625`
+  - validation: `49,151`
+  - test: `49,152`
+
+Metric chinh:
+
+- validation:
+  - `PR-AUC = 0.997458`
+- test:
+  - `PR-AUC = 0.999668`
+  - `F1 = 0.996950`
+
+Da dong bo:
+
+- `models/url/`
+- `models/official_model_registry.json`
+- `data/processed/official/url_model_official.stats.json`
+- `docs/Official Model Results - Current.md`
+
+Kiem tra runtime sau khi promote:
+
+- `https://cellphones.com.vn/` -> `benign`
+- `https://hocvudientu.hutech.edu.vn/dang-nhap?ReturnUrl=%2F` -> `benign`
+
+Nhan dinh sau phase nay:
+
+- `URL Model` official da quay lai dung full input moi nhat
+- tuy khong con pure temporal 3-way split, fallback `latest mixed-date holdout` van giu duoc full dataset va metric test rat cao
+- tu nay dashboard/API se load `URL official` tu variant `540k latest mixed holdout`
+
+#### Phase 29. Va false positive cua `Domain Model` bang `curated benign override` va promote thanh official moi
+
+Van de gap phai:
+
+- `Domain Model` official cu van danh nham mot so domain chinh thong thanh `phishing`
+- case noi bat:
+  - `cellphones.com.vn`
+  - `hocvudientu.hutech.edu.vn`
+  - nhieu subdomain khac duoi `hutech.edu.vn`
+
+Da bo sung benign addon moi:
+
+- `data/raw/vn_benign_domain_addon/vn_benign_domain_addon_2026-04-14_runtime_patch.csv`
+
+Da them cac domain:
+
+- `hutech.edu.vn`
+- `hocvudientu.hutech.edu.vn`
+- `sinhvien1.hutech.edu.vn`
+- `mail.hutech.edu.vn`
+- `daotao.hutech.edu.vn`
+- `cellphones.com.vn`
+
+Da thu theo huong retrain:
+
+- rebuild `data/processed/domain_model_dataset.parquet`
+- patch them `6` row vao `data/processed/official/domain_model_official.parquet`
+- retrain lai `models/domain/` voi input official moi
+
+Ket qua:
+
+- official domain dataset thanh:
+  - rows: `120,006`
+  - benign: `48,002`
+  - phishing: `72,004`
+- metric test moi:
+  - `PR-AUC = 0.846924`
+  - `F1 = 0.721461`
+- nhung retrain thuan van chua sua duoc false positive cho cac case `cellphones / hutech`
+
+Da chot huong runtime mitigation:
+
+- sua `src/phishing_url_ml/inference.py`
+- load allowlist tu `data/raw/vn_benign_domain_addon/*.csv`
+- neu `Domain Model` predict `phishing` nhung:
+  - exact hostname nam trong curated benign addon
+  - hoac subdomain nam duoi mot `trusted registered domain` da curate
+- thi override ket qua ve `benign`
+
+Da giu lai dau vet de debug:
+
+- `decision_mode`
+- `override_reason`
+- `override_match_value`
+- `model_predicted_class_before_override`
+- `model_score_before_override`
+
+Da promote official domain moi:
+
+- variant moi: `official_current_26f_hybrid_xgboost_ann_weighted_120k_curated_benign_override`
+
+Da dong bo:
+
+- `models/official_model_registry.json`
+- `data/processed/official/domain_model_official.stats.json`
+- `docs/Official Model Results - Current.md`
+
+Kiem tra runtime sau khi promote:
+
+- `cellphones.com.vn` -> `benign`
+- `hocvudientu.hutech.edu.vn` -> `benign`
+- `sinhvien1.hutech.edu.vn` -> `benign`
+- `mail.hutech.edu.vn` -> `benign`
+- `portal.hutech.edu.vn` -> `benign`
+- `ngochoang-hoangkim72s-projects.vercel.app` van -> `phishing`
+
+Nhan dinh sau phase nay:
+
+- false positive tai nhom `domain official / subdomain official` da giam ro o runtime
+- day la `model + curated override`, chua phai domain model tu hoc dung hoan toan
+- tu nay `Domain official` dang chay mac dinh la ban co `curated benign override`
+
+#### Phase 30. Chinh lai dashboard theo `fix_UI.md` theo huong `checker tool`
+
+Da sua:
+
+- `src/phishing_url_ml/ids_dashboard_app.py`
+
+Huong chinh da lam:
+
+- doi typography sang huong mem hon:
+  - `Plus Jakarta Sans` cho heading
+  - `Be Vietnam Pro` cho body
+- rut gon header:
+  - title con `Check domain or URL`
+  - bo vai tro cua cac block `Latest event / Traffic mix` khoi vung nhin chinh
+- dua form check thanh trung tam man hinh
+- an `quick actions` vao `details` `Tuy chon nhanh`
+- result card duoc toi gian lai:
+  - giu `Phishing / Benign`
+  - giu `Risk`
+  - giu `Score`
+  - giu `Input`
+  - thong tin ky thuat dua xuong `Chi tiet`
+- doi `Recent IDS Events` thanh `Recent checks`
+- chi hien `5` dong gan nhat tren dashboard chinh
+- dua `analytics` va `official models` xuong khu `Insights & models` dang disclosure
+- them loading skeleton va transition nhe cho luc submit/check
+
+Da doi them:
+
+- title trang chinh thanh `Phishing Checker`
+- title history page thanh `Check History`
+
+Kiem tra sau khi sua:
+
+- `/dashboard` -> `200`
+- `/dashboard/events` -> `200`
+- `/api/events` -> `200`
+- `/health` -> `200`
+- `POST /api/ingest` van hoat dong binh thuong
+
+Nhan dinh sau phase nay:
+
+- dashboard nhin giong mot `tool check nhanh` hon la `dashboard ky thuat`
+- thong tin phu da bi day xuong duoi, khong con tranh spotlight voi form check
+- UI hien tai da sat hon muc tieu `toi gian, diu mat, co animation nhe`
+
+#### Phase 31. Don artifact probe/cache khong con dung den
+
+Da xoa:
+
+- `models/domain_probe_ann/`
+- `models/domain_probe_xgb/`
+- `models/domain_runtime_probe/`
+- `models/url_full_540k/`
+- `src/__pycache__/`
+- `src/phishing_url_ml/__pycache__/`
+
+Ket qua:
+
+- giai phong khoang `2,127,470` bytes
+- `models/` con lai:
+  - `models/domain/`
+  - `models/url/`
+  - `models/official_model_registry.json`
+
+Nhan dinh sau phase nay:
+
+- repo sach hon, it artifact tam hon
+- nhung van giu nguyen cac output `official` va bo `validation expanded` de phuc vu bao cao/danh gia
+
+Cap nhat tong quan sau ngay `2026-04-14`:
+
+- `Domain official` hien tai:
+  - `official_current_26f_hybrid_xgboost_ann_weighted_120k_curated_benign_override`
+- `URL official` hien tai:
+  - `official_current_55f_ann_mlp_full_540k_latest_mixed_holdout`
+- dashboard/API se load 2 variant tren tu `models/official_model_registry.json`
+
 ## 5. Ghi chú ngắn để mai nối việc
 
 Khi mở dự án lại, nên bắt đầu từ 3 việc này:
 
-1. mở rộng thêm `phishing seed` và `benign seed` để bộ đánh giá thực chiến đỡ nhỏ
-2. tinh chỉnh tiếp cho `URL Model`, nhất là nhóm `university portal URL`
-3. theo dõi thêm các case phishing domain như `accounts.binanceuz.co` để xem `Domain Model` official moi co can bo sung them mau phishing hay khong
+1. xem lại `docs/Official Model Results - Current.md` để nắm đúng cấu hình official đang chạy
+2. tiep tuc mo rong `vn_benign_domain_addon` hoac bo `benign expanded` de xu ly them false positive chinh thong chua co trong curated list
+3. neu muon retrain lai `URL Model` full o vong sau, uu tien bo sung them `benign URL` cho cac ngay moi de split temporal on dinh hon

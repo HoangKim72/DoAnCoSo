@@ -1,0 +1,95 @@
+sample_id,category,dataset_kind,input_value,expected_label,priority,source_name,seed_id,seed_homepage_url,discovery_method,hostname,registered_domain,note
+BD001,government,domain,tsdaucap.hanoi.gov.vn,benign,high,HANOI_GOV,S022,https://hanoi.gov.vn/,homepage,tsdaucap.hanoi.gov.vn,hanoi.gov.vn,Official local government portal.
+BD002,government,domain,letienchau.chinhphu.vn,benign,high,CHINHPHU,S014,https://chinhphu.vn/,homepage,letienchau.chinhphu.vn,chinhphu.vn,Official government portal.
+BD003,government,domain,nguyenvanthang.chinhphu.vn,benign,high,CHINHPHU,S014,https://chinhphu.vn/,homepage,nguyenvanthang.chinhphu.vn,chinhphu.vn,Official government portal.
+BD004,university,domain,en.uit.edu.vn,benign,medium,UIT,S005,https://www.uit.edu.vn/,sitemap,en.uit.edu.vn,uit.edu.vn,Official university site.
+BU011,banking,url,http://www.vietcombank.com.vn/en/Personal/Cong-cu-Tien-ich/Tra-cuu-so-tk,benign,high,VIETCOMBANK,S024,https://www.vietcombank.com.vn/,sitemap,www.vietcombank.com.vn,vietcombank.com.vn,Official bank site.
+BU012,banking,url,http://www.vietcombank.com.vn/KHCN/Cong-cu-Tien-ich/Tra-cuu-so-tk,benign,high,VIETCOMBANK,S024,https://www.vietcombank.com.vn/,sitemap,www.vietcombank.com.vn,vietcombank.com.vn,Official bank site.
+BU014,banking,url,https://online.acb.com.vn/acbib/Request?dse_applicationId=-1&dse_operatio=&dse_pageId=1&dse_sessionId=MmJRvvSZu6lAwzJpxzuWkDY,benign,high,ACB,S025,https://www.acb.com.vn/,homepage,online.acb.com.vn,acb.com.vn,Official bank site.
+BU015,banking,url,https://online.acb.com.vn/acbib/Request?dse_applicationId=-1&dse_operatio=&dse_pageId=1&dse_sessionId=pJFREim3YBIuFmWZD2Thm9L,benign,high,ACB,S025,https://www.acb.com.vn/,homepage,online.acb.com.vn,acb.com.vn,Official bank site.
+BU018,banking,url,https://techcombank.com/dang-nhap-ngan-hang-so/khach-hang-doanh-nghiep,benign,high,TECHCOMBANK,S026,https://www.techcombank.com/,homepage,techcombank.com,techcombank.com,Official bank site.
+BU025,banking,url,http://www.vietcombank.com.vn/KHCN/Truy-cap-nhanh/Tin-noi-bat/Articles/luu-y-ve-ten-dang-nhap-dich-vu-vcb-digibank-va-huong-dan-cai-dat-smart-otp,benign,high,VIETCOMBANK,S024,https://www.vietcombank.com.vn/,sitemap,www.vietcombank.com.vn,vietcombank.com.vn,Official bank site.
+BU026,banking,url,https://business.acb.com.vn/,benign,high,ACB,S025,https://www.acb.com.vn/,homepage,business.acb.com.vn,acb.com.vn,Official bank site.
+BU027,banking,url,https://www.techcombank.com/,benign,high,TECHCOMBANK,S026,https://www.techcombank.com/,homepage,www.techcombank.com,techcombank.com,Official bank site.
+BU028,banking,url,https://www.techcombank.com/cong-cu-tien-ich/ty-gia,benign,high,TECHCOMBANK,S026,https://www.techcombank.com/,homepage,www.techcombank.com,techcombank.com,Official bank site.
+BU038,ecommerce,url,https://hotro.tiki.vn/knowledge-base,benign,medium,TIKI,S034,https://www.tiki.vn/,homepage,hotro.tiki.vn,tiki.vn,Official ecommerce site.
+BU039,ecommerce,url,https://hotro.tiki.vn/knowledge-base/post/778-chinh-sach-giai-quyet-khieu-nai,benign,medium,TIKI,S034,https://www.tiki.vn/,homepage,hotro.tiki.vn,tiki.vn,Official ecommerce site.
+BU040,ecommerce,url,https://hotro.tiki.vn/knowledge-base/post/802-chinh-sach-doi-tra-san-pham,benign,medium,TIKI,S034,https://www.tiki.vn/,homepage,hotro.tiki.vn,tiki.vn,Official ecommerce site.
+BU008,government,url,https://red.moj.gov.vn/cas/login?service=https%3A%2F%2Fmoj.gov.vn%2FPages%2Fhome.aspx,benign,high,MOJ,S016,https://moj.gov.vn/,homepage,red.moj.gov.vn,moj.gov.vn,Official ministry site.
+BU009,government,url,https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F,benign,high,MOET,S015,https://moet.gov.vn/,homepage,tuyensinh.moet.gov.vn,moet.gov.vn,Official ministry site.
+BU010,government,url,http://mail.moet.gov.vn/,benign,high,MOET,S015,https://moet.gov.vn/,homepage,mail.moet.gov.vn,moet.gov.vn,Official ministry site.
+BU013,government,url,https://mail.moj.gov.vn/,benign,high,MOJ,S016,https://moj.gov.vn/,homepage,mail.moj.gov.vn,moj.gov.vn,Official ministry site.
+BU016,government,url,https://mail.chinhphu.vn/,benign,high,CHINHPHU,S014,https://chinhphu.vn/,homepage,mail.chinhphu.vn,chinhphu.vn,Official government portal.
+BU017,government,url,https://moet.gov.vn/page/login,benign,high,MOET,S015,https://moet.gov.vn/,homepage,moet.gov.vn,moet.gov.vn,Official ministry site.
+BU019,government,url,https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/66.16-nqcp.signed.pdf,benign,high,CHINHPHU,S014,https://chinhphu.vn/,homepage,datafiles.chinhphu.vn,chinhphu.vn,Official government portal.
+BU020,government,url,http://ccn.moj.gov.vn/qt/tintuc/Pages/thong-tin-tre-em-can-tim-gia-dinh-thay-the.aspx,benign,high,MOJ,S016,https://moj.gov.vn/,homepage,ccn.moj.gov.vn,moj.gov.vn,Official ministry site.
+BU021,government,url,https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/103-nqcp.signed.pdf,benign,high,CHINHPHU,S014,https://chinhphu.vn/,homepage,datafiles.chinhphu.vn,chinhphu.vn,Official government portal.
+BU022,government,url,https://datafiles.hanoi.gov.vn/gov-hni/1/vannt/bando2025.jpg,benign,high,HANOI_GOV,S022,https://hanoi.gov.vn/,homepage,datafiles.hanoi.gov.vn,hanoi.gov.vn,Official local government portal.
+BU023,government,url,https://datafiles.hanoi.gov.vn/gov-hni/1/vannt/Nguoi phat ngon.png,benign,high,HANOI_GOV,S022,https://hanoi.gov.vn/,homepage,datafiles.hanoi.gov.vn,hanoi.gov.vn,Official local government portal.
+BU024,government,url,https://datafiles.hanoi.gov.vn/gov-hni/6244/VanBan/2026/4/10/CV-1501-2026.pdf,benign,high,HANOI_GOV,S022,https://hanoi.gov.vn/,homepage,datafiles.hanoi.gov.vn,hanoi.gov.vn,Official local government portal.
+BU037,media,url,https://e.vnexpress.net/,benign,medium,VNEXPRESS,S038,https://vnexpress.net/,homepage,e.vnexpress.net,vnexpress.net,Mainstream news site.
+BU041,media,url,https://vnexpress.net/25-ty-usd-cua-trong-lo-5061491.html,benign,medium,VNEXPRESS,S038,https://vnexpress.net/,homepage,vnexpress.net,vnexpress.net,Mainstream news site.
+BU042,media,url,https://vnexpress.net/4-nan-nhan-trong-vu-chay-nha-tro-4-tang-tien-luong-nang-5061448.html,benign,medium,VNEXPRESS,S038,https://vnexpress.net/,homepage,vnexpress.net,vnexpress.net,Mainstream news site.
+BU029,university,url,http://cb.dut.udn.vn/PageLichThiKH.aspx,benign,medium,DUT_UDN,S008,https://dut.udn.vn/,homepage,cb.dut.udn.vn,udn.vn,Official university site.
+BU030,university,url,https://www.iscm.ueh.edu.vn/vi,benign,medium,UEH,S006,https://www.ueh.edu.vn/,homepage,www.iscm.ueh.edu.vn,ueh.edu.vn,Official university site.
+BU031,university,url,http://bkcit.dut.udn.vn/,benign,medium,DUT_UDN,S008,https://dut.udn.vn/,homepage,bkcit.dut.udn.vn,udn.vn,Official university site.
+BU032,university,url,http://cntt.ueh.edu.vn/,benign,medium,UEH,S006,https://www.ueh.edu.vn/,homepage,cntt.ueh.edu.vn,ueh.edu.vn,Official university site.
+BU033,university,url,http://ctd.ueh.edu.vn/,benign,medium,UEH,S006,https://www.ueh.edu.vn/,homepage,ctd.ueh.edu.vn,ueh.edu.vn,Official university site.
+BU034,university,url,https://en.uit.edu.vn/article/additional-initiative-needed-support-students-vnu-hcm,benign,medium,UIT,S005,https://www.uit.edu.vn/,sitemap,en.uit.edu.vn,uit.edu.vn,Official university site.
+BU035,university,url,https://en.uit.edu.vn/article/announcement-evaluation-research-funding-support-and-awards-student-scientific-research-november-2023,benign,medium,UIT,S005,https://www.uit.edu.vn/,sitemap,en.uit.edu.vn,uit.edu.vn,Official university site.
+BU036,university,url,https://en.uit.edu.vn/article/announcement-regarding-online-survey-collect-student-opinions-quality-service-and-support-university,benign,medium,UIT,S005,https://www.uit.edu.vn/,sitemap,en.uit.edu.vn,uit.edu.vn,Official university site.
+BU001,university_portal,url,https://hocphi.hcmus.edu.vn/dang-nhap,benign,critical,HCMUS,S002,https://www.hcmus.edu.vn/,homepage,hocphi.hcmus.edu.vn,hcmus.edu.vn,Official university site.
+BU002,university_portal,url,http://daotao.hutech.edu.vn/default.aspx?flag=XemDiemThi&page=nhapmasv,benign,high,HUTECH,S001,https://www.hutech.edu.vn/,homepage,daotao.hutech.edu.vn,hutech.edu.vn,Official university site.
+BU003,university_portal,url,http://webdaotao.hutech.edu.vn/daotao/m72-don-tu-danh-cho-sv.aspx,benign,high,HUTECH,S001,https://www.hutech.edu.vn/,homepage,webdaotao.hutech.edu.vn,hutech.edu.vn,Official university site.
+BU004,university_portal,url,http://daotao.hutech.edu.vn/,benign,high,HUTECH,S001,https://www.hutech.edu.vn/,homepage,daotao.hutech.edu.vn,hutech.edu.vn,Official university site.
+BU005,university_portal,url,https://portal.hcmus.edu.vn/,benign,high,HCMUS,S002,https://www.hcmus.edu.vn/,homepage,portal.hcmus.edu.vn,hcmus.edu.vn,Official university site.
+BU006,university_portal,url,https://sdh.hcmus.edu.vn/tra-cuu-van-bang-thac-si/,benign,high,HCMUS,S002,https://www.hcmus.edu.vn/,homepage,sdh.hcmus.edu.vn,hcmus.edu.vn,Official university site.
+BU007,university_portal,url,https://dut.udn.vn/Phong/Daotao,benign,high,DUT_UDN,S008,https://dut.udn.vn/,homepage,dut.udn.vn,udn.vn,Official university site.
+P001,banking_payment,domain,securepaypaldigitalwallet.com,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P002,crypto_wallet,domain,trustwalletextensions.framer.ai,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P003,cloud_email_docs,domain,58a5-rfki-yn4n.adobe-signature-sharedoc-mail-com-s-account.workers.dev,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P004,ecommerce_delivery,domain,www.purchaseordersale.com.wellscreditfargo.com,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P005,social_gaming,domain,www.robiox.com.py,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P006,generic_portal,domain,fasoasio-dtfhevakagcrhtcs.z02.azurefd.net,phishing,medium,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P007,banking_payment,domain,www.ttkpayevent.shop,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P008,crypto_wallet,domain,www.connectwallet.xyz,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P009,cloud_email_docs,domain,676l-jiqm-2xra.adobe-signature-shared-doc-required-mail-com-s-account.workers.dev,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P010,ecommerce_delivery,domain,www.dhl-status.club,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P011,social_gaming,domain,www.roblox.com.et,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P012,generic_portal,domain,yahoooo.info,phishing,medium,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P013,banking_payment,domain,easybanklanding.vercel.app,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P014,crypto_wallet,domain,myweb3metwallet.com,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P015,cloud_email_docs,domain,n4zt-2ho6-4s85.adobe-signature-sharedoc-mail-com-s-account.workers.dev,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P016,ecommerce_delivery,domain,www.dhl-status.xin,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P017,social_gaming,domain,lingnaiguodao-alt.github.io,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P018,generic_portal,domain,microsoft-copilot-porxy-hns.pages.dev,phishing,medium,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P019,banking_payment,domain,elster-anfrage.com,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P020,cloud_email_docs,domain,rubt-2kjq-r97v.adobe-signature-sharedoc-mail-com-s-account.workers.dev,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P021,ecommerce_delivery,domain,amazon-clone-azure-pi.vercel.app,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P022,social_gaming,domain,robiox.com.py,phishing,high,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P023,generic_portal,domain,shopee2237.blogspot.com,phishing,medium,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+P024,banking_payment,domain,recaudos-postpago.com,phishing,critical,,,,,,,Hostname extracted from OpenPhish snapshot openphish_2026-04-11.txt.
+U001,banking_payment,url,http://securepaypaldigitalwallet.com/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U002,crypto_wallet,url,http://trustwalletextensions.framer.ai/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U003,cloud_email_docs,url,https://58a5-rfki-yn4n.adobe-signature-sharedoc-mail-com-s-account.workers.dev/6c056d529afbab4a?email=a,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U004,ecommerce_delivery,url,https://www.purchaseordersale.com.wellscreditfargo.com/,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U005,social_gaming,url,https://www.robiox.com.py/users/282744267386/profile,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U006,generic_portal,url,https://fasoasio-dtfhevakagcrhtcs.z02.azurefd.net/WinAbhwebsi018/index.html?ph0nq=null,phishing,medium,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U007,banking_payment,url,http://www.ttkpayevent.shop/proximo/tiktok-premium,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U008,crypto_wallet,url,http://www.connectwallet.xyz/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U009,cloud_email_docs,url,https://676l-jiqm-2xra.adobe-signature-shared-doc-required-mail-com-s-account.workers.dev/a131343c3db8f68f?email=a%2F%24%7BuserEmail%7D,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U010,ecommerce_delivery,url,http://www.dhl-status.club/ie-en,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U011,social_gaming,url,https://www.roblox.com.et/users/401210215870/profile,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U012,generic_portal,url,https://yahoooo.info/?r=5e0377e3-f317-41a6-b763-a6e17e67e720&rg=eu,phishing,medium,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U013,banking_payment,url,https://easybanklanding.vercel.app/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U014,crypto_wallet,url,https://myweb3metwallet.com/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U015,cloud_email_docs,url,https://n4zt-2ho6-4s85.adobe-signature-sharedoc-mail-com-s-account.workers.dev/afaf2b10ef9c8105?email=a%2F,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U016,ecommerce_delivery,url,http://www.dhl-status.xin/ie-en,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U017,social_gaming,url,http://lingnaiguodao-alt.github.io/roblox-secure,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U018,generic_portal,url,http://microsoft-copilot-porxy-hns.pages.dev/login.srf?wa=wsignin1.0,phishing,medium,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U019,banking_payment,url,https://elster-anfrage.com/verifizierung/Commerzbank/index.php/,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U020,cloud_email_docs,url,https://rubt-2kjq-r97v.adobe-signature-sharedoc-mail-com-s-account.workers.dev/2e39c873c2a50165?email=a%2F,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U021,ecommerce_delivery,url,https://amazon-clone-azure-pi.vercel.app/,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U022,social_gaming,url,http://robiox.com.py/users/334452614245/profile,phishing,high,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U023,generic_portal,url,http://shopee2237.blogspot.com/?m=1,phishing,medium,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.
+U024,banking_payment,url,https://recaudos-postpago.com/paga-ofertas/bancolombia/facialVerificacion.php,phishing,critical,,,,,,,URL selected from OpenPhish snapshot openphish_2026-04-11.txt.

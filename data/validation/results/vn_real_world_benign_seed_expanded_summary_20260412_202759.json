@@ -1,0 +1,19 @@
+{
+  "evaluated_at": "2026-04-12T20:27:59+07:00",
+  "input_path": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\vn_real_world_benign_seed_expanded.csv",
+  "details_path": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\vn_real_world_benign_seed_expanded_detailed_20260412_202759.csv",
+  "evaluation_mode": "benign_only",
+  "total_cases": 46,
+  "matched_cases": 19,
+  "match_rate": 0.41304347826086957,
+  "false_positives": 27,
+  "false_positive_rate": 0.5869565217391305,
+  "false_negatives": 0,
+  "false_negative_rate": 0.0,
+  "errors": 0,
+  "artifacts": {
+    "by_dataset_kind": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\vn_real_world_benign_seed_expanded_by_dataset_kind_20260412_202759.csv",
+    "by_priority": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\vn_real_world_benign_seed_expanded_by_priority_20260412_202759.csv",
+    "by_category": "D:\\University\\All Subject\\Junior\\DoAnCoSo\\data\\validation\\results\\vn_real_world_benign_seed_expanded_by_category_20260412_202759.csv"
+  }
+}

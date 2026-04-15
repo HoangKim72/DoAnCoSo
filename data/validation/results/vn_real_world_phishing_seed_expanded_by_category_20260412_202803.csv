@@ -1,0 +1,7 @@
+category,total_cases,matched_cases,predicted_benign,predicted_phishing,false_positives,false_negatives,errors,average_score,false_positive_rate,false_negative_rate,match_rate
+banking_payment,10,6,4,6,0,4,0,0.5883868999999999,0.0,0.4,0.6
+cloud_email_docs,8,8,0,8,0,0,0,0.996840375,0.0,0.0,1.0
+crypto_wallet,6,3,3,3,0,3,0,0.6225993333333334,0.0,0.5,0.5
+ecommerce_delivery,8,7,1,7,0,1,0,0.768732,0.0,0.125,0.875
+generic_portal,8,7,1,7,0,1,0,0.825314625,0.0,0.125,0.875
+social_gaming,8,7,1,7,0,1,0,0.835749125,0.0,0.125,0.875

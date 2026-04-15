@@ -35,15 +35,15 @@ ve app local. App se:
 
 ## 3. Model dang duoc su dung
 
-App dang dung dung `2` cau hinh official da chot:
+App dang dung `2` cau hinh official da chot:
 
-- `Domain Model`: `from_2025_04_07_global_under_plus_vn_benign_domain_addon`
-- `URL Model`: `from_2025_04_07_none`
+- `Domain Model`: `official_current_26f_hybrid_xgboost_ann_weighted_120k`
+- `URL Model`: `official_current_55f_ann_mlp_temporal_100k`
 
 Model mac dinh:
 
-- `Domain Model`: `hybrid_lr_xgboost_ann`
-- `URL Model`: `hybrid_lr_xgboost_ann`
+- `Domain Model`: `hybrid_xgboost_ann_weighted`
+- `URL Model`: `ann_mlp`
 
 ## 4. Cach chay
 

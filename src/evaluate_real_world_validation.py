@@ -8,9 +8,10 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-from phishing_url_ml.feature_engineering import build_feature_frame
+from phishing_url_ml.feature_engineering import align_feature_frame, build_feature_frame
 from phishing_url_ml.inference import (
     build_inference_row,
+    expected_feature_columns,
     load_official_model_bundle,
     normalized_score_for_model,
     recommendation_for_prediction,
@@ -90,6 +91,7 @@ def load_bundle_from_run_summary(run_summary_path: Path) -> dict[str, object]:
         "dataset_kind": payload["dataset_kind"],
         "variant_name": str(Path(run_summary_path).parent.name),
         "model_name": payload["best_model"],
+        "feature_columns": payload.get("feature_columns", []),
         "model": model,
     }
 
@@ -104,6 +106,7 @@ def load_bundles(args: argparse.Namespace) -> dict[str, dict[str, object]]:
             "dataset_kind": "domain",
             "variant_name": official.variant_name,
             "model_name": official.model_name,
+            "feature_columns": official.run_summary.get("feature_columns", []),
             "model": official.model,
         }
 
@@ -115,6 +118,7 @@ def load_bundles(args: argparse.Namespace) -> dict[str, dict[str, object]]:
             "dataset_kind": "url",
             "variant_name": official.variant_name,
             "model_name": official.model_name,
+            "feature_columns": official.run_summary.get("feature_columns", []),
             "model": official.model,
         }
     return bundles
@@ -123,6 +127,10 @@ def load_bundles(args: argparse.Namespace) -> dict[str, dict[str, object]]:
 def predict_with_bundle(value: str, dataset_kind: str, bundle: dict[str, object]) -> dict[str, object]:
     inference_df, parsed_row = build_inference_row(value, dataset_kind)
     feature_frame = build_feature_frame(inference_df, dataset_kind)
+    feature_frame = align_feature_frame(
+        feature_frame,
+        expected_feature_columns(bundle["model"], {"feature_columns": bundle.get("feature_columns", [])}),
+    )
     model = bundle["model"]
     predicted_label = int(model.predict(feature_frame)[0])
     score, _ = normalized_score_for_model(model, feature_frame)
@@ -223,6 +231,11 @@ def write_markdown_report(
     by_category_path: Path,
     top_issues: pd.DataFrame,
 ) -> None:
+    def formatted_score(value: object) -> str:
+        if value is None or pd.isna(value):
+            return "n/a"
+        return f"{float(value):.6f}"
+
     evaluation_mode = str(overall_summary["evaluation_mode"])
     if evaluation_mode == "benign_only":
         title = "VN Real-World Benign Validation Results"
@@ -234,7 +247,7 @@ def write_markdown_report(
         empty_issue_line = "- Khong co false positive nao trong lan chay nay."
         issue_formatter = (
             lambda row: f"- `{row['sample_id']}` | `{row['dataset_kind']}` | `{row['input_value']}` | "
-            f"score=`{row['score']:.6f}` | risk=`{row['risk_level']}` | priority=`{row['priority']}`"
+            f"score=`{formatted_score(row['score'])}` | risk=`{row['risk_level']}` | priority=`{row['priority']}`"
         )
         quick_notes = [
             "- Bo nay chi gom case `benign`, nen chi so can nhin truoc mat la `false positive`.",
@@ -253,7 +266,7 @@ def write_markdown_report(
         empty_issue_line = "- Khong co false negative nao trong lan chay nay."
         issue_formatter = (
             lambda row: f"- `{row['sample_id']}` | `{row['dataset_kind']}` | `{row['input_value']}` | "
-            f"score=`{row['score']:.6f}` | risk=`{row['risk_level']}` | priority=`{row['priority']}`"
+            f"score=`{formatted_score(row['score'])}` | risk=`{row['risk_level']}` | priority=`{row['priority']}`"
         )
         quick_notes = [
             "- Bo nay chi gom case `phishing`, nen chi so can nhin truoc mat la `false negative` va `ty le nhan dien dung`.",
@@ -271,7 +284,7 @@ def write_markdown_report(
         empty_issue_line = "- Khong co case sai nao trong lan chay nay."
         issue_formatter = (
             lambda row: f"- `{row['sample_id']}` | `{row['dataset_kind']}` | `{row['input_value']}` | "
-            f"pred=`{row['predicted_class']}` | score=`{row['score']:.6f}` | risk=`{row['risk_level']}`"
+            f"pred=`{row['predicted_class']}` | score=`{formatted_score(row['score'])}` | risk=`{row['risk_level']}`"
         )
         quick_notes = [
             "- Bo nay gom ca `benign` va `phishing`, nen can doc dong thoi false positive, false negative va match rate.",

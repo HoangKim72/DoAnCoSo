@@ -6,10 +6,12 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier, VotingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -33,7 +35,21 @@ MODEL_ORDER = [
     "xgboost",
     "ann_mlp",
     "hybrid_lr_xgboost_ann",
+    "hybrid_lr_xgboost_ann_weighted",
+    "hybrid_xgboost_ann_weighted",
+    "hybrid_lr_xgboost_ann_calibrated",
+    "hybrid_stack_meta_lr",
 ]
+
+FULL_HYBRID_WEIGHTS = {
+    "domain": (0.05, 0.45, 0.50),
+    "url": (0.10, 0.30, 0.60),
+}
+
+XGB_ANN_HYBRID_WEIGHTS = {
+    "domain": (0.45, 0.55),
+    "url": (0.35, 0.65),
+}
 
 
 def class_distribution(df: pd.DataFrame) -> dict[str, int]:
@@ -74,12 +90,29 @@ def parse_args() -> argparse.Namespace:
         help="Directory used to save metrics and the selected model.",
     )
     parser.add_argument(
+        "--models",
+        help=(
+            "Optional comma-separated subset of model names to train. "
+            "Defaults to all available candidate models."
+        ),
+    )
+    parser.add_argument(
         "--domain-balance-strategy",
         choices=["per_date_under", "global_under", "none"],
         default="per_date_under",
         help=(
             "Class-balancing strategy for the domain dataset before temporal split. "
             "Ignored for URL training."
+        ),
+    )
+    parser.add_argument(
+        "--split-strategy",
+        choices=["auto", "temporal", "url_latest_mixed_holdout"],
+        default="auto",
+        help=(
+            "Dataset split strategy. "
+            "`auto` keeps the current temporal split when possible and falls back to a URL-specific "
+            "holdout split when the full URL dataset does not have 3 mixed-label dates."
         ),
     )
     return parser.parse_args()
@@ -217,7 +250,95 @@ def build_hybrid_pipeline() -> Pipeline:
     )
 
 
-def build_model_pipelines() -> dict[str, Pipeline]:
+def build_weighted_hybrid_pipeline(dataset_kind: str) -> Pipeline:
+    return Pipeline(
+        [
+            (
+                "model",
+                VotingClassifier(
+                    estimators=[
+                        ("logistic_regression", build_logistic_regression_pipeline()),
+                        ("xgboost", build_xgboost_pipeline()),
+                        ("ann_mlp", build_ann_mlp_pipeline()),
+                    ],
+                    voting="soft",
+                    weights=FULL_HYBRID_WEIGHTS[dataset_kind],
+                ),
+            )
+        ]
+    )
+
+
+def build_xgboost_ann_weighted_hybrid_pipeline(dataset_kind: str) -> Pipeline:
+    return Pipeline(
+        [
+            (
+                "model",
+                VotingClassifier(
+                    estimators=[
+                        ("xgboost", build_xgboost_pipeline()),
+                        ("ann_mlp", build_ann_mlp_pipeline()),
+                    ],
+                    voting="soft",
+                    weights=XGB_ANN_HYBRID_WEIGHTS[dataset_kind],
+                ),
+            )
+        ]
+    )
+
+
+def build_calibrated_hybrid_pipeline(dataset_kind: str) -> Pipeline:
+    return Pipeline(
+        [
+            (
+                "model",
+                VotingClassifier(
+                    estimators=[
+                        ("logistic_regression", build_logistic_regression_pipeline()),
+                        (
+                            "xgboost_calibrated",
+                            CalibratedClassifierCV(build_xgboost_pipeline(), cv=3, method="sigmoid"),
+                        ),
+                        (
+                            "ann_mlp_calibrated",
+                            CalibratedClassifierCV(build_ann_mlp_pipeline(), cv=3, method="sigmoid"),
+                        ),
+                    ],
+                    voting="soft",
+                    weights=FULL_HYBRID_WEIGHTS[dataset_kind],
+                ),
+            )
+        ]
+    )
+
+
+def build_stacking_hybrid_pipeline() -> Pipeline:
+    return Pipeline(
+        [
+            (
+                "model",
+                StackingClassifier(
+                    estimators=[
+                        ("logistic_regression", build_logistic_regression_pipeline()),
+                        ("xgboost", build_xgboost_pipeline()),
+                        ("ann_mlp", build_ann_mlp_pipeline()),
+                    ],
+                    final_estimator=LogisticRegression(
+                        class_weight="balanced",
+                        max_iter=2000,
+                        random_state=RANDOM_STATE,
+                        solver="liblinear",
+                    ),
+                    stack_method="predict_proba",
+                    cv=3,
+                    passthrough=False,
+                ),
+            )
+        ]
+    )
+
+
+def build_model_pipelines(dataset_kind: str) -> dict[str, Pipeline]:
     return {
         "logistic_regression": build_logistic_regression_pipeline(),
         "linear_svm": build_linear_svm_pipeline(),
@@ -225,7 +346,31 @@ def build_model_pipelines() -> dict[str, Pipeline]:
         "xgboost": build_xgboost_pipeline(),
         "ann_mlp": build_ann_mlp_pipeline(),
         "hybrid_lr_xgboost_ann": build_hybrid_pipeline(),
+        "hybrid_lr_xgboost_ann_weighted": build_weighted_hybrid_pipeline(dataset_kind),
+        "hybrid_xgboost_ann_weighted": build_xgboost_ann_weighted_hybrid_pipeline(dataset_kind),
+        "hybrid_lr_xgboost_ann_calibrated": build_calibrated_hybrid_pipeline(dataset_kind),
+        "hybrid_stack_meta_lr": build_stacking_hybrid_pipeline(),
     }
+
+
+def resolve_requested_models(
+    all_pipelines: dict[str, Pipeline],
+    requested_models_text: str | None,
+) -> dict[str, Pipeline]:
+    if not requested_models_text:
+        return all_pipelines
+
+    requested_names = [name.strip() for name in requested_models_text.split(",") if name.strip()]
+    if not requested_names:
+        raise ValueError("--models was provided but no valid model names were found.")
+
+    unknown_names = sorted(set(requested_names) - set(all_pipelines))
+    if unknown_names:
+        raise ValueError(
+            "Unknown model names in --models: " + ", ".join(unknown_names)
+        )
+
+    return {name: all_pipelines[name] for name in requested_names}
 
 
 def compute_split_sizes(num_dates: int) -> tuple[int, int, int]:
@@ -274,6 +419,51 @@ def drop_single_class_dates(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         return df, []
     filtered = df.loc[~df["collected_at"].isin(dropped_dates)].copy()
     return filtered, sorted(dropped_dates)
+
+
+def url_latest_mixed_holdout_split(
+    df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, object]]:
+    labels_per_date = (
+        df.groupby("collected_at")["label"]
+        .agg(lambda values: tuple(sorted(set(int(value) for value in values))))
+        .to_dict()
+    )
+    mixed_dates = sorted(day for day, labels in labels_per_date.items() if labels == (0, 1))
+    if len(mixed_dates) < 2:
+        raise ValueError(
+            "URL latest-mixed holdout split needs at least 2 collection dates with both classes. "
+            f"Only found: {mixed_dates!r}."
+        )
+
+    holdout_date = mixed_dates[-1]
+    holdout_df = df.loc[df["collected_at"] == holdout_date].copy()
+    train_df = df.loc[df["collected_at"] != holdout_date].copy()
+    validate_binary_labels(train_df, "train")
+
+    val_df, test_df = train_test_split(
+        holdout_df,
+        test_size=0.5,
+        random_state=RANDOM_STATE,
+        stratify=holdout_df["label"].astype(int),
+    )
+    train_df = train_df.sort_values(["collected_at", "label"], ascending=[True, False]).reset_index(drop=True)
+    val_df = val_df.sort_values(["collected_at", "label"], ascending=[True, False]).reset_index(drop=True)
+    test_df = test_df.sort_values(["collected_at", "label"], ascending=[True, False]).reset_index(drop=True)
+
+    single_class_dates = sorted(
+        day for day, labels in labels_per_date.items() if labels != (0, 1) and day != holdout_date
+    )
+    summary = {
+        "strategy": "url_latest_mixed_holdout",
+        "mixed_dates_available": mixed_dates,
+        "holdout_date": holdout_date,
+        "single_class_dates_retained_in_train": single_class_dates,
+        "train_class_distribution": class_distribution(train_df),
+        "validation_class_distribution": class_distribution(val_df),
+        "test_class_distribution": class_distribution(test_df),
+    }
+    return train_df, val_df, test_df, summary
 
 
 def balance_domain_dataset_per_date(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, object]]:
@@ -456,28 +646,72 @@ def main() -> None:
 
     raw_class_distribution = class_distribution(df)
     balancing_summary: dict[str, object] | None = None
-    df, dropped_dates = drop_single_class_dates(df)
-    if dropped_dates:
-        log(
-            "Dropping collection dates without both classes before temporal split: "
-            + ", ".join(dropped_dates)
-        )
-    if df["collected_at"].nunique() < 3:
-        raise SystemExit(
-            "After dropping dates that only contain one class, fewer than 3 collection dates remain. "
-            "Collect more daily snapshots or revise the source mix."
-        )
+    working_df = df
+    dropped_dates: list[str] = []
+    split_strategy_used = "temporal"
+    split_details: dict[str, object] = {"strategy": "temporal"}
+    temporal_df, temporal_dropped_dates = drop_single_class_dates(df)
 
     if args.dataset_kind == "domain":
-        df, balancing_summary = apply_domain_balance_strategy(df, args.domain_balance_strategy)
-        balanced_distribution = class_distribution(df)
+        working_df = temporal_df
+        dropped_dates = temporal_dropped_dates
+        if dropped_dates:
+            log(
+                "Dropping collection dates without both classes before temporal split: "
+                + ", ".join(dropped_dates)
+            )
+        if working_df["collected_at"].nunique() < 3:
+            raise SystemExit(
+                "After dropping dates that only contain one class, fewer than 3 collection dates remain. "
+                "Collect more daily snapshots or revise the source mix."
+            )
+
+        working_df, balancing_summary = apply_domain_balance_strategy(
+            working_df,
+            args.domain_balance_strategy,
+        )
+        balanced_distribution = class_distribution(working_df)
         log(
             "Balanced domain dataset before temporal split: "
             f"strategy={args.domain_balance_strategy}, "
             f"benign={balanced_distribution['benign']:,}, phishing={balanced_distribution['phishing']:,}"
         )
+        train_df, val_df, test_df = temporal_split(working_df)
+    else:
+        if args.split_strategy == "url_latest_mixed_holdout":
+            train_df, val_df, test_df, split_details = url_latest_mixed_holdout_split(df)
+            split_strategy_used = "url_latest_mixed_holdout"
+            working_df = df
+            log(
+                "Using URL latest mixed-date holdout split because the full dataset should remain intact. "
+                f"Holdout date: {split_details['holdout_date']}"
+            )
+        else:
+            working_df = temporal_df
+            dropped_dates = temporal_dropped_dates
+            if dropped_dates:
+                log(
+                    "Dropping collection dates without both classes before temporal split: "
+                    + ", ".join(dropped_dates)
+                )
+            if working_df["collected_at"].nunique() >= 3:
+                train_df, val_df, test_df = temporal_split(working_df)
+            elif args.split_strategy == "auto":
+                train_df, val_df, test_df, split_details = url_latest_mixed_holdout_split(df)
+                split_strategy_used = "url_latest_mixed_holdout"
+                working_df = df
+                dropped_dates = []
+                log(
+                    "Falling back to URL latest mixed-date holdout split because pure temporal 3-way "
+                    f"split is not possible on the current full dataset. Holdout date: {split_details['holdout_date']}"
+                )
+            else:
+                raise SystemExit(
+                    "After dropping dates that only contain one class, fewer than 3 collection dates remain. "
+                    "Collect more daily snapshots, switch to --split-strategy auto, or use "
+                    "--split-strategy url_latest_mixed_holdout for the current full URL dataset."
+                )
 
-    train_df, val_df, test_df = temporal_split(df)
     validate_binary_labels(train_df, "train")
     validate_binary_labels(val_df, "validation")
     validate_binary_labels(test_df, "test")
@@ -488,7 +722,10 @@ def main() -> None:
     x_val = build_feature_frame(val_df, args.dataset_kind)
     y_train = train_df["label"].astype(int)
     y_val = val_df["label"].astype(int)
-    model_pipelines = build_model_pipelines()
+    model_pipelines = resolve_requested_models(
+        build_model_pipelines(args.dataset_kind),
+        args.models,
+    )
 
     validation_rows = []
     for model_name, model in model_pipelines.items():
@@ -515,7 +752,7 @@ def main() -> None:
 
     best_model = None
     test_rows = []
-    for model_name, model in build_model_pipelines().items():
+    for model_name, model in model_pipelines.items():
         model.fit(x_train_val, y_train_val)
         test_pred = pd.Series(model.predict(x_test), index=test_df.index)
         test_scores = scores_for_model(model, x_test)
@@ -562,9 +799,11 @@ def main() -> None:
         "selection_metric": args.selection_metric,
         "best_model": best_model_name,
         "candidate_models": list(model_pipelines.keys()),
+        "split_strategy": split_strategy_used,
+        "split_details": split_details,
         "domain_balance_strategy": args.domain_balance_strategy if args.dataset_kind == "domain" else None,
         "class_distribution_before_processing": raw_class_distribution,
-        "class_distribution_after_processing": class_distribution(df),
+        "class_distribution_after_processing": class_distribution(working_df),
         "balancing": balancing_summary,
         "validation_results": metrics_records(validation_df),
         "test_results": metrics_records(test_results_df),
@@ -586,7 +825,7 @@ def main() -> None:
             "model_comparison_csv": str(model_comparison_path),
             "selected_model_path": str(model_path),
         },
-        "feature_columns": build_feature_frame(df.head(1), args.dataset_kind).columns.tolist(),
+        "feature_columns": build_feature_frame(working_df.head(1), args.dataset_kind).columns.tolist(),
     }
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     log(f"Wrote run summary to {summary_path}")

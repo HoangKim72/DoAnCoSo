@@ -19,23 +19,28 @@ Repo dang van hanh theo `3` luong:
 
 ### 2.1. Domain Model
 
-- Variant official: `from_2025_04_07_global_under_plus_vn_benign_domain_addon`
+- Variant official: `official_current_26f_hybrid_xgboost_ann_weighted_120k`
 - Dataset official: `data/processed/official/domain_model_official.parquet`
-- Model official: `models/domain/hybrid_lr_xgboost_ann.joblib`
-- Rows: `54,191`
-- Phishing: `27,021`
-- Benign: `27,170`
-- Feature count: `15`
+- Model official: `models/domain/hybrid_xgboost_ann_weighted.joblib`
+- Rows: `120,000`
+- Phishing: `72,004`
+- Benign: `47,996`
+- Feature count: `26`
 
 ### 2.2. URL Model
 
-- Variant official: `from_2025_04_07_none`
+- Variant official: `official_current_55f_ann_mlp_temporal_100k`
 - Dataset official: `data/processed/official/url_model_official.parquet`
-- Model official: `models/url/hybrid_lr_xgboost_ann.joblib`
-- Rows: `100,717`
-- Phishing: `62,638`
-- Benign: `38,079`
-- Feature count: `37`
+- Model official: `models/url/ann_mlp.joblib`
+- Rows: `100,107`
+- Phishing: `30,700`
+- Benign: `69,407`
+- Feature count: `55`
+
+Ghi chu cho `URL Model`:
+
+- bo official hien tai la `latest valid temporal sample` da duoc promote sang `data/processed/official/`
+- ly do khong dung thang full `url_model_dataset.parquet` moi nhat la vi bo raw hien tai khong con du `3` moc thoi gian co du ca `benign` va `phishing` de split `train / validation / test`
 
 Thong tin chot official duoc load tu:
 
@@ -179,33 +184,46 @@ Logic:
 
 Feature hien tai:
 
-- `domain_length`
-- `subdomain_count`
-- `num_tokens_domain`
-- `num_hyphens`
-- `digit_ratio`
-- `entropy_domain`
-- `contains_brand_name`
-- `contains_sensitive_keyword`
-- `edit_distance_to_top_brand`
-- `tld_risk_score`
-- `brand_position_score`
-- `registered_domain_length`
-- `consonant_run_max`
-- `char_repeat_ratio`
-- `is_idn_or_punycode`
+- tong cong `26` feature
+- giu cac feature domain co ban cu
+- bo sung them cac feature moi nhu:
+  - `avg_token_length_domain`
+  - `max_token_length_domain`
+  - `suspicious_token_count`
+  - `brand_like_token_count`
+  - `mixed_alnum_token_count`
+  - `brand_in_subdomain_only`
+  - `brand_in_registered_domain`
+  - `num_brand_mentions`
+  - `closest_brand_similarity_ratio`
+  - `token_entropy_max`
+  - `consecutive_digit_run_max`
 
 ### 5.2. `URL Model`
 
 Feature hien tai:
 
-- lexical length features
-- special-char counts
-- entropy features
-- depth features
-- query param features
-- suspicious token features
-- scheme/query/fragment/IP flags
+- tong cong `55` feature
+- giu cac nhom lexical/path/query co san
+- bo sung them cac feature moi nhu:
+  - `avg_path_segment_length`
+  - `max_path_segment_length`
+  - `num_numeric_segments`
+  - `num_mixed_segments`
+  - `path_entropy`
+  - `query_key_count`
+  - `query_value_length_max`
+  - `percent_encoded_ratio`
+  - `path_has_login_segment`
+  - `path_has_verify_segment`
+  - `path_has_brand_segment`
+  - `path_has_user_action_keyword`
+  - `has_redirect_param`
+  - `redirect_param_count`
+  - `sensitive_param_count`
+  - `base64_like_value_present`
+  - `contains_double_slash_in_path`
+  - `port_specified_flag`
 
 Ham build feature:
 
@@ -243,6 +261,10 @@ Candidate models:
 - `xgboost`
 - `ann_mlp`
 - `hybrid_lr_xgboost_ann`
+- `hybrid_lr_xgboost_ann_weighted`
+- `hybrid_xgboost_ann_weighted`
+- `hybrid_lr_xgboost_ann_calibrated`
+- `hybrid_stack_meta_lr`
 
 Metric tinh:
 
@@ -258,8 +280,8 @@ Metric mac dinh de chon:
 
 Luu y quan trong:
 
-- voi `Domain Model`, repo hien chot `hybrid_lr_xgboost_ann` lam official
-- voi `URL Model`, repo cung dang chot `hybrid_lr_xgboost_ann` lam official
+- voi `Domain Model`, repo hien chot `hybrid_xgboost_ann_weighted` lam official
+- voi `URL Model`, repo hien chot `ann_mlp` lam official
 - benchmark cua cac model khac van duoc giu trong `model_comparison.csv`
 
 ---
@@ -491,8 +513,7 @@ http://127.0.0.1:8080/dashboard
 
 ## 10. File docs nen xem cung
 
-- `docs/Official Model Training Summary.md`
-- `docs/Official Hybrid Configurations.md`
+- `docs/Official Model Results - Current.md`
 - `docs/IDS Dashboard Integration.md`
 - `docs/Activity History.md`
 

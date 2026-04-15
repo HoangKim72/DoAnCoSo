@@ -133,7 +133,7 @@ Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/api/ingest" `
 - `Tranco` mac dinh chi lay `100000` domain dau de pipeline nhe hon cho cac lan thu nghiem dau. Co the doi bang `--tranco-top-n 1000000`.
 - `url_model_dataset.parquet` da co du 2 nhan tong the, nhung neu moc thoi gian moi nhat khong co `benign URL` thi `train_baselines.py --dataset-kind url` se dung o buoc temporal split/test.
 - `train_baselines.py` chi chia train/validation/test theo thoi gian. Script hien tai se tu dong bo qua cac ngay chi co 1 nhan truoc khi split, nhung van can toi thieu `3` ngay con lai co du ca `label 0` va `label 1`.
-- `train_baselines.py` hien so sanh `Logistic Regression`, `Linear SVM`, `Random Forest`, `XGBoost`, `ANN (MLP)` va them `hybrid_lr_xgboost_ann` theo kieu `soft voting`.
-- `Domain Model` official hien dang dung `hybrid_lr_xgboost_ann`.
-- `URL Model` official hien dang dung `hybrid_lr_xgboost_ann`.
+- `train_baselines.py` hien so sanh `Logistic Regression`, `Linear SVM`, `Random Forest`, `XGBoost`, `ANN (MLP)` va cac bien the `hybrid` moi.
+- `Domain Model` official hien dang dung `hybrid_xgboost_ann_weighted`.
+- `URL Model` official hien dang dung `ann_mlp`.
 - `build_domain_dataset.py` hien tu dong nap them benign domain addon tu `data/raw/vn_benign_domain_addon/*.csv`.

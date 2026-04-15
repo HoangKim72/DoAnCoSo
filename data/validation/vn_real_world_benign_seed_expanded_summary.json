@@ -1,0 +1,312 @@
+{
+  "generated_at": "2026-04-12T20:24:35+07:00",
+  "seed_file": "data\\curated\\vn_official_site_seeds_focus.csv",
+  "output": "data\\validation\\vn_real_world_benign_seed_expanded.csv",
+  "exclude_domain_dataset": "data\\processed\\official\\domain_model_official.parquet",
+  "exclude_url_dataset": "data\\processed\\official\\url_model_official.parquet",
+  "counts": {
+    "collected_before_exclusion": 396,
+    "excluded_for_train_overlap": 138,
+    "remaining_after_exclusion": 258,
+    "selected_domain_rows": 4,
+    "selected_url_rows": 42,
+    "final_rows": 46
+  },
+  "selected_by_dataset_kind": {
+    "domain": 4,
+    "url": 42
+  },
+  "selected_by_category": {
+    "banking": 9,
+    "ecommerce": 3,
+    "government": 15,
+    "media": 3,
+    "university": 9,
+    "university_portal": 7
+  },
+  "excluded_by_dataset_kind": {
+    "domain": 138
+  },
+  "excluded_by_category": {
+    "banking": 12,
+    "ecommerce": 4,
+    "government": 50,
+    "media": 2,
+    "university": 65,
+    "university_portal": 5
+  },
+  "per_seed": [
+    {
+      "seed_id": "S001",
+      "source_name": "HUTECH",
+      "category": "university",
+      "registered_domain": "hutech.edu.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 12,
+      "notes": [],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 12
+    },
+    {
+      "seed_id": "S002",
+      "source_name": "HCMUS",
+      "category": "university",
+      "registered_domain": "hcmus.edu.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 13,
+      "notes": [
+        "sitemap_error[https://www.hcmus.edu.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://hcmus.edu.vn/sitemap_news.xml",
+        "sitemap_error[https://www.hcmus.edu.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://hcmus.edu.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 13
+    },
+    {
+      "seed_id": "S003",
+      "source_name": "HCMUT",
+      "category": "university",
+      "registered_domain": "hcmut.edu.vn",
+      "selected_url_count": 0,
+      "selected_domain_count": 0,
+      "notes": [],
+      "kept_after_exclusion": 0,
+      "excluded_for_train_overlap": 0
+    },
+    {
+      "seed_id": "S005",
+      "source_name": "UIT",
+      "category": "university",
+      "registered_domain": "uit.edu.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 10,
+      "notes": [],
+      "kept_after_exclusion": 19,
+      "excluded_for_train_overlap": 9
+    },
+    {
+      "seed_id": "S006",
+      "source_name": "UEH",
+      "category": "university",
+      "registered_domain": "ueh.edu.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 18,
+      "notes": [
+        "sitemap_error[https://www.ueh.edu.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://www.ueh.edu.vn/sitemap_index.xml",
+        "sitemap_error[https://www.ueh.edu.vn/sitemap-index.xml]: 404 Client Error: Not Found for url: https://www.ueh.edu.vn/sitemap-index.xml",
+        "sitemap_error[https://www.ueh.edu.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://www.ueh.edu.vn/sitemap_news.xml",
+        "sitemap_error[https://www.ueh.edu.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://www.ueh.edu.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 18
+    },
+    {
+      "seed_id": "S008",
+      "source_name": "DUT_UDN",
+      "category": "university",
+      "registered_domain": "udn.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 18,
+      "notes": [
+        "sitemap_error[https://dut.udn.vn/sitemap.xml]: 404 Client Error: Not Found for url: https://dut.udn.vn/sitemap.xml",
+        "sitemap_error[https://dut.udn.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://dut.udn.vn/sitemap_index.xml",
+        "sitemap_error[https://dut.udn.vn/sitemap-index.xml]: 404 Client Error: Not Found for url: https://dut.udn.vn/sitemap-index.xml",
+        "sitemap_error[https://dut.udn.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://dut.udn.vn/sitemap_news.xml",
+        "sitemap_error[https://dut.udn.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://dut.udn.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 18
+    },
+    {
+      "seed_id": "S014",
+      "source_name": "CHINHPHU",
+      "category": "government",
+      "registered_domain": "chinhphu.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 18,
+      "notes": [
+        "sitemap_error[https://chinhphu.vn/sitemap.xml]: 404 Client Error: Not Found for url: https://chinhphu.vn/sitemap.xml",
+        "sitemap_error[https://chinhphu.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://chinhphu.vn/sitemap_index.xml",
+        "sitemap_error[https://chinhphu.vn/sitemap-index.xml]: 404 Client Error: Not Found for url: https://chinhphu.vn/sitemap-index.xml",
+        "sitemap_error[https://chinhphu.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://chinhphu.vn/sitemap_news.xml",
+        "sitemap_error[https://chinhphu.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://chinhphu.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 22,
+      "excluded_for_train_overlap": 14
+    },
+    {
+      "seed_id": "S015",
+      "source_name": "MOET",
+      "category": "government",
+      "registered_domain": "moet.gov.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 10,
+      "notes": [],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 10
+    },
+    {
+      "seed_id": "S016",
+      "source_name": "MOJ",
+      "category": "government",
+      "registered_domain": "moj.gov.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 18,
+      "notes": [
+        "sitemap_error[https://moj.gov.vn/sitemap.xml]: 404 Client Error: NOT FOUND for url: https://moj.gov.vn/sitemap.xml",
+        "sitemap_error[https://moj.gov.vn/sitemap_index.xml]: 404 Client Error: NOT FOUND for url: https://moj.gov.vn/sitemap_index.xml",
+        "sitemap_error[https://moj.gov.vn/sitemap-index.xml]: 404 Client Error: NOT FOUND for url: https://moj.gov.vn/sitemap-index.xml",
+        "sitemap_error[https://moj.gov.vn/sitemap_news.xml]: 404 Client Error: NOT FOUND for url: https://moj.gov.vn/sitemap_news.xml",
+        "sitemap_error[https://moj.gov.vn/sitemap-news.xml]: 404 Client Error: NOT FOUND for url: https://moj.gov.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 18
+    },
+    {
+      "seed_id": "S022",
+      "source_name": "HANOI_GOV",
+      "category": "government",
+      "registered_domain": "hanoi.gov.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 9,
+      "notes": [
+        "sitemap_error[https://hanoi.gov.vn/sitemap.xml]: 404 Client Error: Not Found for url: https://hanoi.gov.vn/sitemap.xml",
+        "sitemap_error[https://hanoi.gov.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://hanoi.gov.vn/sitemap_index.xml",
+        "sitemap_error[https://hanoi.gov.vn/sitemap-index.xml]: 404 Client Error: Not Found for url: https://hanoi.gov.vn/sitemap-index.xml",
+        "sitemap_error[https://hanoi.gov.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://hanoi.gov.vn/sitemap_news.xml",
+        "sitemap_error[https://hanoi.gov.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://hanoi.gov.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 19,
+      "excluded_for_train_overlap": 8
+    },
+    {
+      "seed_id": "S023",
+      "source_name": "TPHCM_GOV",
+      "category": "government",
+      "registered_domain": "tphcm.gov.vn",
+      "selected_url_count": 0,
+      "selected_domain_count": 0,
+      "notes": [
+        "homepage_error: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e86c72b390>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "robots_error: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e86c72bb10>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "sitemap_error[https://tphcm.gov.vn/sitemap.xml]: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /sitemap.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e8adc4cb90>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "sitemap_error[https://tphcm.gov.vn/sitemap_index.xml]: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /sitemap_index.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e8adc4d090>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "sitemap_error[https://tphcm.gov.vn/sitemap-index.xml]: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /sitemap-index.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e8adc4c910>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "sitemap_error[https://tphcm.gov.vn/sitemap_news.xml]: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /sitemap_news.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e8adc4c7d0>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))",
+        "sitemap_error[https://tphcm.gov.vn/sitemap-news.xml]: HTTPSConnectionPool(host='tphcm.gov.vn', port=443): Max retries exceeded with url: /sitemap-news.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='tphcm.gov.vn', port=443) at 0x1e8adc4c050>, 'Connection to tphcm.gov.vn timed out. (connect timeout=12)'))"
+      ],
+      "kept_after_exclusion": 0,
+      "excluded_for_train_overlap": 0
+    },
+    {
+      "seed_id": "S024",
+      "source_name": "VIETCOMBANK",
+      "category": "banking",
+      "registered_domain": "vietcombank.com.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 6,
+      "notes": [
+        "sitemap_error[https://www.vietcombank.com.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://www.vietcombank.com.vn/sitemap_index.xml",
+        "sitemap_error[https://www.vietcombank.com.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://www.vietcombank.com.vn/sitemap_news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 6
+    },
+    {
+      "seed_id": "S025",
+      "source_name": "ACB",
+      "category": "banking",
+      "registered_domain": "acb.com.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 4,
+      "notes": [],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 4
+    },
+    {
+      "seed_id": "S026",
+      "source_name": "TECHCOMBANK",
+      "category": "banking",
+      "registered_domain": "techcombank.com",
+      "selected_url_count": 18,
+      "selected_domain_count": 2,
+      "notes": [
+        "sitemap_error[https://www.techcombank.com/sitemap_index.xml]: 404 Client Error: Not Found for url: https://techcombank.com/sitemap_index.xml",
+        "sitemap_error[https://www.techcombank.com/sitemap_news.xml]: 404 Client Error: Not Found for url: https://techcombank.com/sitemap_news.xml",
+        "sitemap_error[https://www.techcombank.com/sitemap-news.xml]: 404 Client Error: Not Found for url: https://techcombank.com/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 2
+    },
+    {
+      "seed_id": "S027",
+      "source_name": "BIDV",
+      "category": "banking",
+      "registered_domain": "bidv.com.vn",
+      "selected_url_count": 0,
+      "selected_domain_count": 0,
+      "notes": [
+        "homepage_error: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "robots_error: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "sitemap_error[https://www.bidv.com.vn/sitemap.xml]: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /sitemap.xml (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "sitemap_error[https://www.bidv.com.vn/sitemap_index.xml]: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /sitemap_index.xml (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "sitemap_error[https://www.bidv.com.vn/sitemap-index.xml]: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /sitemap-index.xml (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "sitemap_error[https://www.bidv.com.vn/sitemap_news.xml]: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /sitemap_news.xml (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))",
+        "sitemap_error[https://www.bidv.com.vn/sitemap-news.xml]: HTTPSConnectionPool(host='www.bidv.com.vn', port=443): Max retries exceeded with url: /sitemap-news.xml (Caused by SSLError(SSLError(1, '[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1081)')))"
+      ],
+      "kept_after_exclusion": 0,
+      "excluded_for_train_overlap": 0
+    },
+    {
+      "seed_id": "S034",
+      "source_name": "TIKI",
+      "category": "ecommerce",
+      "registered_domain": "tiki.vn",
+      "selected_url_count": 18,
+      "selected_domain_count": 4,
+      "notes": [
+        "sitemap_error[https://www.tiki.vn/sitemap.xml]: 404 Client Error: Not Found for url: https://tiki.vn/sitemap.xml",
+        "sitemap_error[https://www.tiki.vn/sitemap_index.xml]: 404 Client Error: Not Found for url: https://tiki.vn/sitemap_index.xml",
+        "sitemap_error[https://www.tiki.vn/sitemap-index.xml]: 404 Client Error: Not Found for url: https://tiki.vn/sitemap-index.xml",
+        "sitemap_error[https://www.tiki.vn/sitemap_news.xml]: 404 Client Error: Not Found for url: https://tiki.vn/sitemap_news.xml",
+        "sitemap_error[https://www.tiki.vn/sitemap-news.xml]: 404 Client Error: Not Found for url: https://tiki.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 4
+    },
+    {
+      "seed_id": "S035",
+      "source_name": "CELLPHONES",
+      "category": "ecommerce",
+      "registered_domain": "cellphones.com.vn",
+      "selected_url_count": 0,
+      "selected_domain_count": 0,
+      "notes": [
+        "homepage_error: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/",
+        "robots_error: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/robots.txt",
+        "sitemap_error[https://www.cellphones.com.vn/sitemap.xml]: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/sitemap.xml",
+        "sitemap_error[https://www.cellphones.com.vn/sitemap_index.xml]: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/sitemap_index.xml",
+        "sitemap_error[https://www.cellphones.com.vn/sitemap-index.xml]: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/sitemap-index.xml",
+        "sitemap_error[https://www.cellphones.com.vn/sitemap_news.xml]: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/sitemap_news.xml",
+        "sitemap_error[https://www.cellphones.com.vn/sitemap-news.xml]: 504 Server Error: Gateway Timeout for url: https://www.cellphones.com.vn/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 0,
+      "excluded_for_train_overlap": 0
+    },
+    {
+      "seed_id": "S038",
+      "source_name": "VNEXPRESS",
+      "category": "media",
+      "registered_domain": "vnexpress.net",
+      "selected_url_count": 18,
+      "selected_domain_count": 2,
+      "notes": [
+        "sitemap_error[https://vnexpress.net/sitemap_index.xml]: 406 Client Error: Not Acceptable for url: https://vnexpress.net/sitemap_index.xml",
+        "sitemap_error[https://vnexpress.net/sitemap-index.xml]: 406 Client Error: Not Acceptable for url: https://vnexpress.net/sitemap-index.xml",
+        "sitemap_error[https://vnexpress.net/sitemap_news.xml]: 406 Client Error: Not Acceptable for url: https://vnexpress.net/sitemap_news.xml",
+        "sitemap_error[https://vnexpress.net/sitemap-news.xml]: 406 Client Error: Not Acceptable for url: https://vnexpress.net/sitemap-news.xml"
+      ],
+      "kept_after_exclusion": 18,
+      "excluded_for_train_overlap": 2
+    }
+  ]
+}

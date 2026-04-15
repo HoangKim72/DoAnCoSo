@@ -12,8 +12,8 @@ from typing import Any
 import joblib
 import pandas as pd
 
-from .feature_engineering import build_feature_frame
-from .settings import BASE_DIR, IDS_EVENTS_PATH, OFFICIAL_MODEL_REGISTRY_PATH
+from .feature_engineering import align_feature_frame, build_feature_frame
+from .settings import BASE_DIR, IDS_EVENTS_PATH, OFFICIAL_MODEL_REGISTRY_PATH, RAW_DIR
 from .utils import build_parsed_record, ensure_parent_dir
 
 
@@ -22,6 +22,8 @@ RISK_THRESHOLDS = {
     "medium": 0.60,
     "low": 0.35,
 }
+CURATED_BENIGN_DOMAIN_DIR = RAW_DIR / "vn_benign_domain_addon"
+CURATED_BENIGN_OVERRIDE_SCORE = 0.01
 
 
 @dataclass(frozen=True)
@@ -67,6 +69,45 @@ def load_official_model_bundle(dataset_kind: str) -> OfficialModelBundle:
         run_summary=run_summary,
         model=model,
     )
+
+
+@lru_cache(maxsize=1)
+def load_curated_benign_domain_allowlist() -> dict[str, frozenset[str]]:
+    exact_hostnames: set[str] = set()
+    trusted_registered_domains: set[str] = set()
+
+    if not CURATED_BENIGN_DOMAIN_DIR.exists():
+        return {
+            "exact_hostnames": frozenset(),
+            "trusted_registered_domains": frozenset(),
+        }
+
+    for csv_path in sorted(CURATED_BENIGN_DOMAIN_DIR.glob("*.csv")):
+        try:
+            frame = pd.read_csv(csv_path)
+        except Exception:
+            continue
+        if "input_value" not in frame.columns:
+            continue
+
+        for raw_value in frame["input_value"].dropna().tolist():
+            parsed = build_parsed_record(raw_value, "domain")
+            if not parsed.get("parse_ok"):
+                continue
+            hostname = str(parsed.get("canonical_hostname") or parsed.get("hostname") or "").strip().lower()
+            registered_domain = str(
+                parsed.get("canonical_registered_domain") or parsed.get("registered_domain") or ""
+            ).strip().lower()
+            if not hostname:
+                continue
+            exact_hostnames.add(hostname)
+            if hostname == registered_domain:
+                trusted_registered_domains.add(registered_domain)
+
+    return {
+        "exact_hostnames": frozenset(exact_hostnames),
+        "trusted_registered_domains": frozenset(trusted_registered_domains),
+    }
 
 
 def detect_dataset_kind(value: str, requested_kind: str = "auto") -> str:
@@ -125,6 +166,18 @@ def normalized_score_for_model(model: Any, features: pd.DataFrame) -> tuple[floa
     return binary, "predict"
 
 
+def expected_feature_columns(model: Any, run_summary: dict[str, Any] | None = None) -> list[str] | None:
+    if hasattr(model, "feature_names_in_"):
+        feature_names = list(getattr(model, "feature_names_in_", []))
+        if feature_names:
+            return feature_names
+    if run_summary:
+        feature_columns = run_summary.get("feature_columns")
+        if feature_columns:
+            return list(feature_columns)
+    return None
+
+
 def risk_level_for_score(score: float) -> str:
     if score >= RISK_THRESHOLDS["high"]:
         return "high"
@@ -143,6 +196,32 @@ def recommendation_for_prediction(predicted_label: int, risk_level: str) -> str:
     if predicted_label == 1:
         return "Giữ sự kiện trong log để theo dõi, chưa cần cảnh báo mạnh."
     return "Không cần cảnh báo mạnh; tiếp tục ghi log để đối chiếu hành vi."
+
+
+def curated_benign_domain_override(parsed_row: dict[str, Any]) -> dict[str, str] | None:
+    hostname = str(parsed_row.get("canonical_hostname") or parsed_row.get("hostname") or "").strip().lower()
+    registered_domain = str(
+        parsed_row.get("canonical_registered_domain") or parsed_row.get("registered_domain") or ""
+    ).strip().lower()
+    if not hostname:
+        return None
+
+    allowlist = load_curated_benign_domain_allowlist()
+    if hostname in allowlist["exact_hostnames"]:
+        return {
+            "reason": "curated_benign_domain_exact_hostname",
+            "match_value": hostname,
+        }
+    if (
+        registered_domain
+        and registered_domain in allowlist["trusted_registered_domains"]
+        and hostname.endswith(f".{registered_domain}")
+    ):
+        return {
+            "reason": "curated_benign_domain_trusted_registered_domain",
+            "match_value": registered_domain,
+        }
+    return None
 
 
 def summarize_signals(dataset_kind: str, parsed_row: dict[str, Any], features: dict[str, float]) -> list[str]:
@@ -218,10 +297,32 @@ def predict_value(
     bundle = load_official_model_bundle(resolved_kind)
     inference_df, parsed_row = build_inference_row(value, resolved_kind)
     feature_frame = build_feature_frame(inference_df, resolved_kind)
+    feature_frame = align_feature_frame(
+        feature_frame,
+        expected_feature_columns(bundle.model, bundle.run_summary),
+    )
     predicted_label = int(bundle.model.predict(feature_frame)[0])
     score, score_source = normalized_score_for_model(bundle.model, feature_frame)
     risk_level = risk_level_for_score(score)
     feature_values = feature_frame.iloc[0].to_dict()
+    override = None
+    model_predicted_label = predicted_label
+    model_score = round(float(score), 6)
+    model_risk_level = risk_level
+    model_score_source = score_source
+    if resolved_kind == "domain" and predicted_label == 1:
+        override = curated_benign_domain_override(parsed_row)
+        if override:
+            predicted_label = 0
+            score = min(float(score), CURATED_BENIGN_OVERRIDE_SCORE)
+            score_source = "curated_benign_override"
+            risk_level = "minimal"
+    signals = summarize_signals(resolved_kind, parsed_row, feature_values)
+    if override:
+        override_signal = (
+            "Khớp danh sách domain benign đã curate; ghi log nhưng không nâng cảnh báo phishing."
+        )
+        signals = [override_signal, *[signal for signal in signals if signal != override_signal]][:4]
     event = {
         "event_id": uuid.uuid4().hex,
         "received_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -237,8 +338,12 @@ def predict_value(
         "model_name": bundle.model_name,
         "variant_name": bundle.variant_name,
         "feature_count": bundle.feature_count,
-        "recommendation": recommendation_for_prediction(predicted_label, risk_level),
-        "signals": summarize_signals(resolved_kind, parsed_row, feature_values),
+        "recommendation": (
+            "Khớp danh sách benign đã curate; tiếp tục ghi log nhưng không phát cảnh báo mạnh."
+            if override
+            else recommendation_for_prediction(predicted_label, risk_level)
+        ),
+        "signals": signals,
         "parsed": {
             "hostname": parsed_row.get("hostname", ""),
             "registered_domain": parsed_row.get("registered_domain", ""),
@@ -249,6 +354,19 @@ def predict_value(
         },
         "metadata": metadata or {},
     }
+    if override:
+        event["decision_mode"] = "model_plus_curated_benign_override"
+        event["override_reason"] = override["reason"]
+        event["override_match_value"] = override["match_value"]
+        event["model_predicted_label_before_override"] = model_predicted_label
+        event["model_predicted_class_before_override"] = (
+            "phishing" if model_predicted_label == 1 else "benign"
+        )
+        event["model_score_before_override"] = model_score
+        event["model_score_source_before_override"] = model_score_source
+        event["model_risk_level_before_override"] = model_risk_level
+    else:
+        event["decision_mode"] = "model"
     if persist:
         append_event(event)
     return event
