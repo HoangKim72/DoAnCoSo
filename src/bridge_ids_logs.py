@@ -72,6 +72,11 @@ def parse_args() -> argparse.Namespace:
         help="When following and no saved state exists, start from the current end of file.",
     )
     parser.add_argument(
+        "--replay-from-start",
+        action="store_true",
+        help="Ignore any saved byte offset and replay the input log from the first line.",
+    )
+    parser.add_argument(
         "--poll-interval",
         type=float,
         default=1.0,
@@ -82,6 +87,12 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=15.0,
         help="HTTP timeout in seconds for each ingest request.",
+    )
+    parser.add_argument(
+        "--event-delay",
+        type=float,
+        default=3.0,
+        help="Seconds to wait after each extracted event. Use 0 for fast dry-runs.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print transformed payloads instead of sending them.")
     parser.add_argument(
@@ -416,11 +427,14 @@ def initial_offset(
     state_path: Path,
     follow: bool,
     start_at_end: bool,
+    replay_from_start: bool,
 ) -> int:
+    file_size = log_path.stat().st_size
+    if replay_from_start:
+        return 0
     saved_state = load_state(state_path)
     saved = saved_state.get(state_key(log_path, requested_format), {})
     offset = int(saved.get("offset", 0)) if isinstance(saved, dict) else 0
-    file_size = log_path.stat().st_size
     if offset > file_size:
         return 0
     if offset > 0:
@@ -432,6 +446,9 @@ def initial_offset(
 
 def main() -> None:
     args = parse_args()
+    if args.event_delay < 0:
+        raise ValueError("--event-delay must be greater than or equal to 0.")
+
     log_path = resolve_repo_path(args.input)
     if not log_path.exists():
         raise FileNotFoundError(f"Input log not found: {log_path}")
@@ -445,6 +462,7 @@ def main() -> None:
         state_path=state_path,
         follow=args.follow,
         start_at_end=args.start_at_end,
+        replay_from_start=args.replay_from_start or args.dry_run,
     )
 
     counters = {
@@ -460,7 +478,8 @@ def main() -> None:
 
     print(
         f"[bridge] input={log_path} format={args.format} "
-        f"follow={args.follow} start_offset={start_offset} dry_run={args.dry_run}"
+        f"follow={args.follow} start_offset={start_offset} dry_run={args.dry_run} "
+        f"event_delay={args.event_delay}"
     )
 
     try:
@@ -542,6 +561,8 @@ def main() -> None:
             processed_events += 1
             if args.limit and processed_events >= args.limit:
                 break
+            if args.event_delay > 0:
+                time.sleep(args.event_delay)
     except KeyboardInterrupt:
         print("[bridge] stopped by user")
 

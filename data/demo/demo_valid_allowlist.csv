@@ -1,0 +1,216 @@
+rule_type,match_value,dataset_kind,expected_class,collected_at,source,category,source_name,note
+exact_hostname,vnexpress.net,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNEXPRESS.NET,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://vnexpress.net/thoi-su/chinh-sach-moi.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNEXPRESS.NET,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vnexpress.net/thoi-su/chinh-sach-moi.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNEXPRESS.NET,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,tuoitre.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUOITRE.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://tuoitre.vn/giao-duc/tuyen-sinh-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUOITRE.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://tuoitre.vn/giao-duc/tuyen-sinh-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUOITRE.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,thanhnien.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THANHNIEN.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://thanhnien.vn/cong-nghe/chuyen-doi-so-185260501.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THANHNIEN.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://thanhnien.vn/cong-nghe/chuyen-doi-so-185260501.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THANHNIEN.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,dantri.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DANTRI.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://dantri.com.vn/xa-hoi/lich-nghi-le-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DANTRI.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://dantri.com.vn/xa-hoi/lich-nghi-le-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DANTRI.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,laodong.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAODONG.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://laodong.vn/kinh-doanh/thi-truong-hom-nay-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAODONG.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://laodong.vn/kinh-doanh/thi-truong-hom-nay-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAODONG.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,nhandan.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NHANDAN.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://nhandan.vn/van-hoa/tin-moi.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NHANDAN.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://nhandan.vn/van-hoa/tin-moi.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NHANDAN.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,vietnamnet.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETNAMNET.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://vietnamnet.vn/giao-duc/hoc-bong-dai-hoc-2026.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETNAMNET.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vietnamnet.vn/giao-duc/hoc-bong-dai-hoc-2026.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETNAMNET.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,baochinhphu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BAOCHINHPHU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://baochinhphu.vn/tin-tuc/chi-dao-dieu-hanh-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BAOCHINHPHU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://baochinhphu.vn/tin-tuc/chi-dao-dieu-hanh-2026.htm,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BAOCHINHPHU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,chinhphu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CHINHPHU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://chinhphu.vn/du-thao-van-ban,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CHINHPHU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://chinhphu.vn/du-thao-van-ban,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CHINHPHU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,moh.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOH.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://moh.gov.vn/tin-lien-quan-y-te,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOH.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://moh.gov.vn/tin-lien-quan-y-te,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOH.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,moet.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOET.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://moet.gov.vn/tin-tuc/Pages/tin-tong-hop.aspx,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOET.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://moet.gov.vn/tin-tuc/Pages/tin-tong-hop.aspx,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOET.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,mic.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MIC.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://mic.gov.vn/Pages/TinTuc/140001/chuyen-doi-so.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MIC.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://mic.gov.vn/Pages/TinTuc/140001/chuyen-doi-so.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MIC.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,hcmus.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUS.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://hcmus.edu.vn/dao-tao/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUS.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://hcmus.edu.vn/dao-tao/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUS.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,fit.hcmus.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FIT.HCMUS.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://fit.hcmus.edu.vn/tin-tuc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FIT.HCMUS.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://fit.hcmus.edu.vn/tin-tuc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FIT.HCMUS.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,hutech.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HUTECH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://hutech.edu.vn/tuyen-sinh-dai-hoc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HUTECH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://hutech.edu.vn/tuyen-sinh-dai-hoc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HUTECH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,uit.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UIT.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://uit.edu.vn/sinh-vien/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UIT.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://uit.edu.vn/sinh-vien/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UIT.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,hcmut.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUT.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://hcmut.edu.vn/vi/news/tin-tuc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUT.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://hcmut.edu.vn/vi/news/tin-tuc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HCMUT.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,ctu.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CTU.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://ctu.edu.vn/dao-tao/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CTU.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://ctu.edu.vn/dao-tao/thong-bao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CTU.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,ueh.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UEH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://ueh.edu.vn/dao-tao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UEH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://ueh.edu.vn/dao-tao,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,UEH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,vnu.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNU.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://vnu.edu.vn/home/?C1654,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNU.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vnu.edu.vn/home/?C1654,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VNU.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,vietcombank.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETCOMBANK.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://vietcombank.com.vn/vi-VN/Trang-chu,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETCOMBANK.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vietcombank.com.vn/vi-VN/Trang-chu,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETCOMBANK.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,bidv.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BIDV.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://bidv.com.vn/vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BIDV.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://bidv.com.vn/vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BIDV.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,acb.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACB.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://acb.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACB.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://acb.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACB.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,techcombank.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TECHCOMBANK.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://techcombank.com/khach-hang-ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TECHCOMBANK.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://techcombank.com/khach-hang-ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TECHCOMBANK.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,mbbank.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MBBANK.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://mbbank.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MBBANK.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://mbbank.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MBBANK.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,tpb.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TPB.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://tpb.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TPB.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://tpb.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TPB.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,agribank.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AGRIBANK.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://agribank.com.vn/vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AGRIBANK.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://agribank.com.vn/vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AGRIBANK.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,vpbank.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VPBANK.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://vpbank.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VPBANK.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vpbank.com.vn/ca-nhan,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VPBANK.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,cellphones.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CELLPHONES.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://cellphones.com.vn/mobile/samsung.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CELLPHONES.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://cellphones.com.vn/mobile/samsung.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CELLPHONES.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,fptshop.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FPTSHOP.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://fptshop.com.vn/may-tinh-xach-tay,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FPTSHOP.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://fptshop.com.vn/may-tinh-xach-tay,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FPTSHOP.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,thegioididong.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THEGIOIDIDONG.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://thegioididong.com/dtdd,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THEGIOIDIDONG.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://thegioididong.com/dtdd,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,THEGIOIDIDONG.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,dienmayxanh.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DIENMAYXANH.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://dienmayxanh.com/may-lanh,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DIENMAYXANH.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://dienmayxanh.com/may-lanh,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DIENMAYXANH.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,tiki.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TIKI.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://tiki.vn/dien-thoai-may-tinh-bang/c1789,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TIKI.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://tiki.vn/dien-thoai-may-tinh-bang/c1789,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TIKI.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,shopee.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SHOPEE.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://shopee.vn/search?keyword=sach%20lap%20trinh,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SHOPEE.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://shopee.vn/search?keyword=sach%20lap%20trinh,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SHOPEE.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,lazada.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAZADA.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://lazada.vn/catalog/?q=ban%20phim,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAZADA.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://lazada.vn/catalog/?q=ban%20phim,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LAZADA.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,github.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,GITHUB.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://github.com/openai/openai-python,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,GITHUB.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://github.com/openai/openai-python,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,GITHUB.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,stackoverflow.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,STACKOVERFLOW.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://stackoverflow.com/questions/tagged/python,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,STACKOVERFLOW.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://stackoverflow.com/questions/tagged/python,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,STACKOVERFLOW.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,docs.python.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DOCS.PYTHON.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://docs.python.org/3/library/json.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DOCS.PYTHON.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://docs.python.org/3/library/json.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DOCS.PYTHON.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,pypi.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PYPI.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://pypi.org/project/requests/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PYPI.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://pypi.org/project/requests/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PYPI.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,microsoft.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MICROSOFT.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://microsoft.com/vi-vn/microsoft-365,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MICROSOFT.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://microsoft.com/vi-vn/microsoft-365,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MICROSOFT.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,support.google.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SUPPORT.GOOGLE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://support.google.com/accounts/answer/61416,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SUPPORT.GOOGLE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://support.google.com/accounts/answer/61416,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SUPPORT.GOOGLE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,cloudflare.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CLOUDFLARE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://cloudflare.com/learning/security/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CLOUDFLARE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://cloudflare.com/learning/security/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CLOUDFLARE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,wikipedia.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WIKIPEDIA.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://wikipedia.org/wiki/Phishing,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WIKIPEDIA.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://wikipedia.org/wiki/Phishing,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WIKIPEDIA.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,coursera.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,COURSERA.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://coursera.org/learn/machine-learning,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,COURSERA.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://coursera.org/learn/machine-learning,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,COURSERA.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,edx.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,EDX.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://edx.org/learn/cybersecurity,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,EDX.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://edx.org/learn/cybersecurity,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,EDX.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,openai.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,OPENAI.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://openai.com/api/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,OPENAI.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://openai.com/api/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,OPENAI.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,apnews.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APNEWS.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://apnews.com/world-news,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APNEWS.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://apnews.com/world-news,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APNEWS.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,bbc.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BBC.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://bbc.com/news/technology,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BBC.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://bbc.com/news/technology,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,BBC.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,reuters.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,REUTERS.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://reuters.com/world/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,REUTERS.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://reuters.com/world/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,REUTERS.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,npr.org,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NPR.ORG,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://npr.org/sections/technology/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NPR.ORG,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://npr.org/sections/technology/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NPR.ORG,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,paypal.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PAYPAL.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://paypal.com/vn/home,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PAYPAL.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://paypal.com/vn/home,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PAYPAL.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,accounts.google.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACCOUNTS.GOOGLE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://accounts.google.com/ServiceLogin,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACCOUNTS.GOOGLE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://accounts.google.com/ServiceLogin,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ACCOUNTS.GOOGLE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,login.microsoftonline.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LOGIN.MICROSOFTONLINE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://login.microsoftonline.com/common/oauth2/v2.0/authorize,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LOGIN.MICROSOFTONLINE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://login.microsoftonline.com/common/oauth2/v2.0/authorize,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LOGIN.MICROSOFTONLINE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,apple.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APPLE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://apple.com/vn/icloud/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APPLE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://apple.com/vn/icloud/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,APPLE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,amazon.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AMAZON.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://amazon.com/gp/help/customer/display.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AMAZON.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://amazon.com/gp/help/customer/display.html,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,AMAZON.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,netflix.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NETFLIX.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://netflix.com/vn-en/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NETFLIX.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://netflix.com/vn-en/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NETFLIX.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,linkedin.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LINKEDIN.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://linkedin.com/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LINKEDIN.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://linkedin.com/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LINKEDIN.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,facebook.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FACEBOOK.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://facebook.com/login/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FACEBOOK.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://facebook.com/login/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,FACEBOOK.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,youtube.com,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,YOUTUBE.COM,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://youtube.com/feed/subscriptions,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,YOUTUBE.COM,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://youtube.com/feed/subscriptions,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,YOUTUBE.COM,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,zalo.me,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ZALO.ME,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://zalo.me/pc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ZALO.ME,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://zalo.me/pc,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ZALO.ME,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,red.moj.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,RED.MOJ.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://red.moj.gov.vn/cas/login?service=https%3A%2F%2Fmoj.gov.vn%2FPages%2Fhome.aspx,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,RED.MOJ.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://red.moj.gov.vn/cas/login?service=https%3A%2F%2Fmoj.gov.vn%2FPages%2Fhome.aspx,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,RED.MOJ.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,tuyensinh.moet.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUYENSINH.MOET.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUYENSINH.MOET.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://tuyensinh.moet.gov.vn/Account/Login?ReturnUrl=%2F,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,TUYENSINH.MOET.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,daotao.hutech.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DAOTAO.HUTECH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://daotao.hutech.edu.vn/default.aspx?flag=XemDiemThi&page=nhapmasv,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DAOTAO.HUTECH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://daotao.hutech.edu.vn/default.aspx?flag=XemDiemThi&page=nhapmasv,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,DAOTAO.HUTECH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,hocvudientu.hutech.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HOCVUDIENTU.HUTECH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://hocvudientu.hutech.edu.vn/dang-nhap?ReturnUrl=%2F,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HOCVUDIENTU.HUTECH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://hocvudientu.hutech.edu.vn/dang-nhap?ReturnUrl=%2F,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,HOCVUDIENTU.HUTECH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,sinhvien1.hutech.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SINHVIEN1.HUTECH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://sinhvien1.hutech.edu.vn/elearning/hoc-vu/lich-thi,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SINHVIEN1.HUTECH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://sinhvien1.hutech.edu.vn/elearning/hoc-vu/lich-thi,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,SINHVIEN1.HUTECH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,online.acb.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ONLINE.ACB.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://online.acb.com.vn/acbib/Request?dse_sessionId=student-demo,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ONLINE.ACB.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://online.acb.com.vn/acbib/Request?dse_sessionId=student-demo,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,ONLINE.ACB.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_url,http://vietcombank.com.vn/dang-nhap-dich-vu-vcb-digibank,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETCOMBANK.COM.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://vietcombank.com.vn/dang-nhap-dich-vu-vcb-digibank,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VIETCOMBANK.COM.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,webdaotao.hutech.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WEBDAOTAO.HUTECH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://webdaotao.hutech.edu.vn/daotao/default.aspx?page=nhapmasv,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WEBDAOTAO.HUTECH.EDU.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://webdaotao.hutech.edu.vn/daotao/default.aspx?page=nhapmasv,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,WEBDAOTAO.HUTECH.EDU.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,mail.moet.gov.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MAIL.MOET.GOV.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_url,http://mail.moet.gov.vn/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MAIL.MOET.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://mail.moet.gov.vn/,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MAIL.MOET.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_url,http://moet.gov.vn/page/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOET.GOV.VN,Known-valid benign HTTP URL in the IDS demo scenario.
+exact_url,https://moet.gov.vn/page/login,url,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MOET.GOV.VN,HTTPS equivalent of a known-valid benign demo URL.
+exact_hostname,mail.chinhphu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,MAIL.CHINHPHU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,ctd.ueh.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,CTD.UEH.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,portal.hcmus.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,PORTAL.HCMUS.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,vcbdigibank.vietcombank.com.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,VCBDIGIBANK.VIETCOMBANK.COM.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,en.uit.edu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,EN.UIT.EDU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,letienchau.chinhphu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,LETIENCHAU.CHINHPHU.VN,Known-valid benign domain/hostname in the IDS demo scenario.
+exact_hostname,nguyenvanthang.chinhphu.vn,domain,benign,2026-05-01,ids_demo_valid_allowlist,demo_benign_input,NGUYENVANTHANG.CHINHPHU.VN,Known-valid benign domain/hostname in the IDS demo scenario.

@@ -1820,11 +1820,237 @@ Y nghia:
 - da co duong day ro rang cho `IDS JSON log -> bridge -> dashboard`
 - dashboard co du ngu canh van hanh de giai thich su kien khi bao ve do an
 
+#### Phase 39. Chot kich ban demo IDS log -> model -> realtime dashboard
+
+Muc tieu:
+
+- mo phong trang thai mot user dang luot web
+- input la file IDS log da thu duoc khi user truy cap website
+- bridge doc tung event trong file va gui vao model
+- dashboard cap nhat realtime de thay duoc qua trinh phat hien phishing
+
+Da them / cap nhat:
+
+- `src/generate_demo_ids_log.py`
+- `data/demo/demo_suricata_eve.json`
+- `data/demo/demo_suricata_eve_manifest.csv`
+- `data/demo/demo_valid_allowlist.csv`
+- `src/bridge_ids_logs.py`
+
+File demo IDS hien sinh `100` event:
+
+- phan lon la `http`
+- co xen ke `benign` va `phishing`
+- co them mot so event `dns` va `tls` de so sanh voi domain-only flow
+- timestamp duoc sinh moi moi lan chay generator
+
+Phan bo hien tai:
+
+- `http/benign`: `70`
+- `http/phishing`: `15`
+- `tls/benign`: `4`
+- `tls/phishing`: `4`
+- `dns/benign`: `3`
+- `dns/phishing`: `4`
+
+Bridge da cap nhat:
+
+- mac dinh doc `1 event / 3 giay`
+- them option `--replay-from-start`
+- `--dry-run` khong dung saved offset
+- co the dung `--event-delay 0` khi can test nhanh
+
+Lenh demo chinh:
+
+```powershell
+.\.venv\Scripts\python.exe src\run_ids_dashboard.py --host 127.0.0.1 --port 8080
+.\.venv\Scripts\python.exe src\bridge_ids_logs.py --input data\demo\demo_suricata_eve.json --format suricata-eve --sensor-name lab-suricata-demo --replay-from-start
+```
+
+Neu muon demo sach lai tu dau:
+
+```powershell
+if (Test-Path data\runtime\ids_events.jsonl) { Clear-Content data\runtime\ids_events.jsonl }
+.\.venv\Scripts\python.exe src\bridge_ids_logs.py --input data\demo\demo_suricata_eve.json --format suricata-eve --sensor-name lab-suricata-demo --replay-from-start
+```
+
+#### Phase 40. Realtime dashboard cho demo IDS
+
+Da sua:
+
+- `src/phishing_url_ml/ids_dashboard_app.py`
+
+Cap nhat UI/logic:
+
+- dashboard tu dong poll `/api/events` moi `1 giay`
+- khi bridge gui event moi, bieu do va realtime feed tu cap nhat, khong can refresh tay
+- bieu do realtime chi hien `20 URL gan nhat`
+- realtime feed chi hien cac event den tu IDS bridge, khong hien event `manual_check`
+- lich su tong o ben duoi van hien tat ca event, bao gom ca check tay
+- UI da chuyen phan lon sang tieng Viet co dau
+- mot so nhan ky thuat van giu English nhu `Risk`, `Score`, `URL`, `Domain`, `Dashboard`
+- risk badge da doi sang English:
+  - `HIGH`
+  - `MEDIUM`
+  - `LOW`
+  - `MINIMAL`
+
+Ly do tach realtime voi check tay:
+
+- realtime panel dai dien cho dong event IDS
+- check tay chi la thao tac ho tro giai thich / doi chieu
+- neu check tay cung day len bieu do thi demo bi nhieu, khong con giong log IDS dang chay
+
+#### Phase 41. Cai thien UI check tay va nut mo link that
+
+Da sua:
+
+- `src/phishing_url_ml/ids_dashboard_app.py`
+
+Cap nhat:
+
+- them nut `An check tay` / `Hien check tay`
+- check tay co the an di de dashboard tap trung vao realtime IDS
+- o `Gia tri` doi sang textarea tu co gian theo noi dung
+- URL dai khong con tran khoi khung
+- ket qua check tay co nut `Kiem tra`
+- realtime feed moi event co nut `Check`
+- bam `Check` se mo tab moi toi URL/domain cua event
+- neu event la domain thuan, dashboard tu boc thanh `https://domain`
+
+Y nghia demo:
+
+- khi giang vien hoi "URL nay thuc te trong nhu the nao", co the bam `Check` de mo trang moi
+- nut nay khong anh huong model, chi la thao tac quan sat / doi chieu
+
+#### Phase 42. Allowlist hop le de boc lai khi model nhan dien sai
+
+Van de gap phai:
+
+- cac URL `http://...` benign bi model danh score phishing rat cao
+- nguyen nhan la model qua nhay voi tin hieu `uses_http_scheme`
+- trong thuc te `HTTP` la mot tin hieu rui ro, nhung khong du de ket luan phishing
+
+Huong sua:
+
+- khong doi het input sang HTTPS vi demo can mo phong "phan lon la HTTP"
+- them file allowlist runtime chua cac URL/domain hop le
+- model van chay truoc
+- neu model bao sai nhung input nam trong danh sach hop le da curate thi override ve benign
+
+File chinh:
+
+- `data/demo/demo_valid_allowlist.csv`
+
+File nay ho tro cac rule:
+
+- `exact_url`
+- `exact_hostname`
+- `trusted_registered_domain`
+- `url_prefix`
+
+Vi du rule:
+
+```csv
+exact_url,http://example.com/path,url,benign
+exact_url,https://example.com/path,url,benign
+exact_hostname,example.com,domain,benign
+trusted_registered_domain,example.com,domain,benign
+url_prefix,https://example.com/safe/,url,benign
+```
+
+Da sua inference:
+
+- `src/phishing_url_ml/settings.py`
+- `src/phishing_url_ml/inference.py`
+
+Cap nhat ky thuat:
+
+- them `DEMO_VALID_ALLOWLIST_PATH`
+- runtime override doc them `data/demo/demo_valid_allowlist.csv`
+- domain check tay cung co the duoc override neu hostname nam trong allowlist
+- event override co cac field:
+  - `decision_mode = model_plus_curated_benign_override`
+  - `override_reason`
+  - `override_match_value`
+  - `model_score_before_override`
+
+Kiem tra sau khi them allowlist:
+
+- `http benign`: `70/70` -> `benign/minimal`
+- `http phishing`: `15/15` -> van la `phishing/high`
+- `dns/tls benign` trong kich ban demo cung duoc ha ve benign khi nam trong allowlist
+
+Luu y khi bao cao:
+
+- day la lop `runtime mitigation / triage`
+- khong phai retrain model
+- can noi ro model van co diem goc, nhung runtime co danh sach hop le de giam false positive trong boi canh IDS demo
+
+#### Phase 43. Sua bieu do Score cho dung voi ket qua thuc te dang hien
+
+Van de gap phai:
+
+- bieu do co luc tat ca diem bi ve len `1.0`
+- nguyen nhan la chart dang uu tien `model_score_before_override`
+- cac URL benign da duoc allowlist override van bi ve theo score model goc truoc override
+
+Da sua:
+
+- chart realtime dung `event.score` de ve truc Y
+- neu event da override ve `score = 0.01`, diem se nam gan 0
+- neu event phishing high co `score = 1.0`, diem se nam gan 1
+- tooltip van co the hien them `model_score_before_override` de giai thich vi sao co override
+
+Y nghia:
+
+- bieu do phan anh dung trang thai dashboard dang quyet dinh cuoi cung
+- `MINIMAL` nam thap
+- `HIGH` nam cao
+- tranh hieu nham la tat ca URL deu bi model/dash xem nhu phishing
+
+#### Phase 44. Trang thai demo hien tai
+
+Trang thai hien tai:
+
+- co file IDS demo `100` event
+- event da duoc tron benign/phishing
+- bridge doc event moi `3 giay`
+- dashboard realtime poll moi `1 giay`
+- realtime chart chi lay `20 URL gan nhat`
+- realtime panel chi hien event IDS, khong hien check tay
+- check tay van luu vao lich su tong
+- co nut `Check` de mo URL/domain thuc te trong tab moi
+- co allowlist hop le de giam false positive cho HTTP benign
+
+Kiem tra da chay:
+
+- `py_compile` cho cac file chinh
+- Flask test client cho:
+  - `/dashboard`
+  - `/dashboard/events`
+  - `/api/events`
+  - `/health`
+- bridge `dry-run` doc duoc event tu `data/demo/demo_suricata_eve.json`
+
 ## 5. Ghi chú ngắn để mai nối việc
 
-Khi mo du an lai, nen bat dau tu 4 viec nay:
+Khi mo du an lai, nen bat dau tu cac viec nay:
 
-1. xem `docs/Official Model Results - Current.md`, `docs/Runtime Risk Policy.md`, va `docs/IDS Real Demo Guide.md`
-2. mo `docs/VN Real-World Validation Results - expanded.md` ban run luc `2026-04-15 13:41 +07:00` de nhin dung current runtime cho huong demo
-3. neu demo voi IDS that, chay `python src/run_ids_dashboard.py` truoc, sau do moi chay `python src/bridge_ids_logs.py --input ... --format ... --follow`
-4. khi trinh bay ket qua, tach ro `model official quality` va `runtime mitigation cho demo` de tranh nham lan
+1. xem nhanh `docs/Activity History.md`, `docs/Runtime Risk Policy.md`, va `docs/IDS Real Demo Guide.md`
+2. neu can sinh lai input demo, chay `.\.venv\Scripts\python.exe src\generate_demo_ids_log.py`
+3. mo dashboard bang `.\.venv\Scripts\python.exe src\run_ids_dashboard.py --host 127.0.0.1 --port 8080`
+4. replay demo bang `.\.venv\Scripts\python.exe src\bridge_ids_logs.py --input data\demo\demo_suricata_eve.json --format suricata-eve --sensor-name lab-suricata-demo --replay-from-start`
+5. neu muon demo sach, clear `data/runtime/ids_events.jsonl` truoc khi replay
+6. khi trinh bay, tach ro:
+   - `model official quality`
+   - `runtime risk policy`
+   - `demo valid allowlist`
+   - `dashboard realtime IDS flow`
+
+Luu y bao cao:
+
+- `data/demo/demo_valid_allowlist.csv` la lop boc runtime de giam false positive cho cac URL/domain hop le trong kich ban demo
+- day khong phai retrain model
+- bieu do realtime hien score cuoi cung cua event dang duoc dashboard su dung
+- event check tay khong con di vao realtime panel, nhung van nam trong lich su tong

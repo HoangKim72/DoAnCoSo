@@ -13,1306 +13,2327 @@ DASHBOARD_TEMPLATE = """
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Phishing Checker</title>
+  <title>Phishing Checker Dashboard</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
-
     :root {
-      --bg-top: #f4f7f6;
-      --bg-bottom: #edf1ef;
-      --surface: rgba(255, 255, 255, 0.78);
-      --surface-strong: rgba(255, 255, 255, 0.92);
-      --surface-deep: #f8faf9;
-      --ink: #1f2a33;
-      --muted: #64707d;
-      --line: rgba(31, 42, 51, 0.1);
-      --teal: #1c7b77;
-      --teal-soft: #d8f0ec;
-      --sky: #dceaf8;
-      --amber: #cb6d45;
-      --amber-soft: #f6d8c4;
-      --rose: #c45552;
-      --rose-soft: #f5d7d6;
-      --olive: #66804b;
-      --olive-soft: #e4ecd7;
-      --shadow: 0 24px 64px rgba(34, 53, 68, 0.12);
-      --shadow-soft: 0 12px 28px rgba(34, 53, 68, 0.08);
+      --font-body: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+      --font-heading: "Bahnschrift SemiBold", "Trebuchet MS", sans-serif;
       --radius-xl: 30px;
       --radius-lg: 24px;
       --radius-md: 18px;
+      --radius-sm: 14px;
+      --shadow-strong: 0 28px 90px rgba(20, 28, 31, 0.16);
+      --shadow-soft: 0 18px 40px rgba(20, 28, 31, 0.10);
+      --transition: 180ms ease;
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
-      color: var(--ink);
+      font-family: var(--font-body);
       background:
-        radial-gradient(circle at 10% 12%, rgba(28, 123, 119, 0.15), transparent 24%),
-        radial-gradient(circle at 88% 10%, rgba(203, 109, 69, 0.14), transparent 26%),
-        radial-gradient(circle at 78% 92%, rgba(102, 128, 75, 0.12), transparent 24%),
-        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+        radial-gradient(circle at 14% 12%, var(--orb-a), transparent 24%),
+        radial-gradient(circle at 84% 10%, var(--orb-b), transparent 20%),
+        radial-gradient(circle at 78% 92%, var(--orb-c), transparent 22%),
+        linear-gradient(180deg, var(--bg-main) 0%, var(--bg-alt) 100%);
+      color: var(--text-main);
+      transition: background 240ms ease, color 240ms ease;
     }
-    .shell {
-      width: min(1200px, calc(100% - 24px));
-      margin: 16px auto 34px;
-      animation: reveal 0.5s ease;
+
+    body[data-theme="light"] {
+      --bg-main: #edf7ef;
+      --bg-alt: #f7fbf7;
+      --orb-a: rgba(116, 177, 132, 0.22);
+      --orb-b: rgba(242, 190, 124, 0.18);
+      --orb-c: rgba(103, 148, 195, 0.14);
+      --text-main: #17241f;
+      --text-soft: #5f7168;
+      --line: rgba(36, 64, 50, 0.10);
+      --line-strong: rgba(36, 64, 50, 0.18);
+      --sidebar-bg: rgba(223, 241, 227, 0.86);
+      --sidebar-border: rgba(78, 128, 93, 0.16);
+      --panel-bg: rgba(255, 255, 255, 0.68);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --panel-check: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(240, 249, 243, 0.90));
+      --panel-reports: linear-gradient(145deg, rgba(250, 254, 251, 0.96), rgba(240, 248, 255, 0.90));
+      --panel-stats: linear-gradient(145deg, rgba(246, 252, 248, 0.96), rgba(236, 247, 243, 0.92));
+      --panel-settings: linear-gradient(145deg, rgba(252, 255, 252, 0.96), rgba(245, 249, 247, 0.92));
+      --accent: #4f8f67;
+      --accent-strong: #2f6a48;
+      --accent-soft: rgba(79, 143, 103, 0.14);
+      --accent-soft-strong: rgba(79, 143, 103, 0.22);
+      --safe: #3f8a58;
+      --safe-soft: rgba(63, 138, 88, 0.14);
+      --warn: #bf8537;
+      --warn-soft: rgba(191, 133, 55, 0.16);
+      --danger: #c55b72;
+      --danger-soft: rgba(197, 91, 114, 0.14);
+      --purple: #6f66b8;
+      --purple-soft: rgba(111, 102, 184, 0.14);
+      --blue: #4b84b6;
+      --blue-soft: rgba(75, 132, 182, 0.14);
+      --card-fill: rgba(255, 255, 255, 0.88);
     }
-    .hero {
-      position: relative;
-      overflow: hidden;
-      display: grid;
-      gap: 14px;
-      grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
-      padding: 22px 24px;
-      border-radius: var(--radius-xl);
-      background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 250, 0.78)),
-        rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.88);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+
+    body[data-theme="dark"] {
+      --bg-main: #110f1d;
+      --bg-alt: #19142b;
+      --orb-a: rgba(125, 87, 209, 0.20);
+      --orb-b: rgba(58, 130, 188, 0.14);
+      --orb-c: rgba(180, 79, 121, 0.12);
+      --text-main: #f4f3ff;
+      --text-soft: #b3b6ca;
+      --line: rgba(255, 255, 255, 0.10);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --sidebar-bg: rgba(18, 15, 33, 0.88);
+      --sidebar-border: rgba(135, 119, 201, 0.18);
+      --panel-bg: rgba(23, 20, 39, 0.76);
+      --panel-strong: rgba(25, 22, 42, 0.95);
+      --panel-check: linear-gradient(145deg, rgba(73, 52, 116, 0.95), rgba(35, 29, 65, 0.95));
+      --panel-reports: linear-gradient(145deg, rgba(28, 39, 78, 0.95), rgba(23, 26, 56, 0.95));
+      --panel-stats: linear-gradient(145deg, rgba(19, 56, 63, 0.95), rgba(18, 34, 42, 0.95));
+      --panel-settings: linear-gradient(145deg, rgba(63, 27, 56, 0.95), rgba(31, 18, 35, 0.95));
+      --accent: #8fd59d;
+      --accent-strong: #d3ffe1;
+      --accent-soft: rgba(143, 213, 157, 0.16);
+      --accent-soft-strong: rgba(143, 213, 157, 0.28);
+      --safe: #76d58f;
+      --safe-soft: rgba(118, 213, 143, 0.16);
+      --warn: #f0c06c;
+      --warn-soft: rgba(240, 192, 108, 0.18);
+      --danger: #ff8da8;
+      --danger-soft: rgba(255, 141, 168, 0.18);
+      --purple: #b9a5ff;
+      --purple-soft: rgba(185, 165, 255, 0.18);
+      --blue: #85bfff;
+      --blue-soft: rgba(133, 191, 255, 0.18);
+      --card-fill: rgba(31, 27, 49, 0.92);
     }
-    .hero::after {
-      content: "";
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    code {
+      font-family: "Consolas", "Cascadia Code", monospace;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 2px 8px;
+      border-radius: 10px;
+      word-break: break-all;
+    }
+
+    .sr-only {
       position: absolute;
-      inset: auto -40px -70px auto;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(28, 123, 119, 0.18), transparent 64%);
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 9, 20, 0.44);
+      opacity: 0;
       pointer-events: none;
+      transition: opacity 220ms ease;
+      z-index: 40;
     }
-    .eyebrow {
-      display: inline-block;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--teal-soft), var(--sky));
-      color: var(--teal);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-size: 12px;
+
+    .sidebar-backdrop.is-visible {
+      opacity: 1;
+      pointer-events: auto;
     }
-    h1 {
-      margin: 16px 0 10px;
-      font-family: "Aptos Display", "Segoe UI Variable Display", "Segoe UI", sans-serif;
-      font-size: clamp(26px, 3.2vw, 38px);
-      line-height: 1.02;
-      letter-spacing: -0.03em;
+
+    .app-shell {
+      width: min(1480px, calc(100% - 28px));
+      margin: 16px auto 32px;
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
     }
-    .lead {
-      max-width: 780px;
+
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      min-height: calc(100vh - 32px);
+      padding: 16px;
+      border-radius: var(--radius-xl);
+      background: var(--sidebar-bg);
+      border: 1px solid var(--sidebar-border);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-strong);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 4px;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, var(--accent-soft-strong), rgba(255, 255, 255, 0.18));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--accent-strong);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-kicker,
+    .eyebrow,
+    .section-kicker,
+    .small-label {
       margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-soft);
     }
-    .hero-rail {
+
+    .brand h1 {
+      margin: 4px 0 0;
+      font-family: var(--font-heading);
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-intro {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, var(--accent-soft), rgba(255, 255, 255, 0.10));
+      border: 1px solid var(--line);
+      color: var(--text-main);
+    }
+
+    .sidebar-intro p {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .sidebar-nav {
       display: grid;
       gap: 10px;
       align-content: start;
     }
-    .hero-block {
-      padding: 12px 14px;
-      border-radius: 18px;
-      background: rgba(248, 251, 250, 0.92);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow-soft);
-    }
-    .hero-kicker {
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .hero-stat {
-      margin-bottom: 4px;
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-    .hero-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .hero-pill,
-    .soft-pill,
-    .note-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--muted);
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(31, 42, 51, 0.08);
-    }
-    .hero-pill::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--teal), #47a6a0);
-      box-shadow: 0 0 0 4px rgba(28, 123, 119, 0.12);
-    }
-    .section {
-      margin-top: 14px;
-      padding: 20px;
-      border-radius: var(--radius-lg);
-      background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-    }
-    .section-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-    .section h2 {
-      margin: 0;
-      font-size: 22px;
-      font-family: "Aptos Display", "Segoe UI Variable Display", "Segoe UI", sans-serif;
-      letter-spacing: -0.02em;
-    }
-    .section-note {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .grid {
-      display: grid;
-      gap: 14px;
-    }
-    .stats {
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    }
-    .models {
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .card {
-      padding: 16px;
-      border-radius: 18px;
-      background: var(--surface-strong);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow-soft);
-    }
-    .stat-value {
-      margin-bottom: 8px;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-    }
-    .stat-label,
-    .hint,
-    .muted {
-      color: var(--muted);
-    }
-    .stat-label {
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .stat-meta {
-      margin-top: 12px;
+
+    .nav-link {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .model-chip,
-    .risk-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 11px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .model-chip {
-      background: linear-gradient(135deg, var(--teal-soft), var(--sky));
-      color: var(--teal);
-    }
-    .risk-high { background: var(--rose-soft); color: var(--rose); }
-    .risk-medium { background: #f5ead7; color: #9c642c; }
-    .risk-low { background: #eef1d8; color: #6e7231; }
-    .risk-minimal { background: var(--olive-soft); color: var(--olive); }
-    form {
-      display: grid;
-      gap: 14px;
-    }
-    .form-row {
-      display: grid;
       gap: 12px;
-      grid-template-columns: 180px 1fr 180px;
-    }
-    .field {
-      padding: 14px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.62);
-      border: 1px solid rgba(31, 42, 51, 0.07);
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-    input,
-    select,
-    button {
-      width: 100%;
+      padding: 10px 12px;
       border-radius: 16px;
-      border: 1px solid var(--line);
-      padding: 13px 14px;
-      font: inherit;
+      color: var(--text-soft);
+      border: 1px solid transparent;
+      transition: background var(--transition), transform var(--transition), color var(--transition), border-color var(--transition);
     }
-    input,
-    select {
-      background: rgba(255, 255, 255, 0.88);
-      color: var(--ink);
-    }
-    input:focus,
-    select:focus {
+
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      background: var(--accent-soft);
+      color: var(--text-main);
+      border-color: var(--line);
+      transform: translateX(2px);
       outline: none;
-      border-color: rgba(28, 123, 119, 0.42);
-      box-shadow: 0 0 0 4px rgba(28, 123, 119, 0.12);
     }
-    button {
-      width: auto;
-      min-width: 180px;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--amber) 0%, #ba5538 100%);
-      color: white;
-      font-weight: 800;
-      border: none;
-      box-shadow: 0 16px 30px rgba(186, 85, 56, 0.24);
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+    .nav-link.is-active {
+      background: linear-gradient(145deg, var(--accent-soft-strong), rgba(255, 255, 255, 0.08));
+      color: var(--accent-strong);
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 20px 36px rgba(186, 85, 56, 0.26);
+
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--line);
+      color: currentColor;
     }
-    .form-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
+
+    .nav-text {
+      display: grid;
+      gap: 2px;
+    }
+
+    .nav-text strong {
+      font-size: 15px;
+      color: currentColor;
+    }
+
+    .nav-text span {
+      display: none;
+    }
+
+    .sidebar-foot {
+      display: grid;
       gap: 12px;
     }
-    .micro-meta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    #result-panel {
-      display: block;
-      margin-top: 8px;
-      padding: 18px;
-      border-radius: 20px;
+
+    .status-card,
+    .ghost-card {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: var(--panel-strong);
       border: 1px solid var(--line);
-      background: var(--surface-strong);
       box-shadow: var(--shadow-soft);
     }
-    .validation-message {
-      display: none;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.55;
-      border: 1px solid rgba(31, 42, 51, 0.08);
-      background: rgba(28, 123, 119, 0.08);
-      color: var(--ink);
-    }
-    .validation-message.is-error {
-      display: block;
-      border-color: rgba(196, 85, 82, 0.22);
-      background: rgba(245, 215, 214, 0.72);
-      color: var(--rose);
-    }
-    .validation-message.is-info {
-      display: block;
-    }
-    .switch-kind {
-      margin-left: 8px;
-      padding: 6px 10px;
-      border: none;
-      border-radius: 999px;
-      background: rgba(28, 123, 119, 0.12);
-      color: var(--teal);
-      font: inherit;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: none;
-      min-width: 0;
-    }
-    .check-core {
-      margin-bottom: 10px;
-    }
-    .quick-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .quick-button,
-    .tab-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: rgba(28, 123, 119, 0.08);
-      color: var(--teal);
-      border: 1px solid rgba(28, 123, 119, 0.12);
-      font-size: 12px;
-      font-weight: 800;
-      text-decoration: none;
-      box-shadow: none;
-      min-width: 0;
-    }
-    .quick-button:hover,
-    .switch-kind:hover {
-      box-shadow: none;
-    }
-    .section-nav {
-      padding: 14px 20px;
-    }
-    .section-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .compact-grid {
+
+    .status-grid {
       display: grid;
       gap: 10px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-    .compact-empty {
       margin-top: 12px;
     }
-    .detail-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: rgba(28, 123, 119, 0.08);
-      color: var(--teal);
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      list-style: none;
-    }
-    details summary::-webkit-details-marker {
-      display: none;
-    }
-    .detail-card {
-      margin-top: 10px;
-      display: grid;
-      gap: 8px;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(248, 251, 250, 0.9);
-      border: 1px solid var(--line);
-    }
-    .model-disclosure {
-      padding: 0;
-    }
-    .model-summary {
+
+    .status-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 16px;
-      cursor: pointer;
-      list-style: none;
-    }
-    .model-summary::-webkit-details-marker {
-      display: none;
-    }
-    .history-link {
-      white-space: nowrap;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .result-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-    .result-title {
-      margin: 10px 0 0;
-      font-size: 24px;
-      letter-spacing: -0.03em;
-    }
-    .result-grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    }
-    .result-item {
-      padding: 14px;
-      border-radius: 16px;
-      background: var(--surface-deep);
-      border: 1px solid var(--line);
-    }
-    .result-item span {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-    .inline-stack {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 22px;
-      border: 1px solid var(--line);
-      background: var(--surface-strong);
-      box-shadow: var(--shadow-soft);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th,
-    td {
-      padding: 14px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
       font-size: 14px;
+      color: var(--text-soft);
     }
-    th {
-      background: rgba(28, 123, 119, 0.08);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-    }
-    tbody tr:hover {
-      background: rgba(255, 255, 255, 0.46);
-    }
-    tr:last-child td {
-      border-bottom: none;
-    }
-    .table-input {
-      display: inline-block;
-      max-width: 320px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .empty {
-      padding: 22px;
-      color: var(--muted);
-    }
-    code {
-      font-family: "Consolas", "Cascadia Code", monospace;
-      background: rgba(28, 123, 119, 0.08);
-      padding: 3px 8px;
-      border-radius: 10px;
-      word-break: break-all;
-    }
-    h3 {
-      margin: 12px 0 10px;
-      font-size: 20px;
-      letter-spacing: -0.02em;
-    }
-    .model-card {
-      position: relative;
-      overflow: hidden;
-    }
-    .model-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -22px -34px auto;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(28, 123, 119, 0.12), transparent 68%);
-      pointer-events: none;
-    }
-    .card-top,
-    .table-note {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .metric-ribbon {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-top: 16px;
-    }
-    .metric-box {
-      padding: 12px;
-      border-radius: 16px;
-      background: rgba(248, 251, 250, 0.9);
-      border: 1px solid var(--line);
-    }
-    .metric-label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-    }
-    .metric-box strong {
-      font-size: 18px;
-      letter-spacing: -0.03em;
-    }
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .tiny {
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .info-tip {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .info-tip.inline {
-      vertical-align: middle;
-    }
-    .info-dot {
-      width: 22px;
-      height: 22px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      background: rgba(28, 123, 119, 0.1);
-      color: var(--teal);
-      border: 1px solid rgba(28, 123, 119, 0.18);
-      font-size: 12px;
-      font-weight: 800;
-      cursor: help;
-      user-select: none;
-    }
-    .tooltip {
-      position: absolute;
-      right: 0;
-      top: calc(100% + 10px);
-      min-width: 220px;
-      max-width: min(320px, 72vw);
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(24, 33, 40, 0.96);
-      color: #eef5f3;
-      font-size: 13px;
-      line-height: 1.6;
-      box-shadow: 0 18px 34px rgba(18, 26, 34, 0.24);
-      opacity: 0;
-      transform: translateY(6px);
-      pointer-events: none;
-      transition: opacity 0.16s ease, transform 0.16s ease;
-      z-index: 20;
-      white-space: normal;
-    }
-    .tooltip strong {
-      color: white;
-    }
-    .tooltip-wide {
-      min-width: 260px;
-      max-width: min(380px, 78vw);
-    }
-    .info-tip:hover .tooltip,
-    .info-tip:focus-within .tooltip {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .signal-list {
-      display: grid;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    .signal-line {
-      color: rgba(238, 245, 243, 0.9);
-    }
-    body {
-      font-family: "Be Vietnam Pro", "Inter", "Segoe UI", sans-serif;
-      color: #1f2937;
-      background:
-        radial-gradient(circle at 12% 14%, rgba(72, 101, 122, 0.09), transparent 24%),
-        radial-gradient(circle at 84% 12%, rgba(170, 123, 66, 0.08), transparent 20%),
-        linear-gradient(180deg, #faf7f1 0%, #f3efe8 100%);
-    }
-    .shell {
-      width: min(980px, calc(100% - 28px));
-      margin: 0 auto;
-      padding: 28px 0 40px;
-    }
-    .hero {
-      display: block;
-      padding: 8px 0 0;
-      text-align: center;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      backdrop-filter: none;
-    }
-    .hero::after,
-    .hero-meta,
-    .hero-rail,
-    .lead,
-    .micro-meta,
-    .section-note,
-    .section-nav,
-    #analytics,
-    #official-models,
-    .section-head .info-tip {
-      display: none !important;
-    }
-    .eyebrow {
-      padding: 8px 14px;
-      background: rgba(255, 255, 255, 0.76);
-      border: 1px solid rgba(72, 101, 122, 0.12);
-      color: #48657a;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-    }
-    h1,
-    .section h2,
-    h3 {
-      font-family: "Plus Jakarta Sans", "Be Vietnam Pro", sans-serif;
-      letter-spacing: -0.03em;
-    }
-    h1 {
-      margin-top: 14px;
-      font-size: clamp(32px, 5vw, 46px);
+
+    .status-row strong {
+      color: var(--text-main);
       font-weight: 700;
     }
-    .section h2,
-    h3 {
-      font-weight: 600;
-    }
-    .hero + .section {
-      max-width: 760px;
-      margin: 24px auto 0;
-      padding: 24px;
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 249, 245, 0.92));
-      border: 1px solid rgba(255, 255, 255, 0.92);
-      box-shadow: 0 20px 60px rgba(31, 41, 55, 0.08);
-    }
-    .hero + .section .section-head {
-      display: none;
-    }
-    .section {
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.86);
-      box-shadow: 0 12px 32px rgba(31, 41, 55, 0.06);
-      backdrop-filter: blur(8px);
-    }
-    .form-row {
-      grid-template-columns: 160px 1fr 156px;
-      align-items: end;
-      gap: 12px;
-    }
-    .field {
-      padding: 0;
-      background: transparent;
-      border: none;
-    }
-    label {
-      margin-bottom: 8px;
-      color: #667085;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.6;
-    }
-    input,
-    select {
-      height: 56px;
-      padding: 0 16px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid rgba(31, 41, 55, 0.08);
-    }
-    input::placeholder {
-      color: #98a2b3;
-    }
-    input:focus,
-    select:focus {
-      border-color: rgba(72, 101, 122, 0.34);
-      box-shadow: 0 0 0 4px rgba(72, 101, 122, 0.10);
-    }
-    button {
-      min-width: 0;
-      border-radius: 16px;
-      font-weight: 600;
-      transition: transform 180ms ease-out, box-shadow 180ms ease-out, opacity 180ms ease-out;
-    }
-    #submit-button {
-      width: 100%;
-      height: 56px;
-      background: linear-gradient(180deg, #3e5c70 0%, #2f4b60 100%);
-      box-shadow: 0 14px 28px rgba(47, 75, 96, 0.18);
-    }
-    #submit-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 30px rgba(47, 75, 96, 0.22);
-    }
-    .validation-message {
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .quick-menu {
-      margin-top: 4px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(246, 243, 238, 0.88);
-      border: 1px solid rgba(31, 41, 55, 0.05);
-    }
-    .quick-summary {
-      cursor: pointer;
-      list-style: none;
-      color: #667085;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .quick-summary::-webkit-details-marker,
-    .footer-summary::-webkit-details-marker {
-      display: none;
-    }
-    .quick-actions {
-      margin-top: 12px;
+
+    .ghost-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      font-weight: 700;
+      transition: background var(--transition), transform var(--transition);
     }
-    .quick-button,
-    .tab-link {
-      padding: 9px 12px;
-      background: rgba(255, 255, 255, 0.82);
-      color: #48657a;
-      border: 1px solid rgba(72, 101, 122, 0.12);
-      font-size: 12px;
-      font-weight: 500;
+
+    .ghost-link:hover {
+      background: var(--accent-soft);
+      transform: translateY(-1px);
     }
-    #result-panel {
-      min-height: 168px;
-      margin-top: 18px;
-      padding: 22px;
-      border-radius: 22px;
-      border: 1px solid rgba(31, 41, 55, 0.06);
-      background: rgba(247, 244, 239, 0.88);
-      box-shadow: none;
-      transition: border-color 180ms ease-out, box-shadow 180ms ease-out, background 180ms ease-out;
-    }
-    #result-panel .empty {
-      padding: 40px 12px;
-      text-align: center;
-    }
-    #recent-events {
-      margin-top: 20px;
-    }
-    .footer-details {
-      margin-top: 18px;
-      padding: 18px 20px 20px;
-    }
-    .footer-summary {
-      cursor: pointer;
-      list-style: none;
-      color: #667085;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .footer-grid {
+
+    .main {
+      min-width: 0;
       display: grid;
-      gap: 16px;
-      grid-template-columns: 1fr 1fr;
-      margin-top: 16px;
+      gap: 24px;
     }
-    .footer-card,
-    .mini-stat,
-    .mini-model {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(31, 41, 55, 0.06);
-    }
-    .mini-stats,
-    .mini-models {
-      display: grid;
-      gap: 10px;
-    }
-    .mini-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .mini-stat strong {
-      display: block;
-      margin-top: 6px;
-      font-size: 20px;
-      letter-spacing: -0.03em;
-    }
-    .mini-model-top {
+
+    .topbar {
+      position: sticky;
+      top: 16px;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 16px;
+      padding: 16px 18px;
+      border-radius: var(--radius-xl);
+      background: var(--panel-bg);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-soft);
     }
-    .mini-model-grid {
-      display: grid;
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .menu-button,
+    .icon-button,
+    .theme-toggle,
+    .row-button,
+    .secondary-button,
+    .primary-button,
+    .quick-button,
+    .modal-close {
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition), opacity var(--transition);
+    }
+
+    .icon-button,
+    .menu-button {
+      width: 46px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      color: var(--text-main);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .icon-button:hover,
+    .menu-button:hover,
+    .theme-toggle:hover,
+    .row-button:hover,
+    .secondary-button:hover,
+    .primary-button:hover,
+    .quick-button:hover,
+    .modal-close:hover {
+      transform: translateY(-1px);
+    }
+
+    .menu-button {
+      display: none;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border-radius: 16px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      color: var(--text-main);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .theme-icon {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .topbar-title h2 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: clamp(22px, 3vw, 30px);
+      letter-spacing: -0.03em;
+    }
+
+    .topbar-chip {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      color: #667085;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text-soft);
       font-size: 13px;
-      line-height: 1.6;
+      font-weight: 700;
+      box-shadow: var(--shadow-soft);
     }
-    .result-main {
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(79, 143, 103, 0.14);
+    }
+
+    .page-section {
+      padding: 24px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(18px);
+    }
+
+    .section-check {
+      background: var(--panel-check);
+    }
+
+    .section-reports {
+      background: var(--panel-reports);
+    }
+
+    .section-stats {
+      background: var(--panel-stats);
+    }
+
+    .section-settings {
+      background: var(--panel-settings);
+    }
+
+    .section-head {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 16px;
     }
-    .result-badges {
+
+    .section-head h3 {
+      margin: 8px 0 0;
+      font-family: var(--font-heading);
+      font-size: clamp(22px, 3vw, 28px);
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: 10px 0 0;
+      max-width: 760px;
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.10);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .split-checker {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
+      gap: 20px;
+    }
+
+    .split-checker.manual-hidden {
+      grid-template-columns: 1fr;
+    }
+
+    .split-checker.manual-hidden .form-card {
+      display: none;
+    }
+
+    .panel {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 22px;
+    }
+
+    .intro-card {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+      background:
+        linear-gradient(145deg, var(--accent-soft), rgba(255, 255, 255, 0.08)),
+        var(--panel-strong);
+    }
+
+    .intro-title {
+      margin: 12px 0 0;
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .intro-copy {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .feature-dot {
+      width: 12px;
+      height: 12px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: linear-gradient(145deg, var(--accent), var(--blue));
+      flex-shrink: 0;
+    }
+
+    .feature-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .feature-item span {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .intro-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-stat {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--line);
+    }
+
+    .mini-stat strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      font-family: var(--font-heading);
+      letter-spacing: -0.03em;
+    }
+
+    .mini-stat span {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .quick-actions {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quick-button {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      margin-bottom: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--text-main);
+      font-weight: 700;
+      border: 1px solid var(--line);
     }
-    .result-value {
-      margin: 0;
-      font-size: clamp(22px, 4vw, 30px);
-      line-height: 1.35;
-      font-weight: 600;
+
+    .quick-button:hover {
+      background: var(--accent-soft);
+    }
+
+    .realtime-card {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .panel-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title-row h4 {
+      margin: 6px 0 0;
+      font-family: var(--font-heading);
+      font-size: 24px;
       letter-spacing: -0.03em;
-      word-break: break-word;
-      color: #1f2937;
     }
-    .score-pill {
+
+    .risk-chart {
+      height: 230px;
+      padding: 16px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04)),
+        var(--card-fill);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .score-line-chart {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-axis,
+    .chart-grid {
+      stroke: var(--line-strong);
+      stroke-width: 1;
+    }
+
+    .chart-grid {
+      opacity: 0.55;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--danger);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-area {
+      fill: var(--danger-soft);
+      opacity: 0.45;
+    }
+
+    .chart-point {
+      fill: var(--panel-strong);
+      stroke: var(--danger);
+      stroke-width: 2;
+    }
+
+    .chart-label {
+      fill: var(--text-soft);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .realtime-feed {
+      max-height: 260px;
+      overflow: auto;
+      display: grid;
+      gap: 10px;
+      padding-right: 4px;
+    }
+
+    .feed-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .feed-value {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .feed-value strong {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 14px;
+    }
+
+    .feed-value span {
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .feed-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feed-check-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 36px;
+      min-height: 38px;
       padding: 0 12px;
       border-radius: 999px;
-      background: rgba(72, 101, 122, 0.10);
-      color: #48657a;
+      border: 1px solid rgba(75, 132, 182, 0.24);
+      background: var(--blue-soft);
+      color: var(--blue);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: transform var(--transition), background var(--transition), color var(--transition);
+    }
+
+    .feed-check-button:hover,
+    .feed-check-button:focus-visible {
+      background: var(--blue);
+      color: #ffffff;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .form-card {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-soft);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line-strong);
+      background: var(--card-fill);
+      color: var(--text-main);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .field textarea {
+      height: 56px;
+      padding: 16px;
+      line-height: 1.5;
+      resize: none;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--text-soft);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(79, 143, 103, 0.12);
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-note {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .row-button,
+    .modal-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 18px;
+      padding: 13px 18px;
+      font-weight: 800;
+    }
+
+    .primary-button {
+      background: linear-gradient(145deg, var(--accent), #71ad7e);
+      color: #ffffff;
+      box-shadow: 0 18px 36px rgba(79, 143, 103, 0.24);
+    }
+
+    .primary-button[disabled] {
+      opacity: 0.72;
+      cursor: wait;
+    }
+
+    .secondary-button,
+    .row-button,
+    .modal-close {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--text-main);
+      border: 1px solid var(--line);
+    }
+
+    .validation-message {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px solid transparent;
+    }
+
+    .validation-message.is-visible {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .validation-message.is-error {
+      background: var(--danger-soft);
+      border-color: rgba(197, 91, 114, 0.24);
+      color: var(--danger);
+    }
+
+    .validation-message.is-info {
+      background: var(--blue-soft);
+      border-color: rgba(75, 132, 182, 0.24);
+      color: var(--blue);
+    }
+
+    .result-panel {
+      min-height: 288px;
+      display: grid;
+      align-items: stretch;
+    }
+
+    .state-card {
+      width: 100%;
+      height: 100%;
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px dashed var(--line-strong);
+      display: grid;
+      gap: 16px;
+      align-content: center;
+    }
+
+    .state-card h4 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .state-card p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .result-shell {
+      padding: 22px;
+      border-radius: 24px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .result-shell.is-danger {
+      background: linear-gradient(145deg, var(--danger-soft), rgba(255, 255, 255, 0.06)), var(--panel-strong);
+    }
+
+    .result-shell.is-safe {
+      background: linear-gradient(145deg, var(--safe-soft), rgba(255, 255, 255, 0.06)), var(--panel-strong);
+    }
+
+    .result-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .result-top h4 {
+      margin: 12px 0 10px;
+      font-family: var(--font-heading);
+      font-size: clamp(24px, 3vw, 30px);
+      letter-spacing: -0.04em;
+    }
+
+    .result-summary {
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .score-card {
+      min-width: 120px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--line);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .score-card strong {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .score-card span {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .result-side {
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .result-open-button {
+      min-width: 112px;
+      min-height: 100%;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
       white-space: nowrap;
     }
-    .result-details-simple {
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(31, 41, 55, 0.08);
+
+    .badge-safe {
+      background: var(--safe-soft);
+      color: var(--safe);
+      border-color: rgba(63, 138, 88, 0.18);
     }
-    .result-details-simple summary,
-    .row-details summary {
-      cursor: pointer;
-      list-style: none;
-      color: #667085;
-      font-size: 13px;
-      font-weight: 500;
+
+    .badge-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: rgba(197, 91, 114, 0.18);
     }
-    .result-details-simple summary::-webkit-details-marker,
-    .row-details summary::-webkit-details-marker {
-      display: none;
+
+    .badge-warning {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: rgba(191, 133, 55, 0.18);
     }
-    .result-detail-grid {
+
+    .badge-neutral {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      border-color: var(--line);
+    }
+
+    .badge-purple {
+      background: var(--purple-soft);
+      color: var(--purple);
+      border-color: rgba(111, 102, 184, 0.18);
+    }
+
+    .badge-blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+      border-color: rgba(75, 132, 182, 0.18);
+    }
+
+    .result-grid,
+    .modal-grid,
+    .stats-grid,
+    .insights-grid,
+    .settings-grid,
+    .model-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-grid,
+    .modal-grid {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 18px;
+    }
+
+    .result-item,
+    .metric-card,
+    .insight-card,
+    .setting-card,
+    .model-card,
+    .modal-item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .result-item span,
+    .metric-card span,
+    .insight-card span,
+    .setting-card span,
+    .model-card span,
+    .modal-item span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-soft);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .result-item strong,
+    .metric-card strong,
+    .insight-card strong,
+    .setting-card strong,
+    .model-card strong,
+    .modal-item strong {
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .result-signals {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .signal-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shimmer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.18) 48%, transparent 100%);
+      transform: translateX(-100%);
+      animation: shimmer 1.4s linear infinite;
+    }
+
+    .loading-stack {
       display: grid;
       gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      margin-top: 14px;
     }
-    .result-detail-grid .result-item {
-      background: rgba(246, 243, 238, 0.9);
-    }
-    .result-loading {
-      display: grid;
-      gap: 12px;
-    }
-    .loading-block {
+
+    .loading-line {
       height: 14px;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(72, 101, 122, 0.08), rgba(72, 101, 122, 0.16), rgba(72, 101, 122, 0.08));
-      background-size: 200% 100%;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .loading-line.short {
+      width: 38%;
+    }
+
+    .loading-line.medium {
+      width: 64%;
+    }
+
+    .loading-line.large {
+      width: 100%;
+      height: 64px;
+      border-radius: 22px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr)) 136px;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .field.search-field {
+      grid-column: span 2;
+    }
+
+    .reports-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .reports-meta p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 14px;
+    }
+
+    .table-card {
+      position: relative;
+      border-radius: var(--radius-lg);
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    .table-card.is-compact table {
+      min-width: 0;
+    }
+
+    .compact-history-scroll {
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    .table-card.is-loading::after,
+    .stats-loading.is-loading::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.12) 48%, transparent 100%);
+      transform: translateX(-100%);
       animation: shimmer 1.2s linear infinite;
+      pointer-events: none;
     }
-    .loading-block.big {
-      height: 28px;
-      width: 68%;
+
+    .table-scroll {
+      overflow: auto;
     }
-    .loading-block.mid {
-      width: 46%;
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
     }
-    @keyframes reveal {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    thead th {
+      padding: 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.08);
     }
+
+    tbody td {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    tbody tr {
+      transition: background var(--transition);
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell-stack {
+      display: grid;
+      gap: 4px;
+    }
+
+    .cell-stack small {
+      color: var(--text-soft);
+    }
+
+    .input-pill {
+      display: inline-block;
+      max-width: 330px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 9px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+      font-family: "Consolas", "Cascadia Code", monospace;
+      font-size: 13px;
+    }
+
+    .empty-state {
+      padding: 24px;
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      text-align: left;
+    }
+
+    .empty-state h4 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .empty-state p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stats-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 20px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      position: relative;
+    }
+
+    .stat-card {
+      padding: 20px;
+      border-radius: 24px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      bottom: -28px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 68%);
+      pointer-events: none;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-card strong {
+      display: block;
+      margin: 20px 0 8px;
+      font-family: var(--font-heading);
+      font-size: clamp(34px, 4vw, 44px);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .stat-card p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .stat-card.safe {
+      background: linear-gradient(145deg, var(--safe-soft), rgba(255, 255, 255, 0.08)), var(--panel-strong);
+    }
+
+    .stat-card.danger {
+      background: linear-gradient(145deg, var(--danger-soft), rgba(255, 255, 255, 0.08)), var(--panel-strong);
+    }
+
+    .stat-card.blue {
+      background: linear-gradient(145deg, var(--blue-soft), rgba(255, 255, 255, 0.08)), var(--panel-strong);
+    }
+
+    .stat-card.purple {
+      background: linear-gradient(145deg, var(--purple-soft), rgba(255, 255, 255, 0.08)), var(--panel-strong);
+    }
+
+    .donut-panel {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .donut-wrap {
+      display: grid;
+      place-items: center;
+    }
+
+    .donut-chart {
+      --phishing-angle: 0deg;
+      width: min(280px, 74vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      position: relative;
+      background: conic-gradient(var(--danger) 0deg var(--phishing-angle), var(--safe) var(--phishing-angle) 360deg);
+      box-shadow: inset 0 0 0 14px rgba(255, 255, 255, 0.06);
+    }
+
+    .donut-chart::after {
+      content: "";
+      position: absolute;
+      inset: 28px;
+      border-radius: 50%;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+    }
+
+    .donut-core {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .donut-core strong {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 42px;
+      line-height: 1;
+    }
+
+    .donut-core span {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.5;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .legend-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .legend-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .legend-swatch.phishing {
+      background: var(--danger);
+    }
+
+    .legend-swatch.benign {
+      background: var(--safe);
+    }
+
+    .insights-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 20px;
+    }
+
+    .insight-card p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .settings-grid {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+
+    .setting-card p,
+    .model-card p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .setting-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .setting-row strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .setting-row p {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .model-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .model-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .metric-box {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .metric-box strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(10, 9, 20, 0.54);
+    }
+
+    .detail-modal.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(840px, 100%);
+      max-height: min(90vh, 980px);
+      overflow: auto;
+      padding: 24px;
+      border-radius: 32px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-strong);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .modal-top h4 {
+      margin: 8px 0 0;
+      font-family: var(--font-heading);
+      font-size: clamp(26px, 3vw, 32px);
+      letter-spacing: -0.04em;
+    }
+
+    .modal-note {
+      margin: 10px 0 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .modal-wide {
+      grid-column: 1 / -1;
+    }
+
+    .modal-input-code {
+      display: block;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+      font-family: "Consolas", "Cascadia Code", monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      word-break: break-all;
+    }
+
+    .signal-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .signal-grid div {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
     @keyframes shimmer {
-      from { background-position: 200% 0; }
-      to { background-position: -200% 0; }
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(100%);
+      }
     }
-    @media (max-width: 980px) {
-      .hero { grid-template-columns: 1fr; }
-      .metric-ribbon { grid-template-columns: 1fr 1fr; }
+
+    @media (max-width: 1240px) {
+      .split-checker,
+      .stats-layout,
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
     }
+
+    @media (max-width: 1024px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(320px, 86vw);
+        min-height: 100vh;
+        border-radius: 0 28px 28px 0;
+        transform: translateX(-104%);
+        transition: transform 220ms ease;
+        z-index: 50;
+      }
+
+      .app-shell.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .menu-button {
+        display: inline-flex;
+      }
+    }
+
     @media (max-width: 860px) {
-      .form-row { grid-template-columns: 1fr; }
-      button { width: 100%; }
-      .quick-button, .tab-link, .switch-kind { width: auto; }
-      .metric-ribbon { grid-template-columns: 1fr; }
-      .section-head { flex-direction: column; align-items: stretch; }
-      .hero + .section,
-      .section,
-      .footer-details { padding: 18px; }
-      .footer-grid,
-      .mini-model-grid,
-      .mini-stats { grid-template-columns: 1fr; }
-      .mini-model-top { align-items: flex-start; flex-direction: column; }
+      .topbar,
+      .page-section {
+        padding: 20px;
+      }
+
+      .form-grid,
+      .filter-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.search-field {
+        grid-column: span 1;
+      }
+
+      .intro-mini-grid,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        top: 12px;
+      }
+
+      .topbar-right {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar-title h2 {
+        font-size: 24px;
+      }
+
+      .section-head,
+      .result-top,
+      .modal-top,
+      .reports-meta,
+      .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .primary-button,
+      .secondary-button {
+        width: 100%;
+      }
+
+      .result-side {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .result-side .score-card,
+      .result-open-button {
+        flex: 1 1 160px;
+      }
+
+      .detail-modal {
+        align-items: end;
+        padding: 0;
+      }
+
+      .modal-card {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 28px 28px 0 0;
+      }
     }
   </style>
 </head>
-<body>
-  <main class="shell">
-    <section class="hero">
-      <div>
-        <span class="eyebrow">Phishing Checker</span>
-        <h1>Check domain or URL</h1>
-        <p class="lead">Check domain hoặc URL nhanh.</p>
-        <div class="hero-meta">
-          <span class="hero-pill">Check first</span>
-          <span class="hero-pill">Result card ngay dưới form</span>
+<body data-theme="dark">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="app-shell" id="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l7 3v5c0 4.2-2.5 7.7-7 10-4.5-2.3-7-5.8-7-10V6l7-3z"></path>
+            <path d="M9.5 12.3l1.8 1.8 3.5-4"></path>
+          </svg>
         </div>
-      </div>
-      <div class="hero-rail">
-        <div class="hero-block">
-          <div class="hero-kicker">Latest Event</div>
-          <div class="hero-stat" id="latest-event">{{ summary.latest_event_at or "Chưa có" }}</div>
-          <div class="muted">Mốc sự kiện mới nhất đang có trong runtime log.</div>
-        </div>
-        <div class="hero-block">
-          <div class="hero-kicker">Traffic Mix</div>
-          <div class="hero-stat" id="traffic-mix">{{ summary.domain_events }} / {{ summary.url_events }}</div>
-          <div class="muted">Domain events / URL events</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
         <div>
-          <h2>Check</h2>
-          <p class="section-note"></p>
+          <p class="brand-kicker">IDS</p>
+          <h1>Chống lừa đảo</h1>
         </div>
-        <span class="info-tip">
-          <span class="info-dot">i</span>
-          <span class="tooltip tooltip-wide">
-            <strong>Form này làm gì?</strong><br>
-            Khi bấm kiểm tra, dashboard gọi <code>POST /api/ingest</code>, chạy suy luận bằng model official và ghi kết quả vào event log để bạn thấy ngay ở bảng bên dưới.
-          </span>
-        </span>
       </div>
-      <form id="ingest-form">
-        <div class="form-row check-core">
+
+      <nav class="sidebar-nav" aria-label="Điều hướng">
+        <a class="nav-link is-active" href="#checker" data-nav="checker">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 14l-5 5"></path>
+              <path d="M16.5 7.5a4.95 4.95 0 10-7 7l2 2a4.95 4.95 0 007-7l-2-2z"></path>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <strong>Kiểm tra</strong>
+          </span>
+        </a>
+        <a class="nav-link" href="#stats" data-nav="stats">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 19V9"></path>
+              <path d="M12 19V5"></path>
+              <path d="M19 19v-7"></path>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <strong>Thống kê</strong>
+          </span>
+        </a>
+        <a class="nav-link" href="#reports" data-nav="reports">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5h16"></path>
+              <path d="M4 12h16"></path>
+              <path d="M4 19h10"></path>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <strong>Báo cáo</strong>
+          </span>
+        </a>
+        <a class="nav-link" href="#settings" data-nav="settings">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 15.5A3.5 3.5 0 1012 8.5a3.5 3.5 0 000 7z"></path>
+              <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 01-4 0v-.2a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 01-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 010-4h.2a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 012.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 014 0v.2a1.6 1.6 0 001 1.5h.1a1.6 1.6 0 001.8-.3l.1-.1a2 2 0 012.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8v.1a1.6 1.6 0 001.5 1H21a2 2 0 010 4h-.2a1.6 1.6 0 00-1.5 1z"></path>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <strong>Cài đặt</strong>
+          </span>
+        </a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="status-card">
+          <p class="small-label">Trạng thái</p>
+          <div class="status-grid">
+            <div class="status-row">
+              <span>Mới nhất</span>
+              <strong id="sidebar-latest">{{ summary.latest_event_at or "Chưa có" }}</strong>
+            </div>
+            <div class="status-row">
+              <span>Tổng lượt</span>
+              <strong id="sidebar-total">{{ summary.total_events }}</strong>
+            </div>
+            <div class="status-row">
+              <span>Mô hình</span>
+              <strong>{{ model_cards|length }}</strong>
+            </div>
+          </div>
+        </div>
+        <a class="ghost-link" href="{{ url_for('dashboard_events') }}">Lịch sử đầy đủ</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-button" id="menu-toggle" type="button" aria-label="Mở thanh điều hướng">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M4 7h16"></path>
+              <path d="M4 12h16"></path>
+              <path d="M4 17h16"></path>
+            </svg>
+          </button>
+          <div class="topbar-title">
+            <h2>Phishing Checker Dashboard</h2>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-chip">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="runtime-status">Đang hoạt động</span>
+          </div>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng hoặc tối" aria-pressed="true">
+            <span class="theme-icon" id="theme-icon" aria-hidden="true">☀</span>
+            <span class="sr-only" id="theme-label">Giao diện tối</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="page-section section-check" id="checker" data-section="checker">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Kiểm tra</p>
+            <h3>URL / Domain</h3>
+          </div>
+          <div class="section-actions">
+            <div class="section-badge">
+              <span id="check-latest-badge">Đồng bộ: {{ summary.latest_event_at or "Chưa có" }}</span>
+            </div>
+            <button class="secondary-button" id="manual-toggle" type="button" aria-controls="manual-check-card" aria-expanded="true">
+              Ẩn check tay
+            </button>
+          </div>
+        </div>
+
+        <div class="split-checker" id="checker-layout">
+          <article class="panel realtime-card">
+            <div class="panel-title-row">
+              <div>
+                <p class="small-label">IDS</p>
+                <h4>Log thời gian thực</h4>
+              </div>
+              <span class="badge badge-neutral" id="realtime-count">0</span>
+            </div>
+            <div class="risk-chart" id="risk-chart" aria-label="Biểu đồ Score"></div>
+            <div class="realtime-feed" id="realtime-feed"></div>
+          </article>
+
+          <article class="panel form-card" id="manual-check-card">
+            <form id="ingest-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="dataset_kind">Loại kiểm tra</label>
+                  <select id="dataset_kind" name="dataset_kind">
+                    <option value="domain" selected>Domain</option>
+                    <option value="url">URL</option>
+                    <option value="auto">Tự động</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="value">Giá trị</label>
+                  <textarea id="value" name="value" placeholder="example.com" autocomplete="off" rows="1" spellcheck="false" required></textarea>
+                </div>
+              </div>
+              <input id="source" name="source" type="hidden" value="ids_browser_sensor">
+              <div id="validation-message" class="validation-message" aria-live="polite"></div>
+              <div class="form-actions">
+                <p class="form-note"></p>
+                <button class="primary-button" id="submit-button" type="submit">Kiểm tra</button>
+              </div>
+            </form>
+            <div class="result-panel" id="result-panel" aria-live="polite"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-section section-reports" id="reports" data-section="reports">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Báo cáo</p>
+            <h3>Lịch sử gần nhất</h3>
+          </div>
+          <a class="section-badge" href="{{ url_for('dashboard_events') }}">Xem thêm</a>
+        </div>
+
+        <div class="filter-grid hidden">
           <div class="field">
-            <label for="dataset_kind">Loại input</label>
-            <select id="dataset_kind" name="dataset_kind">
-              <option value="domain" selected>Domain</option>
+            <label for="filter-from">Từ ngày</label>
+            <input id="filter-from" type="date">
+          </div>
+          <div class="field">
+            <label for="filter-to">Đến ngày</label>
+            <input id="filter-to" type="date">
+          </div>
+          <div class="field">
+            <label for="filter-kind">Loại</label>
+            <select id="filter-kind">
+              <option value="">Tất cả</option>
+              <option value="domain">Domain</option>
               <option value="url">URL</option>
-              <option value="auto">Auto detect</option>
             </select>
           </div>
           <div class="field">
-            <label for="value">Giá trị cần kiểm tra</label>
-            <input id="value" name="value" placeholder="example.com" required autocomplete="off">
+            <label for="filter-result">Kết quả</label>
+            <select id="filter-result">
+              <option value="">Tất cả</option>
+              <option value="phishing">Cảnh báo</option>
+              <option value="benign">An toàn</option>
+            </select>
           </div>
-          <button id="submit-button" type="submit">Kiểm tra ngay</button>
-        </div>
-        <div id="validation-message" class="validation-message"></div>
-        <details class="quick-menu">
-          <summary class="quick-summary">Tùy chọn nhanh</summary>
-          <div class="quick-actions">
-            <button type="button" class="quick-button" data-quick="sample-domain">Sample domain</button>
-            <button type="button" class="quick-button" data-quick="sample-url">Sample URL</button>
-            <button type="button" class="quick-button" data-quick="reuse-last">Dùng lại lần trước</button>
-            <button type="button" class="quick-button" data-quick="clear">Xóa</button>
+          <div class="field search-field">
+            <label for="filter-search">Tìm nhanh</label>
+            <input id="filter-search" type="search" placeholder="Tìm theo giá trị, nguồn, cảm biến...">
           </div>
-        </details>
-        <input id="source" name="source" type="hidden" value="ids_browser_sensor">
-      </form>
-      <div id="result-panel" class="muted">
-        <div class="empty">Kết quả sẽ hiện ở đây sau khi bạn kiểm tra.</div>
-      </div>
-    </section>
-
-    <section class="section section-nav">
-      <div class="section-tabs">
-        <a class="tab-link" href="#recent-events">Recent Logs</a>
-        <a class="tab-link" href="#analytics">Analytics</a>
-        <a class="tab-link" href="#official-models">Official Models</a>
-        <a class="tab-link history-link" href="{{ url_for('dashboard_events') }}">Xem tất cả log</a>
-      </div>
-    </section>
-
-    <section class="section" id="analytics">
-      <div class="section-head">
-        <div>
-          <h2>Tổng quan</h2>
-          <p class="section-note">Thu gọn còn vài chỉ số chính để không cạnh tranh với khu vực check.</p>
+          <button class="secondary-button" id="reset-filters" type="button">Đặt lại</button>
         </div>
-      </div>
-      <div class="grid stats">
-        <article class="card">
-          <div class="stat-value" id="summary-total">{{ summary.total_events }}</div>
-          <div class="stat-label">Tổng event gần đây trong runtime log</div>
-        </article>
-        <article class="card">
-          <div class="stat-value" id="summary-phishing">{{ summary.phishing_events }}</div>
-          <div class="stat-label">Số event bị gắn nhãn phishing</div>
-        </article>
-        <article class="card">
-          <div class="stat-value" id="summary-high">{{ summary.high_risk_events }}</div>
-          <div class="stat-label">Số cảnh báo đang ở mức high</div>
-        </article>
-      </div>
-      <div class="compact-grid" style="margin-top: 12px;">
-        <article class="card">
-          <div class="stat-value" id="summary-benign">{{ summary.benign_events }}</div>
-          <div class="stat-label">Số event đang được gắn nhãn benign</div>
-        </article>
-        <article class="card">
-          <div class="stat-value" id="summary-split">{{ summary.domain_events }}/{{ summary.url_events }}</div>
-          <div class="stat-label">Domain events / URL events</div>
-        </article>
-      </div>
-    </section>
 
-    <section class="section" id="recent-events">
-      <div class="section-head">
-        <div>
-          <h2>Recent checks</h2>
-          <p class="section-note"></p>
+        <div class="reports-meta">
+          <p id="reports-meta-text">10 dòng mới nhất.</p>
+          <div class="badge-row" id="reports-active-filters"></div>
         </div>
-        <a class="tab-link history-link" href="{{ url_for('dashboard_events') }}">View all</a>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Thời gian</th>
-              <th>Loại</th>
-              <th>Input</th>
-              <th>Risk</th>
-              <th>Kết quả</th>
-              <th>Chi tiết</th>
-            </tr>
-          </thead>
-          <tbody id="recent-events-body">
-            {% if recent_events %}
-            {% for event in recent_events %}
-            <tr>
-              <td>{{ event.received_at }}</td>
-              <td><span class="model-chip">{{ event.dataset_kind }}</span></td>
-              <td><code class="table-input">{{ event.normalized_value }}</code></td>
-              <td><span class="risk-chip risk-{{ event.risk_level }}">{{ event.risk_level }}</span></td>
-              <td>{{ event.predicted_class }}</td>
-              <td>
-                <details>
-                  <summary class="detail-toggle">Mở chi tiết</summary>
-                  <div class="detail-card">
-                    <div><span class="metric-label">Score</span>{% if event.score is not none %}{{ "%.4f"|format(event.score) }}{% else %}N/A{% endif %}</div>
-                    <div><span class="metric-label">Observed</span>{{ event.observed_at or event.received_at }}</div>
-                    <div><span class="metric-label">Source</span>{{ event.source }}</div>
-                    <div><span class="metric-label">Sensor</span>{{ event.sensor_name or "N/A" }}</div>
-                    <div><span class="metric-label">Event</span>{{ event.ids_event_type }}</div>
-                    <div><span class="metric-label">Flow</span>{{ event.flow_summary or "N/A" }}</div>
-                    <div><span class="metric-label">Decision</span>{{ event.decision_summary }}</div>
-                    {% if event.override_reason %}
-                    <div><span class="metric-label">Override</span>{{ event.override_match_value or event.override_reason }}</div>
-                    {% endif %}
-                    <div><span class="metric-label">Model</span>{{ event.model_name }}</div>
-                    <div>
-                      <span class="metric-label">Signals</span>
-                      {% if event.signals %}
-                      <div class="signal-list">
-                        {% for signal in event.signals %}
-                        <div class="signal-line">{{ signal }}</div>
-                        {% endfor %}
-                      </div>
-                      {% else %}
-                      <div class="signal-list">
-                        <div class="signal-line">Không có tín hiệu nổi bật.</div>
-                      </div>
-                      {% endif %}
-                    </div>
-                  </div>
-                </details>
-              </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-      <div id="recent-events-empty" class="empty compact-empty {% if recent_events %}hidden{% endif %}">Chưa có sự kiện nào. Hãy gửi thử một domain hoặc URL ở form phía trên.</div>
-    </section>
 
-    <details class="section footer-details">
-      <summary class="footer-summary">Insights &amp; models</summary>
-      <div class="footer-grid">
-        <div class="footer-card">
-          <h2>Overview</h2>
-          <div class="mini-stats">
-            <article class="mini-stat">
-              <span class="metric-label">Total</span>
-              <strong id="summary-total-mini">{{ summary.total_events }}</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="metric-label">Phishing</span>
-              <strong id="summary-phishing-mini">{{ summary.phishing_events }}</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="metric-label">Benign</span>
-              <strong id="summary-benign-mini">{{ summary.benign_events }}</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="metric-label">High</span>
-              <strong id="summary-high-mini">{{ summary.high_risk_events }}</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="metric-label">Domain / URL</span>
-              <strong id="summary-split-mini">{{ summary.domain_events }}/{{ summary.url_events }}</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="metric-label">Latest</span>
-              <strong id="latest-event-mini">{{ summary.latest_event_at or "Chưa có" }}</strong>
-            </article>
+        <div class="table-card is-compact" id="reports-card">
+          <div class="compact-history-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Thời gian</th>
+                  <th>Giá trị</th>
+                  <th>Risk</th>
+                  <th>Kết quả</th>
+                </tr>
+              </thead>
+              <tbody id="reports-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state hidden" id="reports-empty">
+            <h4>Chưa có lịch sử</h4>
+            <p>Hãy gửi một domain hoặc URL để tạo bản ghi đầu tiên.</p>
           </div>
         </div>
-        <div class="footer-card">
-          <h2>Official models</h2>
-          <div class="mini-models">
+      </section>
+
+      <section class="page-section section-stats" id="stats" data-section="stats">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Thống kê</p>
+            <h3>Tổng quan vận hành</h3>
+          </div>
+          <div class="section-badge" id="stats-headline">0 lượt</div>
+        </div>
+
+        <div class="stats-layout">
+          <div class="stats-grid stats-loading" id="stats-grid">
+            <article class="stat-card safe">
+              <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 14l-5 5"></path>
+                  <path d="M16.5 7.5a4.95 4.95 0 10-7 7l2 2a4.95 4.95 0 007-7l-2-2z"></path>
+                </svg>
+              </div>
+              <strong id="stat-url">0</strong>
+              <p>URL</p>
+            </article>
+            <article class="stat-card blue">
+              <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 4v16"></path>
+                  <path d="M4 12h16"></path>
+                  <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+              </div>
+              <strong id="stat-domain">0</strong>
+              <p>Domain</p>
+            </article>
+            <article class="stat-card danger">
+              <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 9v4"></path>
+                  <path d="M12 17h.01"></path>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.72 3h16.92a2 2 0 001.72-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                </svg>
+              </div>
+              <strong id="stat-phishing">0</strong>
+              <p>Cảnh báo</p>
+            </article>
+            <article class="stat-card purple">
+              <div class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+              </div>
+              <strong id="stat-benign">0</strong>
+              <p>An toàn</p>
+            </article>
+          </div>
+
+          <article class="panel donut-panel stats-loading" id="donut-panel">
+            <div class="donut-wrap" id="donut-wrap">
+              <div class="donut-chart" id="donut-chart">
+                <div class="donut-core">
+                  <strong id="donut-total">0</strong>
+                  <span>Tổng lượt</span>
+                </div>
+              </div>
+            </div>
+            <div class="legend-list">
+              <div class="legend-row">
+                <div class="legend-left">
+                  <span class="legend-swatch phishing"></span>
+                  <strong>Cảnh báo</strong>
+                </div>
+                <span id="legend-phishing">0 (0%)</span>
+              </div>
+              <div class="legend-row">
+                <div class="legend-left">
+                  <span class="legend-swatch benign"></span>
+                  <strong>An toàn</strong>
+                </div>
+                <span id="legend-benign">0 (0%)</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="insights-grid" id="insights-grid">
+          <article class="insight-card">
+            <span>Tỉ lệ cảnh báo</span>
+            <strong id="insight-share">0%</strong>
+            <p id="insight-share-copy">Chưa có dữ liệu.</p>
+          </article>
+          <article class="insight-card">
+            <span>Nguồn vào</span>
+            <strong id="insight-kind-lead">Cân bằng</strong>
+            <p id="insight-kind-copy">URL / Domain.</p>
+          </article>
+          <article class="insight-card">
+            <span>Mới nhất</span>
+            <strong id="insight-latest">Chưa có</strong>
+            <p id="insight-latest-copy">Log vận hành.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-section section-settings" id="settings" data-section="settings">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Cài đặt</p>
+            <h3>Mô hình đang dùng</h3>
+          </div>
+          <div class="section-badge" id="theme-status-badge">Giao diện: Tối</div>
+        </div>
+
+        <div class="settings-grid">
+          <article class="setting-card">
+            <span>Trạng thái</span>
+            <strong id="setting-theme-mode">Giao diện tối</strong>
+            <div class="setting-list">
+              <div class="setting-row">
+                <div class="feature-dot" aria-hidden="true"></div>
+                <div>
+                  <strong>Vận hành</strong>
+                  <p id="setting-runtime-copy">{{ summary.total_events }} lượt kiểm tra</p>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="feature-dot" aria-hidden="true"></div>
+                <div>
+                  <strong>API</strong>
+                  <p>/api/ingest</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="model-grid">
             {% for card in model_cards %}
-            <article class="mini-model">
-              <div class="mini-model-top">
-                <span class="model-chip">{{ card.dataset_kind }}</span>
-                <strong>{{ card.model_name }}</strong>
+            <article class="model-card">
+              <div class="model-top">
+                <div>
+                  <span>Mô hình {{ card.dataset_kind }}</span>
+                  <strong>{{ card.model_name }}</strong>
+                </div>
+                <span class="badge {% if card.dataset_kind == 'url' %}badge-blue{% else %}badge-purple{% endif %}">{{ card.dataset_kind }}</span>
               </div>
-              <div class="mini-model-grid">
-                <div><span class="metric-label">Rows</span>{{ "{:,}".format(card.rows) }}</div>
-                <div><span class="metric-label">Val PR-AUC</span>{{ "%.4f"|format(card.validation_pr_auc) }}</div>
-                <div><span class="metric-label">Test PR-AUC</span>{{ "%.4f"|format(card.test_pr_auc) }}</div>
-                <div><span class="metric-label">Features</span>{{ card.feature_count }}</div>
+              <div class="metric-grid">
+                <div class="metric-box">
+                  <span>Dòng dữ liệu</span>
+                  <strong>{{ "{:,}".format(card.rows) }}</strong>
+                </div>
+                <div class="metric-box">
+                  <span>Số đặc trưng</span>
+                  <strong>{{ card.feature_count }}</strong>
+                </div>
+                <div class="metric-box">
+                  <span>PR-AUC val</span>
+                  <strong>{{ "%.4f"|format(card.validation_pr_auc) }}</strong>
+                </div>
+                <div class="metric-box">
+                  <span>PR-AUC test</span>
+                  <strong>{{ "%.4f"|format(card.test_pr_auc) }}</strong>
+                </div>
               </div>
             </article>
             {% endfor %}
           </div>
         </div>
-      </div>
-    </details>
+      </section>
+    </main>
+  </div>
 
-    <section class="section" id="official-models">
-      <div class="section-head">
+  <div class="detail-modal hidden" id="detail-modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-top">
         <div>
-          <h2>Official Models</h2>
-          <p class="section-note">Thông tin model vẫn có sẵn cho người dùng kỹ thuật, nhưng được dồn xuống phần phụ và thu gọn theo dạng disclosure.</p>
+          <p class="small-label">Chi tiết</p>
+          <h4 id="modal-title">Chi tiết sự kiện</h4>
+          <p class="modal-note" id="modal-note">Thông tin chi tiết của một lần kiểm tra sẽ hiển thị tại đây.</p>
         </div>
-        <span class="info-tip">
-          <span class="info-dot">i</span>
-          <span class="tooltip tooltip-wide">
-            <strong>Ý nghĩa các metric</strong><br>
-            Val PR-AUC là chất lượng trên validation, Test PR-AUC và Test F1 là kết quả trên holdout test của cấu hình official đang được load.
-          </span>
-        </span>
+        <button class="modal-close" id="modal-close" type="button">Đóng</button>
       </div>
-      <div class="grid models">
-        {% for card in model_cards %}
-        <details class="card model-disclosure">
-          <summary class="model-summary">
-            <div>
-              <span class="model-chip">{{ card.dataset_kind }}</span>
-              <h3>{{ card.model_name }}</h3>
-            </div>
-            <span class="tab-link">Mở chi tiết</span>
-          </summary>
-          <div style="padding: 0 16px 16px;">
-            <div class="metric-ribbon">
-              <div class="metric-box">
-                <span class="metric-label">Rows</span>
-                <strong>{{ "{:,}".format(card.rows) }}</strong>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Val PR-AUC</span>
-                <strong>{{ "%.4f"|format(card.validation_pr_auc) }}</strong>
-              </div>
-              <div class="metric-box">
-                <span class="metric-label">Test PR-AUC</span>
-                <strong>{{ "%.4f"|format(card.test_pr_auc) }}</strong>
-              </div>
-            </div>
-            <div class="detail-card">
-              <div><span class="metric-label">Variant</span><code>{{ card.variant_name }}</code></div>
-              <div><span class="metric-label">Dataset</span>Benign {{ "{:,}".format(card.benign) }} | Phishing {{ "{:,}".format(card.phishing) }}</div>
-              <div><span class="metric-label">Feature Count</span>{{ card.feature_count }}</div>
-              <div><span class="metric-label">Test F1</span>{{ "%.4f"|format(card.test_f1) }}</div>
-            </div>
-          </div>
-        </details>
-        {% endfor %}
+      <div class="badge-row" id="modal-badges"></div>
+      <div class="modal-grid" id="modal-grid"></div>
+      <div class="modal-wide" style="margin-top: 16px;">
+        <span class="small-label">Giá trị đầy đủ</span>
+        <code class="modal-input-code" id="modal-input-code"></code>
       </div>
-    </section>
-  </main>
+      <div class="modal-wide" style="margin-top: 16px;">
+        <span class="small-label">Tín hiệu</span>
+        <div class="signal-grid" id="modal-signals"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
+    const INITIAL_EVENTS = {{ events|tojson }};
+    const INITIAL_SUMMARY = {{ summary|tojson }};
+    const MODEL_CARDS = {{ model_cards|tojson }};
+
+    const appShell = document.getElementById("app-shell");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+    const menuToggle = document.getElementById("menu-toggle");
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeIcon = document.getElementById("theme-icon");
+    const themeLabel = document.getElementById("theme-label");
+    const themeStatusBadge = document.getElementById("theme-status-badge");
+    const settingThemeMode = document.getElementById("setting-theme-mode");
+    const runtimeStatus = document.getElementById("runtime-status");
+    const sidebarLatest = document.getElementById("sidebar-latest");
+    const sidebarTotal = document.getElementById("sidebar-total");
+    const checkLatestBadge = document.getElementById("check-latest-badge");
+    const statsHeadline = document.getElementById("stats-headline");
+    const settingRuntimeCopy = document.getElementById("setting-runtime-copy");
+    const riskChart = document.getElementById("risk-chart");
+    const realtimeFeed = document.getElementById("realtime-feed");
+    const realtimeCount = document.getElementById("realtime-count");
+    const checkerLayout = document.getElementById("checker-layout");
+    const manualPanel = document.getElementById("manual-check-card");
+    const manualToggleButton = document.getElementById("manual-toggle");
+
     const form = document.getElementById("ingest-form");
     const datasetKindField = document.getElementById("dataset_kind");
     const valueField = document.getElementById("value");
     const sourceField = document.getElementById("source");
     const submitButton = document.getElementById("submit-button");
-    const resultPanel = document.getElementById("result-panel");
     const validationMessage = document.getElementById("validation-message");
-    const recentEventsBody = document.getElementById("recent-events-body");
-    const recentEventsEmpty = document.getElementById("recent-events-empty");
+    const resultPanel = document.getElementById("result-panel");
+
+    const filterFrom = document.getElementById("filter-from");
+    const filterTo = document.getElementById("filter-to");
+    const filterKind = document.getElementById("filter-kind");
+    const filterResult = document.getElementById("filter-result");
+    const filterSearch = document.getElementById("filter-search");
+    const resetFiltersButton = document.getElementById("reset-filters");
+    const reportsMetaText = document.getElementById("reports-meta-text");
+    const reportsActiveFilters = document.getElementById("reports-active-filters");
+    const reportsBody = document.getElementById("reports-body");
+    const reportsEmpty = document.getElementById("reports-empty");
+    const reportsCard = document.getElementById("reports-card");
+
+    const statsGrid = document.getElementById("stats-grid");
+    const donutPanel = document.getElementById("donut-panel");
+    const donutChart = document.getElementById("donut-chart");
+    const donutTotal = document.getElementById("donut-total");
+    const legendPhishing = document.getElementById("legend-phishing");
+    const legendBenign = document.getElementById("legend-benign");
+    const insightShare = document.getElementById("insight-share");
+    const insightShareCopy = document.getElementById("insight-share-copy");
+    const insightKindLead = document.getElementById("insight-kind-lead");
+    const insightKindCopy = document.getElementById("insight-kind-copy");
+    const insightLatest = document.getElementById("insight-latest");
+    const insightLatestCopy = document.getElementById("insight-latest-copy");
+
+    const statUrl = document.getElementById("stat-url");
+    const statDomain = document.getElementById("stat-domain");
+    const statPhishing = document.getElementById("stat-phishing");
+    const statBenign = document.getElementById("stat-benign");
+
+    const detailModal = document.getElementById("detail-modal");
+    const modalClose = document.getElementById("modal-close");
+    const modalTitle = document.getElementById("modal-title");
+    const modalNote = document.getElementById("modal-note");
+    const modalBadges = document.getElementById("modal-badges");
+    const modalGrid = document.getElementById("modal-grid");
+    const modalInputCode = document.getElementById("modal-input-code");
+    const modalSignals = document.getElementById("modal-signals");
+
     const placeholders = {
       domain: "example.com",
       url: "https://example.com/login",
       auto: "example.com hoặc https://example.com/login",
     };
+
     const samples = {
       domain: "cellphones.com.vn",
       url: "https://cellphones.com.vn/",
     };
+
+    let dashboardEvents = Array.isArray(INITIAL_EVENTS) ? [...INITIAL_EVENTS] : [];
+    let filteredEvents = [...dashboardEvents];
+    let currentSummary = INITIAL_SUMMARY || {};
+    let eventIndex = new Map();
+    let isRefreshingEvents = false;
 
     const escapeHtml = (value) => String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -1321,11 +2342,110 @@ DASHBOARD_TEMPLATE = """
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
 
+    const formatNumber = (value) => new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+
+    const formatDateTime = (value) => {
+      if (!value) {
+        return "Chưa có";
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.valueOf())) {
+        return String(value);
+      }
+      return new Intl.DateTimeFormat("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    };
+
+    const dateKeyFromValue = (value) => {
+      if (!value) {
+        return "";
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.valueOf())) {
+        return "";
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
     const looksLikeUrl = (value) => value.includes("://");
     const looksLikeDomain = (value) => /^(?!-)(?:[a-zA-Z0-9-]{1,63}\\.)+[a-zA-Z]{2,63}$/.test(value.trim());
+    const buildOpenHref = (value) => {
+      const text = String(value || "").trim();
+      const lowerText = text.toLowerCase();
+      if (lowerText.startsWith("http://") || lowerText.startsWith("https://")) {
+        return text;
+      }
+      if (looksLikeDomain(text)) {
+        return `https://${text}`;
+      }
+      return "";
+    };
+
+    const kindLabel = (kind) => kind === "url" ? "URL" : "Domain";
+    const riskLabel = (risk) => ({
+      high: "HIGH",
+      medium: "MEDIUM",
+      low: "LOW",
+      minimal: "MINIMAL",
+    }[String(risk || "minimal")] || String(risk || "minimal").toUpperCase());
+    const verdictLabel = (result) => String(result || "") === "phishing" ? "CẢNH BÁO" : "AN TOÀN";
+
+    const badgeClassForRisk = (risk) => {
+      if (risk === "high") {
+        return "badge-danger";
+      }
+      if (risk === "medium") {
+        return "badge-warning";
+      }
+      if (risk === "low") {
+        return "badge-blue";
+      }
+      return "badge-safe";
+    };
+
+    const badgeClassForVerdict = (verdict) => verdict === "phishing" ? "badge-danger" : "badge-safe";
+    const badgeClassForKind = (kind) => kind === "url" ? "badge-blue" : "badge-purple";
+    const isRealtimeIdsEvent = (event) => String(event.ids_event_type || "manual_check") !== "manual_check";
+
+    const scoreText = (score) => {
+      if (score === null || score === undefined || Number.isNaN(Number(score))) {
+        return "N/A";
+      }
+      return Number(score).toFixed(4);
+    };
 
     const setPlaceholder = () => {
       valueField.placeholder = placeholders[datasetKindField.value] || placeholders.auto;
+    };
+
+    const autoResizeValueField = () => {
+      valueField.style.height = "auto";
+      valueField.style.height = `${Math.max(56, valueField.scrollHeight)}px`;
+    };
+
+    const setManualCheckVisible = (isVisible, { persist = true } = {}) => {
+      checkerLayout.classList.toggle("manual-hidden", !isVisible);
+      manualPanel.hidden = !isVisible;
+      manualToggleButton.textContent = isVisible ? "Ẩn check tay" : "Hiện check tay";
+      manualToggleButton.setAttribute("aria-expanded", String(isVisible));
+      if (persist) {
+        localStorage.setItem("phishing_checker:manual_visible", isVisible ? "1" : "0");
+      }
+      if (isVisible) {
+        autoResizeValueField();
+      }
+    };
+
+    const loadManualCheckVisibility = () => {
+      setManualCheckVisible(localStorage.getItem("phishing_checker:manual_visible") !== "0", { persist: false });
     };
 
     const clearValidation = () => {
@@ -1333,11 +2453,14 @@ DASHBOARD_TEMPLATE = """
       validationMessage.innerHTML = "";
     };
 
-    const showValidation = (message, kind = "info", suggestionKind = "") => {
-      validationMessage.className = `validation-message is-${kind}`;
+    const showValidation = (message, kind = "error", suggestionKind = "") => {
+      validationMessage.className = `validation-message is-visible is-${kind}`;
       if (suggestionKind) {
-        const buttonLabel = suggestionKind === "url" ? "Chuyển sang URL" : "Chuyển sang Domain";
-        validationMessage.innerHTML = `${escapeHtml(message)} <button type="button" class="switch-kind" data-kind="${escapeHtml(suggestionKind)}">${buttonLabel}</button>`;
+        const switchLabel = suggestionKind === "url" ? "Chuyển sang URL" : "Chuyển sang Domain";
+        validationMessage.innerHTML = `
+          <span>${escapeHtml(message)}</span>
+          <button class="secondary-button" type="button" data-kind-switch="${escapeHtml(suggestionKind)}">${switchLabel}</button>
+        `;
         return;
       }
       validationMessage.textContent = message;
@@ -1347,11 +2470,16 @@ DASHBOARD_TEMPLATE = """
       const kind = datasetKindField.value;
       const value = valueField.value.trim();
       if (!value) {
-        return { ok: false, message: "Vui lòng nhập domain hoặc URL trước khi gửi kiểm tra.", kind: "error" };
+        return { ok: false, message: "Vui lòng nhập domain hoặc URL trước khi kiểm tra.", kind: "error" };
       }
       if (kind === "domain") {
         if (looksLikeUrl(value)) {
-          return { ok: false, message: "Input hiện trông giống URL đầy đủ hơn là domain thuần.", kind: "error", suggestionKind: "url" };
+          return {
+            ok: false,
+            message: "Giá trị này giống URL đầy đủ hơn là domain thuần.",
+            kind: "error",
+            suggestionKind: "url",
+          };
         }
         if (!looksLikeDomain(value)) {
           return { ok: false, message: "Domain chưa đúng định dạng. Ví dụ hợp lệ: example.com", kind: "error" };
@@ -1360,7 +2488,12 @@ DASHBOARD_TEMPLATE = """
       if (kind === "url") {
         if (!looksLikeUrl(value)) {
           if (looksLikeDomain(value)) {
-            return { ok: false, message: "Bạn đang ở chế độ URL nhưng giá trị hiện giống domain hơn.", kind: "error", suggestionKind: "domain" };
+            return {
+              ok: false,
+              message: "Giá trị hiện trông giống domain. Bạn có thể chuyển sang chế độ Domain.",
+              kind: "error",
+              suggestionKind: "domain",
+            };
           }
           return { ok: false, message: "URL chưa đúng định dạng. Ví dụ hợp lệ: https://example.com/login", kind: "error" };
         }
@@ -1368,197 +2501,481 @@ DASHBOARD_TEMPLATE = """
       return { ok: true };
     };
 
+    const resultEmptyHtml = () => `
+      <div class="state-card">
+        <h4>Chưa có kết quả</h4>
+        <p>Nhập domain hoặc URL để kiểm tra.</p>
+      </div>
+    `;
+
+    const resultLoadingHtml = () => `
+      <div class="state-card shimmer">
+        <div class="loading-stack">
+          <div class="loading-line short"></div>
+          <div class="loading-line medium"></div>
+          <div class="loading-line large"></div>
+          <div class="loading-line"></div>
+          <div class="loading-line medium"></div>
+        </div>
+      </div>
+    `;
+
+    const resultErrorHtml = (message) => `
+      <div class="result-shell is-danger">
+        <div class="badge-row">
+          <span class="badge badge-danger">LỖI</span>
+        </div>
+        <div class="result-top">
+          <div>
+            <h4>Không thể kiểm tra</h4>
+            <p class="result-summary">${escapeHtml(message)}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
     const renderSignals = (signals) => {
-      if (!signals.length) {
-        return '<div class="signal-line">Không có tín hiệu nổi bật.</div>';
+      if (!Array.isArray(signals) || signals.length === 0) {
+        return '<div class="signal-item">Không có tín hiệu nổi bật.</div>';
       }
-      return signals.map((signal) => `<div class="signal-line">${escapeHtml(signal)}</div>`).join("");
+      return signals.map((signal) => `<div class="signal-item">${escapeHtml(signal)}</div>`).join("");
     };
 
-    const renderLoading = () => {
-      resultPanel.style.borderColor = "rgba(72, 101, 122, 0.14)";
-      resultPanel.style.boxShadow = "0 10px 24px rgba(31, 41, 55, 0.05)";
-      resultPanel.style.background = "rgba(255, 255, 255, 0.94)";
+    const renderResult = (event) => {
+      const isPhishing = String(event.predicted_class || "") === "phishing";
+      const resultTone = isPhishing ? "is-danger" : "is-safe";
+      const note = event.recommendation || "";
+      const inspectedValue = event.normalized_value || event.raw_value || "";
+      const openHref = buildOpenHref(inspectedValue);
       resultPanel.innerHTML = `
-        <div class="result-loading">
-          <div class="loading-block mid"></div>
-          <div class="loading-block big"></div>
-          <div class="loading-block"></div>
-          <div class="loading-block"></div>
-        </div>
-      `;
-    };
-
-    const renderResult = (data) => {
-      const signals = Array.isArray(data.signals) ? data.signals : [];
-      const scoreText = data.score === null || data.score === undefined ? "N/A" : Number(data.score).toFixed(4);
-      const verdictRiskClass = String(data.predicted_class || "").toLowerCase() === "phishing" ? "high" : "minimal";
-      resultPanel.innerHTML = `
-        <div class="result-main">
-          <div>
-            <div class="result-badges">
-              <span class="risk-chip risk-${verdictRiskClass}">${escapeHtml(String(data.predicted_class || "").toUpperCase())}</span>
-              <span class="risk-chip risk-${escapeHtml(data.risk_level)}">${escapeHtml(data.risk_level)}</span>
-            </div>
-            <span class="metric-label">Input đã kiểm tra</span>
-            <p class="result-value">${escapeHtml(data.normalized_value)}</p>
-          </div>
-          <span class="score-pill">Score ${scoreText}</span>
-        </div>
-        <details class="result-details-simple">
-          <summary>Chi tiết</summary>
-          <div class="result-detail-grid">
-            <div class="result-item">
-              <span>Loại</span>
-              <strong>${escapeHtml(data.dataset_kind || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Checked at</span>
-              <strong>${escapeHtml(data.received_at || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Observed</span>
-              <strong>${escapeHtml(data.observed_at || data.received_at || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Source</span>
-              <strong>${escapeHtml(data.source || "ids_browser_sensor")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Sensor</span>
-              <strong>${escapeHtml(data.sensor_name || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Event</span>
-              <strong>${escapeHtml(data.ids_event_type || "manual_check")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Flow</span>
-              <strong>${escapeHtml(data.flow_summary || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Model</span>
-              <strong>${escapeHtml(data.model_name || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Variant</span>
-              <strong>${escapeHtml(data.variant_name || "N/A")}</strong>
-            </div>
-            <div class="result-item">
-              <span>Decision</span>
-              <strong>${escapeHtml(data.decision_summary || data.decision_mode || "model")}</strong>
-            </div>
-            ${data.override_reason ? `
-            <div class="result-item">
-              <span>Override</span>
-              <strong>${escapeHtml(data.override_match_value || data.override_reason)}</strong>
-            </div>` : ``}
-            <div class="result-item">
-              <span>Khuyến nghị</span>
-              <strong>${escapeHtml(data.recommendation || "Không có")}</strong>
-            </div>
-            <div class="result-item" style="grid-column: 1 / -1;">
-              <span>Tín hiệu</span>
-              <div class="signal-list">${renderSignals(signals)}</div>
-            </div>
-          </div>
-        </details>
-      `;
-      resultPanel.style.borderColor = "rgba(31, 41, 55, 0.06)";
-      resultPanel.style.boxShadow = "0 10px 24px rgba(31, 41, 55, 0.06)";
-      resultPanel.style.background = "rgba(255, 255, 255, 0.94)";
-    };
-
-    const renderResultError = (message) => {
-      resultPanel.innerHTML = `
-        <div class="result-main">
-          <div>
-            <div class="result-badges">
-              <span class="risk-chip risk-high">ERROR</span>
-            </div>
-            <p class="result-value">${escapeHtml(message)}</p>
-          </div>
-        </div>
-      `;
-      resultPanel.style.borderColor = "rgba(196, 85, 82, 0.35)";
-      resultPanel.style.boxShadow = "0 10px 24px rgba(196, 85, 82, 0.08)";
-      resultPanel.style.background = "rgba(255, 248, 247, 0.94)";
-    };
-
-    const eventRowHtml = (event) => {
-      const score = event.score === null || event.score === undefined ? "N/A" : Number(event.score).toFixed(4);
-      const signals = Array.isArray(event.signals) ? event.signals : [];
-      return `
-        <tr>
-          <td>${escapeHtml(event.received_at)}</td>
-          <td><span class="model-chip">${escapeHtml(event.dataset_kind)}</span></td>
-          <td><code class="table-input">${escapeHtml(event.normalized_value)}</code></td>
-          <td><span class="risk-chip risk-${escapeHtml(event.risk_level)}">${escapeHtml(event.risk_level)}</span></td>
-          <td>${escapeHtml(event.predicted_class)}</td>
-          <td>
-            <details>
-              <summary class="detail-toggle">Mở chi tiết</summary>
-              <div class="detail-card">
-                <div><span class="metric-label">Score</span>${score}</div>
-                <div><span class="metric-label">Observed</span>${escapeHtml(event.observed_at || event.received_at || "N/A")}</div>
-                <div><span class="metric-label">Source</span>${escapeHtml(event.source)}</div>
-                <div><span class="metric-label">Sensor</span>${escapeHtml(event.sensor_name || "N/A")}</div>
-                <div><span class="metric-label">Event</span>${escapeHtml(event.ids_event_type || "manual_check")}</div>
-                <div><span class="metric-label">Flow</span>${escapeHtml(event.flow_summary || "N/A")}</div>
-                <div><span class="metric-label">Decision</span>${escapeHtml(event.decision_summary || event.decision_mode || "model")}</div>
-                ${event.override_reason ? `<div><span class="metric-label">Override</span>${escapeHtml(event.override_match_value || event.override_reason)}</div>` : ``}
-                <div><span class="metric-label">Model</span>${escapeHtml(event.model_name)}</div>
-                <div>
-                  <span class="metric-label">Signals</span>
-                  <div class="signal-list">${renderSignals(signals)}</div>
-                </div>
+        <div class="result-shell ${resultTone}">
+          <div class="result-top">
+            <div>
+              <div class="badge-row">
+                <span class="badge ${badgeClassForVerdict(event.predicted_class)}">${escapeHtml(verdictLabel(event.predicted_class))}</span>
+                <span class="badge ${badgeClassForRisk(event.risk_level)}">${escapeHtml(riskLabel(event.risk_level))}</span>
+                <span class="badge ${badgeClassForKind(event.dataset_kind)}">${escapeHtml(kindLabel(event.dataset_kind))}</span>
               </div>
-            </details>
-          </td>
-        </tr>
+              <h4>${isPhishing ? "Phát hiện lừa đảo" : "Chưa phát hiện lừa đảo"}</h4>
+              ${note ? `<p class="result-summary">${escapeHtml(note)}</p>` : ""}
+            </div>
+            <div class="result-side">
+              <div class="score-card">
+                <strong>${escapeHtml(scoreText(event.score))}</strong>
+                <span>Score</span>
+              </div>
+              ${openHref ? `
+                <a class="secondary-button result-open-button" href="${escapeHtml(openHref)}" target="_blank" rel="noopener noreferrer" aria-label="Mở ${escapeHtml(inspectedValue)} trong tab mới">
+                  Kiểm tra
+                </a>
+              ` : ""}
+            </div>
+          </div>
+          <div class="result-grid">
+            <div class="result-item">
+              <span>Giá trị</span>
+              <strong>${escapeHtml(event.normalized_value || event.raw_value || "N/A")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Thời gian</span>
+              <strong>${escapeHtml(formatDateTime(event.received_at))}</strong>
+            </div>
+            <div class="result-item">
+              <span>Nguồn</span>
+              <strong>${escapeHtml(event.source || "N/A")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Mô hình</span>
+              <strong>${escapeHtml(event.model_name || "N/A")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Cảm biến</span>
+              <strong>${escapeHtml(event.sensor_name || "N/A")}</strong>
+            </div>
+            <div class="result-item">
+              <span>Quyết định</span>
+              <strong>${escapeHtml(event.decision_summary || event.decision_mode || "mô hình")}</strong>
+            </div>
+          </div>
+          <div class="result-signals">
+            ${renderSignals(event.signals)}
+          </div>
+        </div>
       `;
     };
 
-    const updateSummary = (summary) => {
-      document.getElementById("summary-total").textContent = summary.total_events ?? 0;
-      document.getElementById("summary-phishing").textContent = summary.phishing_events ?? 0;
-      document.getElementById("summary-high").textContent = summary.high_risk_events ?? 0;
-      document.getElementById("summary-benign").textContent = summary.benign_events ?? 0;
-      document.getElementById("summary-split").textContent = `${summary.domain_events ?? 0}/${summary.url_events ?? 0}`;
-      document.getElementById("latest-event").textContent = summary.latest_event_at || "Chưa có";
-      document.getElementById("traffic-mix").textContent = `${summary.domain_events ?? 0} / ${summary.url_events ?? 0}`;
-      document.getElementById("summary-total-mini").textContent = summary.total_events ?? 0;
-      document.getElementById("summary-phishing-mini").textContent = summary.phishing_events ?? 0;
-      document.getElementById("summary-high-mini").textContent = summary.high_risk_events ?? 0;
-      document.getElementById("summary-benign-mini").textContent = summary.benign_events ?? 0;
-      document.getElementById("summary-split-mini").textContent = `${summary.domain_events ?? 0}/${summary.url_events ?? 0}`;
-      document.getElementById("latest-event-mini").textContent = summary.latest_event_at || "Chưa có";
+    const summarizeClientEvents = (events) => {
+      const total = events.length;
+      const phishing = events.filter((event) => event.predicted_class === "phishing").length;
+      const benign = total - phishing;
+      const url = events.filter((event) => event.dataset_kind === "url").length;
+      const domain = events.filter((event) => event.dataset_kind === "domain").length;
+      const high = events.filter((event) => event.risk_level === "high").length;
+      const latest = events[0]?.received_at || currentSummary.latest_event_at || null;
+      return {
+        total_events: total,
+        phishing_events: phishing,
+        benign_events: benign,
+        url_events: url,
+        domain_events: domain,
+        high_risk_events: high,
+        latest_event_at: latest,
+      };
     };
 
-    const refreshRecentEvents = async () => {
-      const response = await fetch("/api/events?limit=100");
-      if (!response.ok) {
+    const updateEventIndex = () => {
+      eventIndex = new Map(dashboardEvents.map((event) => [String(event.event_id), event]));
+    };
+
+    const scoreValue = (event) => {
+      const score = Number(event.score);
+      if (!Number.isNaN(score)) {
+        return Math.max(0, Math.min(1, score));
+      }
+      return {
+        high: 0.95,
+        medium: 0.70,
+        low: 0.45,
+        minimal: 0.18,
+      }[event.risk_level] || 0.18;
+    };
+
+    const renderScoreLineChart = (events) => {
+      if (events.length === 0) {
+        return '<div class="empty-state"><h4>Chưa có URL</h4><p>Biểu đồ sẽ hiện sau khi bridge gửi URL đầu tiên.</p></div>';
+      }
+
+      const width = 620;
+      const height = 220;
+      const left = 46;
+      const right = 18;
+      const top = 18;
+      const bottom = 38;
+      const plotWidth = width - left - right;
+      const plotHeight = height - top - bottom;
+      const xForIndex = (index) => {
+        if (events.length === 1) {
+          return left + plotWidth / 2;
+        }
+        return left + (index / (events.length - 1)) * plotWidth;
+      };
+      const yForScore = (score) => top + (1 - score) * plotHeight;
+      const points = events.map((event, index) => {
+        const x = xForIndex(index);
+        const y = yForScore(scoreValue(event));
+        return { x, y, event, score: scoreValue(event) };
+      });
+      const pointText = points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+      const areaText = [
+        `${points[0].x.toFixed(1)},${(top + plotHeight).toFixed(1)}`,
+        pointText,
+        `${points[points.length - 1].x.toFixed(1)},${(top + plotHeight).toFixed(1)}`,
+      ].join(" ");
+      const gridRows = [0, 0.5, 1].map((score) => {
+        const y = yForScore(score);
+        return `
+          <line class="chart-grid" x1="${left}" y1="${y}" x2="${width - right}" y2="${y}"></line>
+          <text class="chart-label" x="8" y="${y + 4}">${score.toFixed(1)}</text>
+        `;
+      }).join("");
+      const dots = points.map((point, index) => {
+        const modelScore = Number(point.event.model_score_before_override);
+        const modelScoreText = Number.isNaN(modelScore) ? "" : ` | Model trước override ${modelScore.toFixed(4)}`;
+        const title = `URL ${index + 1} | Score ${point.score.toFixed(4)}${modelScoreText} | ${riskLabel(point.event.risk_level)}`;
+        return `<circle class="chart-point" cx="${point.x}" cy="${point.y}" r="4"><title>${escapeHtml(title)}</title></circle>`;
+      }).join("");
+      const lastLabel = String(events.length);
+      return `
+        <svg class="score-line-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Score theo số lượng URL kiểm tra">
+          ${gridRows}
+          <line class="chart-axis" x1="${left}" y1="${top}" x2="${left}" y2="${top + plotHeight}"></line>
+          <line class="chart-axis" x1="${left}" y1="${top + plotHeight}" x2="${width - right}" y2="${top + plotHeight}"></line>
+          <polygon class="chart-area" points="${areaText}"></polygon>
+          <polyline class="chart-line" points="${pointText}"></polyline>
+          ${dots}
+          <text class="chart-label" x="${left}" y="${height - 10}">1</text>
+          <text class="chart-label" x="${width - right - 10}" y="${height - 10}">${escapeHtml(lastLabel)}</text>
+          <text class="chart-label" x="${width / 2 - 34}" y="${height - 10}">Số URL</text>
+          <text class="chart-label" x="8" y="14">Score</text>
+        </svg>
+      `;
+    };
+
+    const renderRealtime = () => {
+      const realtimeEvents = dashboardEvents.filter(isRealtimeIdsEvent);
+      const latestEvents = realtimeEvents.slice(0, 20);
+      const urlEvents = realtimeEvents
+        .filter((event) => event.dataset_kind === "url")
+        .slice(0, 20)
+        .reverse();
+      realtimeCount.textContent = `${formatNumber(urlEvents.length)} URL gần nhất`;
+      if (latestEvents.length === 0) {
+        riskChart.innerHTML = renderScoreLineChart([]);
+        realtimeFeed.innerHTML = '<div class="empty-state"><h4>Chưa có log</h4><p>Chạy bridge để nạp file IDS.</p></div>';
         return;
       }
-      const payload = await response.json();
-      const events = Array.isArray(payload.events) ? payload.events.slice(0, 5) : [];
-      recentEventsBody.innerHTML = events.map(eventRowHtml).join("");
-      if (events.length > 0) {
-        recentEventsEmpty.classList.add("hidden");
-      } else {
-        recentEventsEmpty.classList.remove("hidden");
-      }
-      updateSummary(payload.summary || {});
+
+      riskChart.innerHTML = renderScoreLineChart(urlEvents);
+
+      realtimeFeed.innerHTML = latestEvents.slice(0, 8).map((event) => {
+        const checkedValue = event.normalized_value || event.raw_value || "";
+        const openHref = buildOpenHref(checkedValue);
+        const checkButton = openHref ? `
+          <a class="feed-check-button" href="${escapeHtml(openHref)}" target="_blank" rel="noopener noreferrer" aria-label="Mở ${escapeHtml(checkedValue)} trong tab mới">
+            Check
+          </a>
+        ` : "";
+        return `
+          <div class="feed-row">
+            <div class="feed-value">
+              <strong title="${escapeHtml(checkedValue)}">${escapeHtml(checkedValue || "N/A")}</strong>
+              <span>${escapeHtml(formatDateTime(event.received_at))} · ${escapeHtml(event.ids_event_type || "thủ công")}</span>
+            </div>
+            <div class="feed-actions">
+              <span class="badge ${badgeClassForRisk(event.risk_level)}">${escapeHtml(riskLabel(event.risk_level))}</span>
+              ${checkButton}
+            </div>
+          </div>
+        `;
+      }).join("");
     };
 
-    const storeLastCheck = () => {
-      localStorage.setItem("ids:last_kind", datasetKindField.value);
-      localStorage.setItem("ids:last_value", valueField.value.trim());
+    const setDashboardLoading = (isLoading) => {
+      reportsCard.classList.toggle("is-loading", isLoading);
+      statsGrid.classList.toggle("is-loading", isLoading);
+      donutPanel.classList.toggle("is-loading", isLoading);
+      runtimeStatus.textContent = isLoading ? "Đang đồng bộ" : "Đang hoạt động";
+    };
+
+    const updateTopSummary = (summary) => {
+      sidebarLatest.textContent = summary.latest_event_at ? formatDateTime(summary.latest_event_at) : "Chưa có";
+      sidebarTotal.textContent = formatNumber(summary.total_events || 0);
+      checkLatestBadge.textContent = `Đồng bộ: ${summary.latest_event_at ? formatDateTime(summary.latest_event_at) : "Chưa có"}`;
+      statsHeadline.textContent = `${formatNumber(summary.total_events || 0)} lượt | ${formatNumber(summary.high_risk_events || 0)} risk cao`;
+      settingRuntimeCopy.textContent = `${formatNumber(summary.total_events || 0)} lượt kiểm tra`;
+    };
+
+    const renderReportsFilterChips = () => {
+      const active = [];
+      if (filterFrom.value) {
+        active.push(`Từ: ${filterFrom.value}`);
+      }
+      if (filterTo.value) {
+        active.push(`Đến: ${filterTo.value}`);
+      }
+      if (filterKind.value) {
+        active.push(`Loại: ${kindLabel(filterKind.value)}`);
+      }
+      if (filterResult.value) {
+        active.push(`Kết quả: ${verdictLabel(filterResult.value)}`);
+      }
+      if (filterSearch.value.trim()) {
+        active.push(`Tìm: ${filterSearch.value.trim()}`);
+      }
+      reportsActiveFilters.innerHTML = active.map((item) => `<span class="badge badge-neutral">${escapeHtml(item)}</span>`).join("");
+    };
+
+    const filterEvents = () => {
+      const from = filterFrom.value;
+      const to = filterTo.value;
+      const kind = filterKind.value;
+      const result = filterResult.value;
+      const keyword = filterSearch.value.trim().toLowerCase();
+
+      filteredEvents = dashboardEvents.filter((event) => {
+        const eventDate = dateKeyFromValue(event.received_at);
+        if (from && (!eventDate || eventDate < from)) {
+          return false;
+        }
+        if (to && (!eventDate || eventDate > to)) {
+          return false;
+        }
+        if (kind && event.dataset_kind !== kind) {
+          return false;
+        }
+        if (result && event.predicted_class !== result) {
+          return false;
+        }
+        if (keyword) {
+          const haystack = [
+            event.normalized_value,
+            event.raw_value,
+            event.source,
+            event.sensor_name,
+            event.ids_event_type,
+            event.flow_summary,
+            event.predicted_class,
+            event.risk_level,
+          ].join(" ").toLowerCase();
+          if (!haystack.includes(keyword)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    };
+
+    const reportRowHtml = (event) => `
+      <tr>
+        <td>
+          <div class="cell-stack">
+            <strong>${escapeHtml(formatDateTime(event.received_at))}</strong>
+            <small>${escapeHtml(event.observed_at || event.received_at || "N/A")}</small>
+          </div>
+        </td>
+        <td><span class="input-pill" title="${escapeHtml(event.normalized_value || event.raw_value || "")}">${escapeHtml(event.normalized_value || event.raw_value || "N/A")}</span></td>
+        <td><span class="badge ${badgeClassForRisk(event.risk_level)}">${escapeHtml(riskLabel(event.risk_level))}</span></td>
+        <td><span class="badge ${badgeClassForVerdict(event.predicted_class)}">${escapeHtml(verdictLabel(event.predicted_class))}</span></td>
+      </tr>
+    `;
+
+    const renderReports = () => {
+      renderReportsFilterChips();
+      const recentEvents = filteredEvents.slice(0, 10);
+      reportsMetaText.textContent = `${formatNumber(recentEvents.length)} dòng mới nhất / ${formatNumber(dashboardEvents.length)} tổng.`;
+      if (filteredEvents.length === 0) {
+        reportsBody.innerHTML = "";
+        reportsEmpty.classList.remove("hidden");
+        return;
+      }
+      reportsEmpty.classList.add("hidden");
+      reportsBody.innerHTML = recentEvents.map(reportRowHtml).join("");
+    };
+
+    const updateStats = () => {
+      const summary = summarizeClientEvents(dashboardEvents);
+      currentSummary = summary;
+      statUrl.textContent = formatNumber(summary.url_events);
+      statDomain.textContent = formatNumber(summary.domain_events);
+      statPhishing.textContent = formatNumber(summary.phishing_events);
+      statBenign.textContent = formatNumber(summary.benign_events);
+      donutTotal.textContent = formatNumber(summary.total_events);
+
+      const total = summary.total_events || 0;
+      const phishingPct = total ? Math.round((summary.phishing_events / total) * 100) : 0;
+      const benignPct = total ? 100 - phishingPct : 0;
+      donutChart.style.setProperty("--phishing-angle", `${Math.max(0, Math.min(360, phishingPct * 3.6))}deg`);
+      legendPhishing.textContent = `${formatNumber(summary.phishing_events)} (${phishingPct}%)`;
+      legendBenign.textContent = `${formatNumber(summary.benign_events)} (${benignPct}%)`;
+
+      insightShare.textContent = `${phishingPct}%`;
+      insightShareCopy.textContent = total
+        ? `${formatNumber(summary.phishing_events)} / ${formatNumber(total)} lượt.`
+        : "Chưa có dữ liệu.";
+
+      if (!total) {
+        insightKindLead.textContent = "Chưa có dữ liệu";
+        insightKindCopy.textContent = "URL / Domain.";
+      } else if (summary.url_events > summary.domain_events) {
+        insightKindLead.textContent = "URL";
+        insightKindCopy.textContent = `${formatNumber(summary.url_events)} URL / ${formatNumber(summary.domain_events)} domain.`;
+      } else if (summary.domain_events > summary.url_events) {
+        insightKindLead.textContent = "Domain";
+        insightKindCopy.textContent = `${formatNumber(summary.domain_events)} domain / ${formatNumber(summary.url_events)} URL.`;
+      } else {
+        insightKindLead.textContent = "Cân bằng";
+        insightKindCopy.textContent = `${formatNumber(summary.url_events)} URL / ${formatNumber(summary.domain_events)} domain.`;
+      }
+
+      insightLatest.textContent = summary.latest_event_at ? formatDateTime(summary.latest_event_at) : "Chưa có";
+      insightLatestCopy.textContent = summary.latest_event_at
+        ? "Đã đồng bộ."
+        : "Chưa có log.";
+
+      updateTopSummary(summary);
+    };
+
+    const openDetailModal = (eventId) => {
+      const event = eventIndex.get(String(eventId));
+      if (!event) {
+        return;
+      }
+      modalTitle.textContent = event.predicted_class === "phishing" ? "Chi tiết cảnh báo" : "Chi tiết an toàn";
+      modalNote.textContent = event.recommendation || "Không có ghi chú.";
+      modalBadges.innerHTML = `
+        <span class="badge ${badgeClassForVerdict(event.predicted_class)}">${escapeHtml(verdictLabel(event.predicted_class))}</span>
+        <span class="badge ${badgeClassForRisk(event.risk_level)}">${escapeHtml(riskLabel(event.risk_level))}</span>
+        <span class="badge ${badgeClassForKind(event.dataset_kind)}">${escapeHtml(kindLabel(event.dataset_kind))}</span>
+      `;
+      modalGrid.innerHTML = `
+        <div class="modal-item">
+          <span>Thời gian</span>
+          <strong>${escapeHtml(formatDateTime(event.received_at))}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Ghi nhận</span>
+          <strong>${escapeHtml(event.observed_at || event.received_at || "N/A")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Score</span>
+          <strong>${escapeHtml(scoreText(event.score))}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Nguồn</span>
+          <strong>${escapeHtml(event.source || "N/A")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Cảm biến</span>
+          <strong>${escapeHtml(event.sensor_name || "N/A")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Sự kiện</span>
+          <strong>${escapeHtml(event.ids_event_type || "kiểm tra thủ công")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Luồng</span>
+          <strong>${escapeHtml(event.flow_summary || "N/A")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Quyết định</span>
+          <strong>${escapeHtml(event.decision_summary || event.decision_mode || "mô hình")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Mô hình</span>
+          <strong>${escapeHtml(event.model_name || "N/A")}</strong>
+        </div>
+        <div class="modal-item">
+          <span>Biến thể</span>
+          <strong>${escapeHtml(event.variant_name || "N/A")}</strong>
+        </div>
+        ${event.override_reason ? `
+          <div class="modal-item modal-wide">
+            <span>Ghi đè</span>
+            <strong>${escapeHtml(event.override_match_value || event.override_reason)}</strong>
+          </div>
+        ` : ""}
+      `;
+      modalInputCode.textContent = event.raw_value || event.normalized_value || "N/A";
+      if (Array.isArray(event.signals) && event.signals.length > 0) {
+        modalSignals.innerHTML = event.signals.map((signal) => `<div>${escapeHtml(signal)}</div>`).join("");
+      } else {
+        modalSignals.innerHTML = "<div>Không có tín hiệu nổi bật.</div>";
+      }
+      detailModal.classList.remove("hidden");
+      detailModal.setAttribute("aria-hidden", "false");
+    };
+
+    const closeDetailModal = () => {
+      detailModal.classList.add("hidden");
+      detailModal.setAttribute("aria-hidden", "true");
+    };
+
+    const renderDashboard = () => {
+      updateEventIndex();
+      filterEvents();
+      renderRealtime();
+      renderReports();
+      updateStats();
+    };
+
+    const persistLastCheck = () => {
+      localStorage.setItem("phishing_checker:last_kind", datasetKindField.value);
+      localStorage.setItem("phishing_checker:last_value", valueField.value.trim());
     };
 
     const restoreLastCheck = () => {
-      const lastKind = localStorage.getItem("ids:last_kind");
-      const lastValue = localStorage.getItem("ids:last_value");
+      const lastKind = localStorage.getItem("phishing_checker:last_kind");
+      const lastValue = localStorage.getItem("phishing_checker:last_value");
       if (lastKind && ["domain", "url", "auto"].includes(lastKind)) {
         datasetKindField.value = lastKind;
       }
@@ -1566,7 +2983,159 @@ DASHBOARD_TEMPLATE = """
         valueField.value = lastValue;
       }
       setPlaceholder();
+      autoResizeValueField();
     };
+
+    const applyTheme = (theme) => {
+      const resolvedTheme = theme === "dark" ? "dark" : "light";
+      document.body.dataset.theme = resolvedTheme;
+      localStorage.setItem("phishing_checker:theme", resolvedTheme);
+      const label = resolvedTheme === "dark" ? "Giao diện tối" : "Giao diện sáng";
+      themeIcon.textContent = resolvedTheme === "dark" ? "☀" : "☾";
+      themeLabel.textContent = label;
+      settingThemeMode.textContent = label;
+      themeStatusBadge.textContent = `Giao diện: ${resolvedTheme === "dark" ? "Tối" : "Sáng"}`;
+      themeToggle.setAttribute("aria-pressed", resolvedTheme === "dark" ? "true" : "false");
+    };
+
+    const loadTheme = () => {
+      const storedTheme = localStorage.getItem("phishing_checker:theme");
+      if (storedTheme) {
+        applyTheme(storedTheme);
+        return;
+      }
+      applyTheme("dark");
+    };
+
+    const setSidebarOpen = (isOpen) => {
+      appShell.classList.toggle("sidebar-open", isOpen);
+      sidebarBackdrop.classList.toggle("is-visible", isOpen);
+    };
+
+    const refreshEvents = async ({ silent = false } = {}) => {
+      if (isRefreshingEvents) {
+        return;
+      }
+      isRefreshingEvents = true;
+      if (!silent) {
+        setDashboardLoading(true);
+      }
+      try {
+        const response = await fetch("/api/events?limit=200");
+        if (!response.ok) {
+          throw new Error("Không tải được log vận hành.");
+        }
+        const payload = await response.json();
+        const nextEvents = Array.isArray(payload.events) ? payload.events : [];
+        const currentHead = dashboardEvents[0]?.event_id || "";
+        const nextHead = nextEvents[0]?.event_id || "";
+        const hasChanged = currentHead !== nextHead || dashboardEvents.length !== nextEvents.length;
+        dashboardEvents = nextEvents;
+        currentSummary = payload.summary || summarizeClientEvents(dashboardEvents);
+        if (hasChanged) {
+          renderDashboard();
+        } else {
+          updateTopSummary(currentSummary);
+        }
+        runtimeStatus.textContent = "Đang hoạt động";
+      } catch (error) {
+        runtimeStatus.textContent = "Đang hoạt động";
+      } finally {
+        if (!silent) {
+          setDashboardLoading(false);
+        }
+        isRefreshingEvents = false;
+      }
+    };
+
+    const installScrollSpy = () => {
+      const navLinks = [...document.querySelectorAll("[data-nav]")];
+      const sections = [...document.querySelectorAll("[data-section]")];
+      const setActive = (name) => {
+        navLinks.forEach((link) => {
+          link.classList.toggle("is-active", link.dataset.nav === name);
+        });
+      };
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          setActive(visible.target.dataset.section);
+        }
+      }, {
+        threshold: [0.2, 0.45, 0.7],
+        rootMargin: "-20% 0px -45% 0px",
+      });
+      sections.forEach((section) => observer.observe(section));
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const validation = validateInput();
+      if (!validation.ok) {
+        showValidation(validation.message, validation.kind, validation.suggestionKind || "");
+        valueField.focus();
+        return;
+      }
+
+      clearValidation();
+      submitButton.disabled = true;
+      resultPanel.innerHTML = resultLoadingHtml();
+      resultPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      try {
+        const response = await fetch("/api/ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataset_kind: datasetKindField.value,
+            value: valueField.value.trim(),
+            source: sourceField.value,
+          }),
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          resultPanel.innerHTML = resultErrorHtml(payload.error || "Lỗi không xác định.");
+          return;
+        }
+
+        renderResult(payload);
+        persistLastCheck();
+        await refreshEvents({ silent: true });
+      } catch (error) {
+        resultPanel.innerHTML = resultErrorHtml("Không kết nối được tới API.");
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    datasetKindField.addEventListener("change", () => {
+      setPlaceholder();
+      const validation = validateInput();
+      if (!validation.ok) {
+        showValidation(validation.message, validation.kind, validation.suggestionKind || "");
+      } else {
+        clearValidation();
+      }
+    });
+
+    valueField.addEventListener("input", () => {
+      autoResizeValueField();
+      const validation = validateInput();
+      if (!validation.ok && valueField.value.trim()) {
+        showValidation(validation.message, validation.kind, validation.suggestionKind || "");
+      } else {
+        clearValidation();
+      }
+    });
+
+    valueField.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
 
     document.querySelectorAll("[data-quick]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -1579,85 +3148,100 @@ DASHBOARD_TEMPLATE = """
           valueField.value = samples.url;
         } else if (action === "reuse-last") {
           restoreLastCheck();
+          valueField.focus();
+          return;
         } else if (action === "clear") {
           valueField.value = "";
         }
         setPlaceholder();
+        autoResizeValueField();
         clearValidation();
         valueField.focus();
       });
     });
 
-    document.addEventListener("click", (event) => {
-      const switchButton = event.target.closest(".switch-kind");
+    validationMessage.addEventListener("click", (event) => {
+      const switchButton = event.target.closest("[data-kind-switch]");
       if (!switchButton) {
         return;
       }
-      datasetKindField.value = switchButton.dataset.kind || "auto";
+      datasetKindField.value = switchButton.dataset.kindSwitch || "auto";
       setPlaceholder();
+      autoResizeValueField();
       clearValidation();
       valueField.focus();
     });
 
-    datasetKindField.addEventListener("change", () => {
-      setPlaceholder();
-      const state = validateInput();
-      if (!state.ok) {
-        showValidation(state.message, state.kind, state.suggestionKind || "");
-      } else {
-        clearValidation();
-      }
+    manualToggleButton.addEventListener("click", () => {
+      const nextVisible = manualToggleButton.getAttribute("aria-expanded") !== "true";
+      setManualCheckVisible(nextVisible);
     });
 
-    valueField.addEventListener("input", () => {
-      const state = validateInput();
-      if (!state.ok) {
-        showValidation(state.message, state.kind, state.suggestionKind || "");
-      } else {
-        clearValidation();
-      }
+    [filterFrom, filterTo, filterKind, filterResult].forEach((field) => {
+      field.addEventListener("change", renderDashboard);
+    });
+    filterSearch.addEventListener("input", renderDashboard);
+    resetFiltersButton.addEventListener("click", () => {
+      filterFrom.value = "";
+      filterTo.value = "";
+      filterKind.value = "";
+      filterResult.value = "";
+      filterSearch.value = "";
+      renderDashboard();
     });
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const state = validateInput();
-      if (!state.ok) {
-        showValidation(state.message, state.kind, state.suggestionKind || "");
-        valueField.focus();
+    reportsBody.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-open-detail]");
+      if (!button) {
         return;
       }
+      openDetailModal(button.dataset.openDetail);
+    });
 
-      clearValidation();
-      submitButton.disabled = true;
-      renderLoading();
-
-      try {
-        const response = await fetch("/api/ingest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            dataset_kind: datasetKindField.value,
-            value: valueField.value.trim(),
-            source: sourceField.value,
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          renderResultError(data.error || "Lỗi không xác định.");
-          return;
-        }
-        renderResult(data);
-        storeLastCheck();
-        await refreshRecentEvents();
-      } catch (error) {
-        renderResultError("Không kết nối được tới dashboard API.");
-      } finally {
-        submitButton.disabled = false;
+    modalClose.addEventListener("click", closeDetailModal);
+    detailModal.addEventListener("click", (event) => {
+      if (event.target === detailModal) {
+        closeDetailModal();
       }
     });
 
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDetailModal();
+        setSidebarOpen(false);
+      }
+    });
+
+    themeToggle.addEventListener("click", () => {
+      applyTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
+    });
+
+    menuToggle.addEventListener("click", () => {
+      setSidebarOpen(!appShell.classList.contains("sidebar-open"));
+    });
+
+    sidebarBackdrop.addEventListener("click", () => {
+      setSidebarOpen(false);
+    });
+
+    document.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 1024) {
+          setSidebarOpen(false);
+        }
+      });
+    });
+
+    loadTheme();
     restoreLastCheck();
     setPlaceholder();
+    loadManualCheckVisibility();
+    autoResizeValueField();
+    resultPanel.innerHTML = resultEmptyHtml();
+    renderDashboard();
+    refreshEvents({ silent: true });
+    window.setInterval(() => refreshEvents({ silent: true }), 1000);
+    installScrollSpy();
   </script>
 </body>
 </html>
@@ -1670,52 +3254,602 @@ EVENT_HISTORY_TEMPLATE = """
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Check History</title>
+  <title>Lịch sử kiểm tra</title>
   <style>
-    :root{--bg:#f4efe6;--surface:#fffdf9;--muted:#62707c;--ink:#1f2933;--teal:#176f68;--teal-soft:#d9ece8;--amber-soft:#f6dfca;--rose:#b9524b;--rose-soft:#f3d7d4;--olive-soft:#dde7d5;--line:rgba(31,41,51,.1);--shadow:0 18px 48px rgba(31,41,51,.11)}
-    *{box-sizing:border-box}body{margin:0;font-family:"Aptos","Segoe UI Variable Text","Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--bg),#ebe3d5)}code{font-family:"Cascadia Code","Consolas",monospace;background:rgba(23,111,104,.08);padding:3px 8px;border-radius:10px;word-break:break-all}
-    .history{width:min(1220px,calc(100% - 28px));margin:18px auto 36px;padding:22px;background:rgba(255,253,249,.94);border:1px solid rgba(255,255,255,.86);box-shadow:var(--shadow);border-radius:28px}.back{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--teal);font-size:13px;font-weight:800;text-decoration:none}h1{margin:0 0 8px;font-family:"Aptos Display","Segoe UI Variable Display","Segoe UI",sans-serif;font-size:clamp(28px,3.2vw,40px);letter-spacing:-.03em}p{margin:0 0 18px;color:var(--muted);line-height:1.6}.table-wrap{overflow-x:auto;border-radius:20px;border:1px solid var(--line);background:#fff}table{width:100%;border-collapse:collapse}th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}th{background:rgba(23,111,104,.06);color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}tr:last-child td{border-bottom:none}.chip,.risk{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.chip{background:linear-gradient(135deg,var(--teal-soft),rgba(255,255,255,.9));color:#124f4b}.chip.url{background:linear-gradient(135deg,var(--amber-soft),rgba(255,255,255,.92));color:#8d4c1f}.risk.high{background:var(--rose-soft);color:var(--rose)}.risk.medium{background:#f5ead7;color:#9c642c}.risk.low{background:var(--olive-soft);color:#5f7138}.risk.minimal{background:rgba(23,111,104,.12);color:var(--teal)}.truncate{display:inline-block;max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.empty{padding:18px;border-radius:16px;background:#f7f2ea;color:var(--muted)}
+    :root {
+      --font-body: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+      --font-heading: "Bahnschrift SemiBold", "Trebuchet MS", sans-serif;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --shadow: 0 28px 80px rgba(18, 25, 35, 0.16);
+      --shadow-soft: 0 16px 36px rgba(18, 25, 35, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at 14% 12%, var(--orb-a), transparent 22%),
+        radial-gradient(circle at 82% 10%, var(--orb-b), transparent 20%),
+        linear-gradient(180deg, var(--bg-main) 0%, var(--bg-alt) 100%);
+      color: var(--text-main);
+      transition: background 220ms ease, color 220ms ease;
+    }
+
+    body[data-theme="light"] {
+      --bg-main: #eef7f1;
+      --bg-alt: #f7fbf8;
+      --orb-a: rgba(116, 177, 132, 0.20);
+      --orb-b: rgba(75, 132, 182, 0.12);
+      --text-main: #17241f;
+      --text-soft: #5f7168;
+      --line: rgba(36, 64, 50, 0.10);
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: rgba(255, 255, 255, 0.96);
+      --accent: #4f8f67;
+      --accent-soft: rgba(79, 143, 103, 0.14);
+      --safe: #3f8a58;
+      --safe-soft: rgba(63, 138, 88, 0.14);
+      --warn: #bf8537;
+      --warn-soft: rgba(191, 133, 55, 0.16);
+      --danger: #c55b72;
+      --danger-soft: rgba(197, 91, 114, 0.14);
+      --purple: #6f66b8;
+      --purple-soft: rgba(111, 102, 184, 0.14);
+      --blue: #4b84b6;
+      --blue-soft: rgba(75, 132, 182, 0.14);
+    }
+
+    body[data-theme="dark"] {
+      --bg-main: #110f1d;
+      --bg-alt: #19142b;
+      --orb-a: rgba(125, 87, 209, 0.18);
+      --orb-b: rgba(58, 130, 188, 0.14);
+      --text-main: #f4f3ff;
+      --text-soft: #b3b6ca;
+      --line: rgba(255, 255, 255, 0.10);
+      --panel: rgba(24, 20, 39, 0.86);
+      --panel-strong: rgba(25, 22, 42, 0.96);
+      --accent: #8fd59d;
+      --accent-soft: rgba(143, 213, 157, 0.16);
+      --safe: #76d58f;
+      --safe-soft: rgba(118, 213, 143, 0.16);
+      --warn: #f0c06c;
+      --warn-soft: rgba(240, 192, 108, 0.18);
+      --danger: #ff8da8;
+      --danger-soft: rgba(255, 141, 168, 0.18);
+      --purple: #b9a5ff;
+      --purple-soft: rgba(185, 165, 255, 0.18);
+      --blue: #85bfff;
+      --blue-soft: rgba(133, 191, 255, 0.18);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .history-shell {
+      width: min(1380px, calc(100% - 28px));
+      margin: 18px auto 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .topbar,
+    .panel {
+      padding: 20px 22px;
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 16px;
+      z-index: 10;
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .back-link,
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      color: var(--text-main);
+      font-weight: 700;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topbar h1 {
+      margin: 4px 0 0;
+      font-family: var(--font-heading);
+      font-size: clamp(24px, 3vw, 32px);
+      letter-spacing: -0.03em;
+    }
+
+    .top-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(79, 143, 103, 0.12);
+    }
+
+    .hero {
+      padding: 24px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, var(--accent-soft), rgba(255, 255, 255, 0.08)), var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h2 {
+      margin: 10px 0 8px;
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 880px;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .summary-card {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid var(--line);
+    }
+
+    .summary-card span {
+      display: block;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 8px;
+      font-family: var(--font-heading);
+      font-size: 30px;
+      letter-spacing: -0.03em;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 200px;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-soft);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text-main);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(79, 143, 103, 0.12);
+    }
+
+    .table-shell {
+      overflow: auto;
+      border-radius: var(--radius-lg);
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 15px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    tbody td {
+      padding: 15px 16px;
+      border-top: 1px solid var(--line);
+      vertical-align: top;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    tbody tr {
+      transition: background 180ms ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .truncate {
+      display: inline-block;
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: "Consolas", "Cascadia Code", monospace;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge-safe {
+      background: var(--safe-soft);
+      color: var(--safe);
+      border-color: rgba(63, 138, 88, 0.18);
+    }
+
+    .badge-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: rgba(197, 91, 114, 0.18);
+    }
+
+    .badge-warning {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: rgba(191, 133, 55, 0.18);
+    }
+
+    .badge-purple {
+      background: var(--purple-soft);
+      color: var(--purple);
+      border-color: rgba(111, 102, 184, 0.18);
+    }
+
+    .badge-blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+      border-color: rgba(75, 132, 182, 0.18);
+    }
+
+    .muted {
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px dashed var(--line);
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1000px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .history-shell {
+        width: calc(100% - 20px);
+        margin: 10px auto 24px;
+      }
+
+      .topbar,
+      .panel,
+      .hero {
+        padding: 18px;
+      }
+
+      .topbar {
+        top: 10px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .theme-toggle,
+      .back-link {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
-<body>
-  <main class="history">
-    <a class="back" href="{{ url_for('dashboard') }}">← Quay lại checker</a>
-    <h1>Check History</h1>
-    <p>Xem lại toàn bộ log chi tiết mà không làm trang chính bị quá dài.</p>
-    {% if events %}
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Thời gian</th><th>Observed</th><th>Loại</th><th>Input</th><th>Score</th><th>Risk</th><th>Kết quả</th><th>Context</th><th>Decision</th><th>Model</th></tr></thead>
-        <tbody>
-          {% for event in events %}
-          <tr>
-            <td>{{ event.received_at }}</td>
-            <td>{{ event.observed_at or event.received_at }}</td>
-            <td><span class="chip {% if event.dataset_kind == 'url' %}url{% endif %}">{{ event.dataset_kind }}</span></td>
-            <td><code class="truncate">{{ event.normalized_value }}</code></td>
-            <td>{% if event.score is not none %}{{ "%.4f"|format(event.score) }}{% else %}N/A{% endif %}</td>
-            <td><span class="risk {{ event.risk_level }}">{{ event.risk_level }}</span></td>
-            <td>{{ event.predicted_class }}</td>
-            <td>
-              <div>{{ event.source }}</div>
-              {% if event.sensor_name %}<div class="muted">{{ event.sensor_name }}</div>{% endif %}
-              <div class="muted">{{ event.ids_event_type }}</div>
-              {% if event.flow_summary %}<div class="muted">{{ event.flow_summary }}</div>{% endif %}
-            </td>
-            <td>
-              <div>{{ event.decision_summary }}</div>
-              {% if event.override_reason %}<div class="muted">{{ event.override_match_value or event.override_reason }}</div>{% endif %}
-            </td>
-            <td>{{ event.model_name }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty">Chưa có event nào trong runtime log.</div>
-    {% endif %}
+<body data-theme="dark">
+  <main class="history-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="back-link" href="{{ url_for('dashboard') }}">Quay lại bảng điều khiển</a>
+        <button class="theme-toggle" id="theme-toggle" type="button">Sáng</button>
+      </div>
+      <div class="topbar-right">
+        <div>
+          <p class="eyebrow">Lịch sử</p>
+          <h1>Log kiểm tra</h1>
+        </div>
+        <div class="top-chip">
+          <span class="dot" aria-hidden="true"></span>
+          <span>{{ summary.total_events }} lượt</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Báo cáo</p>
+      <h2>Toàn bộ log kiểm tra</h2>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span>Tổng lượt</span>
+          <strong>{{ summary.total_events }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>Cảnh báo</span>
+          <strong>{{ summary.phishing_events }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>An toàn</span>
+          <strong>{{ summary.benign_events }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>Mới nhất</span>
+          <strong style="font-size: 22px;">{{ summary.latest_event_at or "Chưa có" }}</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <div class="field">
+          <label for="history-search">Tìm nhanh</label>
+          <input id="history-search" type="search" placeholder="Tìm theo giá trị, nguồn, cảm biến...">
+        </div>
+        <div class="field">
+          <label for="history-result">Kết quả</label>
+          <select id="history-result">
+            <option value="">Tất cả</option>
+            <option value="phishing">Cảnh báo</option>
+            <option value="benign">An toàn</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      {% if events %}
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Loại</th>
+              <th>Giá trị</th>
+              <th>Risk</th>
+              <th>Kết quả</th>
+              <th>Ngữ cảnh</th>
+              <th>Quyết định</th>
+              <th>Mô hình</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            {% for event in events %}
+            <tr data-result="{{ event.predicted_class }}" data-search="{{ (event.normalized_value ~ ' ' ~ event.source ~ ' ' ~ (event.sensor_name or '') ~ ' ' ~ event.ids_event_type ~ ' ' ~ (event.flow_summary or ''))|lower }}">
+              <td>
+                <div>{{ event.received_at }}</div>
+                <div class="muted">{{ event.observed_at or event.received_at }}</div>
+              </td>
+              <td>
+                <span class="badge {% if event.dataset_kind == 'url' %}badge-blue{% else %}badge-purple{% endif %}">
+                  {{ event.dataset_kind }}
+                </span>
+              </td>
+              <td><code class="truncate">{{ event.normalized_value }}</code></td>
+              <td>
+                <span class="badge {% if event.risk_level == 'high' %}badge-danger{% elif event.risk_level == 'medium' %}badge-warning{% elif event.risk_level == 'low' %}badge-blue{% else %}badge-safe{% endif %}">
+                  {% if event.risk_level == 'high' %}HIGH{% elif event.risk_level == 'medium' %}MEDIUM{% elif event.risk_level == 'low' %}LOW{% else %}MINIMAL{% endif %}
+                </span>
+              </td>
+              <td>
+                <span class="badge {% if event.predicted_class == 'phishing' %}badge-danger{% else %}badge-safe{% endif %}">
+                  {% if event.predicted_class == 'phishing' %}CẢNH BÁO{% else %}AN TOÀN{% endif %}
+                </span>
+              </td>
+              <td>
+                <div>{{ event.source }}</div>
+                {% if event.sensor_name %}<div class="muted">{{ event.sensor_name }}</div>{% endif %}
+                <div class="muted">{{ event.ids_event_type }}</div>
+                {% if event.flow_summary %}<div class="muted">{{ event.flow_summary }}</div>{% endif %}
+              </td>
+              <td>
+                <div>{{ event.decision_summary }}</div>
+                {% if event.override_reason %}<div class="muted">{{ event.override_match_value or event.override_reason }}</div>{% endif %}
+              </td>
+              <td>{{ event.model_name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="empty hidden" id="history-empty">Không có dòng nào phù hợp với bộ lọc hiện tại.</div>
+      {% else %}
+      <div class="empty">Chưa có log. Hãy gửi thử một domain hoặc URL rồi mở lại trang này.</div>
+      {% endif %}
+    </section>
   </main>
+
+  <script>
+    const themeToggle = document.getElementById("theme-toggle");
+    const historySearch = document.getElementById("history-search");
+    const historyResult = document.getElementById("history-result");
+    const historyBody = document.getElementById("history-body");
+    const historyEmpty = document.getElementById("history-empty");
+
+    const applyTheme = (theme) => {
+      const resolvedTheme = theme === "dark" ? "dark" : "light";
+      document.body.dataset.theme = resolvedTheme;
+      localStorage.setItem("phishing_checker:theme", resolvedTheme);
+      if (themeToggle) {
+        themeToggle.textContent = resolvedTheme === "dark" ? "Sáng" : "Tối";
+      }
+    };
+
+    const loadTheme = () => {
+      const storedTheme = localStorage.getItem("phishing_checker:theme");
+      if (storedTheme) {
+        applyTheme(storedTheme);
+        return;
+      }
+      applyTheme("dark");
+    };
+
+    const applyFilters = () => {
+      if (!historyBody) {
+        return;
+      }
+      const keyword = historySearch.value.trim().toLowerCase();
+      const result = historyResult.value;
+      let visibleCount = 0;
+      [...historyBody.querySelectorAll("tr")].forEach((row) => {
+        const matchesResult = !result || row.dataset.result === result;
+        const matchesSearch = !keyword || (row.dataset.search || "").includes(keyword);
+        const visible = matchesResult && matchesSearch;
+        row.classList.toggle("hidden", !visible);
+        if (visible) {
+          visibleCount += 1;
+        }
+      });
+      if (historyEmpty) {
+        historyEmpty.classList.toggle("hidden", visibleCount !== 0);
+      }
+    };
+
+    loadTheme();
+
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        applyTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
+      });
+    }
+
+    if (historySearch) {
+      historySearch.addEventListener("input", applyFilters);
+    }
+
+    if (historyResult) {
+      historyResult.addEventListener("change", applyFilters);
+    }
+  </script>
 </body>
 </html>
 """
@@ -1785,9 +3919,9 @@ def decorate_event(event: dict[str, Any]) -> dict[str, Any]:
         part for part in [sensor_name or decorated.get("source", ""), ids_event_type, flow_summary] if part
     )
     decorated["decision_summary"] = (
-        "model + curated benign override"
+        "mô hình + danh sách an toàn"
         if decorated.get("decision_mode") == "model_plus_curated_benign_override"
-        else "model"
+        else "mô hình"
     )
     return decorated
 
@@ -1809,20 +3943,22 @@ def create_app() -> Flask:
 
     @app.get("/dashboard")
     def dashboard():
-        events = decorate_events(load_events(limit=100))
+        events = decorate_events(load_events(limit=200))
         summary = summarize_events(events)
         return render_template_string(
             DASHBOARD_TEMPLATE,
-            recent_events=events[:5],
+            events=events,
             summary=summary,
             model_cards=official_model_cards(),
         )
 
     @app.get("/dashboard/events")
     def dashboard_events():
+        events = decorate_events(load_events(limit=500))
         return render_template_string(
             EVENT_HISTORY_TEMPLATE,
-            events=decorate_events(load_events(limit=500)),
+            events=events,
+            summary=summarize_events(events),
         )
 
     @app.get("/api/events")

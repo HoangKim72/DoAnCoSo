@@ -16,6 +16,7 @@ from .feature_engineering import align_feature_frame, build_feature_frame
 from .settings import (
     BASE_DIR,
     CURATED_BENIGN_URL_RUNTIME_PATCH_DIR,
+    DEMO_VALID_ALLOWLIST_PATH,
     IDS_EVENTS_PATH,
     OFFICIAL_MODEL_REGISTRY_PATH,
     RAW_DIR,
@@ -136,16 +137,24 @@ def load_curated_benign_domain_allowlist() -> dict[str, frozenset[str]]:
 def load_curated_benign_url_runtime_patch() -> dict[str, frozenset[str]]:
     exact_urls: set[str] = set()
     exact_hostnames: set[str] = set()
+    trusted_registered_domains: set[str] = set()
     url_prefixes: set[str] = set()
 
-    if not CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.exists():
+    csv_paths: list[Path] = []
+    if CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.exists():
+        csv_paths.extend(sorted(CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.glob("*.csv")))
+    if DEMO_VALID_ALLOWLIST_PATH.exists():
+        csv_paths.append(DEMO_VALID_ALLOWLIST_PATH)
+
+    if not csv_paths:
         return {
             "exact_urls": frozenset(),
             "exact_hostnames": frozenset(),
+            "trusted_registered_domains": frozenset(),
             "url_prefixes": frozenset(),
         }
 
-    for csv_path in sorted(CURATED_BENIGN_URL_RUNTIME_PATCH_DIR.glob("*.csv")):
+    for csv_path in csv_paths:
         try:
             frame = pd.read_csv(csv_path)
         except Exception:
@@ -159,19 +168,28 @@ def load_curated_benign_url_runtime_patch() -> dict[str, frozenset[str]]:
             if not raw_value:
                 continue
 
-            if rule_type == "exact_url":
+            if rule_type in {"exact_url", "url"}:
                 parsed = build_parsed_record(raw_value, "url")
                 canonical_url = str(parsed.get("canonical_url") or "").strip().lower()
                 if canonical_url:
                     exact_urls.add(canonical_url)
-            elif rule_type == "exact_hostname":
+            elif rule_type in {"exact_hostname", "exact_domain", "domain", "hostname"}:
                 parsed = build_parsed_record(raw_value, "domain")
                 if not parsed.get("parse_ok"):
                     parsed = build_parsed_record(raw_value, "url")
                 hostname = str(parsed.get("canonical_hostname") or parsed.get("hostname") or "").strip().lower()
                 if hostname:
                     exact_hostnames.add(hostname)
-            elif rule_type == "url_prefix":
+            elif rule_type in {"trusted_registered_domain", "registered_domain"}:
+                parsed = build_parsed_record(raw_value, "domain")
+                if not parsed.get("parse_ok"):
+                    parsed = build_parsed_record(raw_value, "url")
+                registered_domain = str(
+                    parsed.get("canonical_registered_domain") or parsed.get("registered_domain") or ""
+                ).strip().lower()
+                if registered_domain:
+                    trusted_registered_domains.add(registered_domain)
+            elif rule_type in {"url_prefix", "prefix"}:
                 parsed = build_parsed_record(raw_value, "url")
                 canonical_url = str(parsed.get("canonical_url") or "").strip().lower()
                 if canonical_url:
@@ -180,6 +198,7 @@ def load_curated_benign_url_runtime_patch() -> dict[str, frozenset[str]]:
     return {
         "exact_urls": frozenset(exact_urls),
         "exact_hostnames": frozenset(exact_hostnames),
+        "trusted_registered_domains": frozenset(trusted_registered_domains),
         "url_prefixes": frozenset(url_prefixes),
     }
 
@@ -335,12 +354,30 @@ def curated_benign_domain_override(parsed_row: dict[str, Any]) -> dict[str, str]
             "reason": "curated_benign_domain_trusted_registered_domain",
             "match_value": registered_domain,
         }
+    runtime_allowlist = load_curated_benign_url_runtime_patch()
+    if hostname in runtime_allowlist["exact_hostnames"]:
+        return {
+            "reason": "curated_benign_runtime_exact_hostname",
+            "match_value": hostname,
+        }
+    if (
+        registered_domain
+        and registered_domain in runtime_allowlist["trusted_registered_domains"]
+        and (hostname == registered_domain or hostname.endswith(f".{registered_domain}"))
+    ):
+        return {
+            "reason": "curated_benign_runtime_trusted_registered_domain",
+            "match_value": registered_domain,
+        }
     return None
 
 
 def curated_benign_url_override(parsed_row: dict[str, Any]) -> dict[str, str] | None:
     canonical_url = str(parsed_row.get("canonical_url") or "").strip().lower()
     hostname = str(parsed_row.get("canonical_hostname") or parsed_row.get("hostname") or "").strip().lower()
+    registered_domain = str(
+        parsed_row.get("canonical_registered_domain") or parsed_row.get("registered_domain") or ""
+    ).strip().lower()
     if not canonical_url:
         return None
 
@@ -354,6 +391,15 @@ def curated_benign_url_override(parsed_row: dict[str, Any]) -> dict[str, str] | 
         return {
             "reason": "curated_benign_url_exact_hostname",
             "match_value": hostname,
+        }
+    if (
+        registered_domain
+        and registered_domain in allowlist["trusted_registered_domains"]
+        and (hostname == registered_domain or hostname.endswith(f".{registered_domain}"))
+    ):
+        return {
+            "reason": "curated_benign_url_trusted_registered_domain",
+            "match_value": registered_domain,
         }
     for prefix in allowlist["url_prefixes"]:
         if canonical_url.startswith(prefix):
@@ -465,7 +511,7 @@ def predict_value(
     signals = summarize_signals(resolved_kind, parsed_row, feature_values)
     if override:
         override_signal = (
-            "Khớp danh sách benign runtime da curate; ghi log nhung khong nang canh bao phishing."
+            "Khớp danh sách benign runtime đã curate; ghi log nhưng không nâng cảnh báo phishing."
         )
         signals = [override_signal, *[signal for signal in signals if signal != override_signal]][:4]
     event = {
